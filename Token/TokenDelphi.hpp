@@ -134,6 +134,7 @@ enum class TTokenID : long long {
     Do,
     Try,
     Catch,
+    Return,
 
     // ===== Объявление типов =====
     Class,
@@ -345,6 +346,8 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(While);
     GENERATE_NAME(Do);
     GENERATE_NAME(Try);
+    GENERATE_NAME(Catch);
+    GENERATE_NAME(Return);
     GENERATE_NAME(Class);
     GENERATE_NAME(Const); 
     GENERATE_NAME(Override);

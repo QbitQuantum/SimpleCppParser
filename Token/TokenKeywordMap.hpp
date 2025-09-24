@@ -96,6 +96,7 @@ static const std::unordered_map<uint32_t, TTokenID> TokenKeywordMap = {
     {ConstexprPascalHash("do"),           {TTokenID::Do}},
     {ConstexprPascalHash("try"),          {TTokenID::Try}},
     {ConstexprPascalHash("catch"),          {TTokenID::Catch}},
+    {ConstexprPascalHash("return"),          {TTokenID::Return}},
 
     // ===== Объявление типов =====
     {ConstexprPascalHash("const"),       {TTokenID::Const}},
