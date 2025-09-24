@@ -7,7 +7,7 @@
 
 #include <unordered_map>
 
-#include "TokenDelphi.hpp"
+#include "TokenID.hpp"
 #include "TokenKeywordMap.hpp"
 #include "TokenDirectiveMap.hpp"
 

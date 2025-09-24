@@ -1,7 +1,7 @@
 ﻿#include <iostream>
 #include <string>
 
-#include "LexerDelphi.hpp"
+#include "LexerCpp.hpp"
 
 std::string code = R"(
 class EUpdateError : EDatabaseError {

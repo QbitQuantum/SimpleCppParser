@@ -3,7 +3,7 @@
 
 #include <string>
 #include <unordered_map>
-#include "TokenDelphi.hpp"
+#include "TokenID.hpp"
 
 const std::unordered_map<std::string, TTokenID> TokenDirectiveMap = {
     {"#ifdef",      TTokenID::IfDefDirective},

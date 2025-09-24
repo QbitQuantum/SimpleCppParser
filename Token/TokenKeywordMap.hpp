@@ -2,7 +2,7 @@
 #define LEXER_TOKEN_KEYWORDMAP
 
 #include <unordered_map>
-#include "TokenDelphi.hpp"
+#include "TokenID.hpp"
 
 constexpr char const_tolower(char c) {
     return (c >= 'A' && c <= 'Z') ? c + ('a' - 'A') : c;
