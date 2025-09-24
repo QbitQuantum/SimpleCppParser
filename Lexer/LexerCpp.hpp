@@ -3,6 +3,8 @@
 #include "TokenKeywordMap.hpp"
 #include "TokenDirectiveMap.hpp"
 
+#include "LexerError.hh"
+
 #include <string>
 #include <vector>
 #include <algorithm>
