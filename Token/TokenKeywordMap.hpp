@@ -115,7 +115,7 @@ static const std::unordered_map<uint32_t, TTokenID> TokenKeywordMap = {
     {ConstexprPascalHash("static"),         TTokenID::Static },
     {ConstexprPascalHash("final"),          TTokenID::Final },
 
-     
+    {ConstexprPascalHash("__fastcall"),     {TTokenID::FastCall} },
 };
 
 static_assert(ConstexprPascalHash("div") != ConstexprPascalHash("mod"));
