@@ -174,7 +174,7 @@ void LexerEngine::LexerRun() {
             PosBuffer--;
 
             // Проверяем, является ли собранная строка ключевым словом
-            auto it = TokenKeywordMap.find(PascalHash(identifier));
+            auto it = TokenKeywordMap.find(CppHash(identifier));
             bool IsKeyword = it != TokenKeywordMap.end();
 
             LexToken LexToken{ 

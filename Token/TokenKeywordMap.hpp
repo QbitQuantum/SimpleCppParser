@@ -8,10 +8,10 @@ constexpr char const_tolower(char c) {
     return (c >= 'A' && c <= 'Z') ? c + ('a' - 'A') : c;
 }
 
-constexpr uint32_t ConstexprPascalHash(const char* str, uint32_t seed = 0) {
+constexpr uint32_t ConstexprCppHash(const char* str, uint32_t seed = 0) {
     uint32_t hash = seed;
     for (size_t i = 0; str[i] != '\0'; ++i) {
-        uint32_t k = static_cast<uint8_t>(const_tolower(str[i]));  // Игнорируем регистр
+        uint32_t k = static_cast<uint8_t>(str[i]);
         k *= 0xcc9e2d51;
         k = (k << 15) | (k >> 17);
         k *= 0x1b873593;
@@ -28,10 +28,10 @@ constexpr uint32_t ConstexprPascalHash(const char* str, uint32_t seed = 0) {
     return hash;
 }
 
-uint32_t PascalHash(const char* str, uint32_t seed = 0) {
+uint32_t CppHash(const char* str, uint32_t seed = 0) {
     uint32_t hash = seed;
     for (size_t i = 0; str[i] != '\0'; ++i) {
-        uint32_t k = static_cast<uint8_t>(const_tolower(str[i]));  // Игнорируем регистр
+        uint32_t k = static_cast<uint8_t>(str[i]);
         k *= 0xcc9e2d51;
         k = (k << 15) | (k >> 17);
         k *= 0x1b873593;
@@ -48,10 +48,10 @@ uint32_t PascalHash(const char* str, uint32_t seed = 0) {
     return hash;
 }
 
-uint32_t PascalHash(const std::string& s, uint32_t seed = 0) {
+uint32_t CppHash(const std::string& s, uint32_t seed = 0) {
     uint32_t hash = seed;
     for (char c : s) {
-        uint32_t k = static_cast<uint8_t>(tolower(c));
+        uint32_t k = static_cast<uint8_t>(c);
         k *= 0xcc9e2d51;
         k = (k << 15) | (k >> 17);
         k *= 0x1b873593;
@@ -71,54 +71,54 @@ uint32_t PascalHash(const std::string& s, uint32_t seed = 0) {
 static const std::unordered_map<uint32_t, TTokenID> TokenKeywordMap = {
     // ===== Операторы (расширенный) =====
     // Арифметические
-    {ConstexprPascalHash("div"),        {TTokenID::Div}},
-    {ConstexprPascalHash("mod"),        {TTokenID::Mod}},
+    {ConstexprCppHash("div"),        {TTokenID::Div}},
+    {ConstexprCppHash("mod"),        {TTokenID::Mod}},
 
     // Логические/битовые
-    {ConstexprPascalHash("and"),        {TTokenID::And}},
-    {ConstexprPascalHash("or"),         {TTokenID::Or}},
-    {ConstexprPascalHash("not"),        {TTokenID::Not}},
-    {ConstexprPascalHash("xor"),        {TTokenID::Xor}},
-    {ConstexprPascalHash("Shl"),        {TTokenID::Shl}},
-    {ConstexprPascalHash("Shr"),        {TTokenID::Shr}},
+    {ConstexprCppHash("and"),        {TTokenID::And}},
+    {ConstexprCppHash("or"),         {TTokenID::Or}},
+    {ConstexprCppHash("not"),        {TTokenID::Not}},
+    {ConstexprCppHash("xor"),        {TTokenID::Xor}},
+    {ConstexprCppHash("Shl"),        {TTokenID::Shl}},
+    {ConstexprCppHash("Shr"),        {TTokenID::Shr}},
 
     // Сравнения
-    {ConstexprPascalHash("<>"),        {TTokenID::NotEqual}},
-    {ConstexprPascalHash("<="),        {TTokenID::LessEqual}},
-    {ConstexprPascalHash(">="),        {TTokenID::GreaterEqual}},
+    {ConstexprCppHash("<>"),        {TTokenID::NotEqual}},
+    {ConstexprCppHash("<="),        {TTokenID::LessEqual}},
+    {ConstexprCppHash(">="),        {TTokenID::GreaterEqual}},
 
     // ===== Управляющие конструкции =====
-    {ConstexprPascalHash("if"),           {TTokenID::If}},
-    {ConstexprPascalHash("else"),         {TTokenID::Else}},
-    {ConstexprPascalHash("case"),         {TTokenID::Case}},
-    {ConstexprPascalHash("for"),          {TTokenID::For}},
-    {ConstexprPascalHash("while"),        {TTokenID::While}},
-    {ConstexprPascalHash("do"),           {TTokenID::Do}},
-    {ConstexprPascalHash("try"),          {TTokenID::Try}},
-    {ConstexprPascalHash("catch"),          {TTokenID::Catch}},
-    {ConstexprPascalHash("return"),          {TTokenID::Return}},
+    {ConstexprCppHash("if"),           {TTokenID::If}},
+    {ConstexprCppHash("else"),         {TTokenID::Else}},
+    {ConstexprCppHash("case"),         {TTokenID::Case}},
+    {ConstexprCppHash("for"),          {TTokenID::For}},
+    {ConstexprCppHash("while"),        {TTokenID::While}},
+    {ConstexprCppHash("do"),           {TTokenID::Do}},
+    {ConstexprCppHash("try"),          {TTokenID::Try}},
+    {ConstexprCppHash("catch"),          {TTokenID::Catch}},
+    {ConstexprCppHash("return"),          {TTokenID::Return}},
 
     // ===== Объявление типов =====
-    {ConstexprPascalHash("const"),       {TTokenID::Const}},
-    {ConstexprPascalHash("class"),       {TTokenID::Class}},
+    {ConstexprCppHash("const"),       {TTokenID::Const}},
+    {ConstexprCppHash("class"),       {TTokenID::Class}},
 
     // ===== Процедуры/функции =====
-    {ConstexprPascalHash("override"),     {TTokenID::Override}},
-    {ConstexprPascalHash("virtual"),      {TTokenID::Virtual}},
+    {ConstexprCppHash("override"),     {TTokenID::Override}},
+    {ConstexprCppHash("virtual"),      {TTokenID::Virtual}},
 
     // ===== Модификаторы =====
-    {ConstexprPascalHash("private"),      {TTokenID::Private}},
-    {ConstexprPascalHash("protected"),    {TTokenID::Protected}},
-    {ConstexprPascalHash("public"),       {TTokenID::Public}},
+    {ConstexprCppHash("private"),      {TTokenID::Private}},
+    {ConstexprCppHash("protected"),    {TTokenID::Protected}},
+    {ConstexprCppHash("public"),       {TTokenID::Public}},
 
     // ===== Прочее =====
-    {ConstexprPascalHash("property"),     {TTokenID::Property} },
-    {ConstexprPascalHash("static"),         TTokenID::Static },
-    {ConstexprPascalHash("final"),          TTokenID::Final },
+    {ConstexprCppHash("property"),     {TTokenID::Property} },
+    {ConstexprCppHash("static"),         TTokenID::Static },
+    {ConstexprCppHash("final"),          TTokenID::Final },
 
-    {ConstexprPascalHash("__fastcall"),     {TTokenID::FastCall} },
+    {ConstexprCppHash("__fastcall"),     {TTokenID::FastCall} },
 };
 
-static_assert(ConstexprPascalHash("div") != ConstexprPascalHash("mod"));
+static_assert(ConstexprCppHash("div") != ConstexprCppHash("mod"));
 
 #endif //LEXER_TOKEN_KEYWORDMAP
