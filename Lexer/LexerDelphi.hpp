@@ -35,15 +35,53 @@ struct LexToken {
     };
 };
 
-class LexerEngine {
+class LexerEngineBasic {
 private:
-    using LexEnginePtr = void (LexerEngine::*)();
+    using LexEnginePtr = void (LexerEngineBasic::*)();
 private:
     int CurrentLine = 0;
     int CurrentColumn = 0;
     int PosBuffer = 0;
     std::string storage_value = "";
 private:
+
+    std::unordered_map<char, LexEnginePtr> map{ {
+    {' ', &LexerEngineBasic::ProcessSpace},
+    {'\'', &LexerEngineBasic::ProcessQuotation},
+    {'#', &LexerEngineBasic::ProcessHash},
+    {'$', &LexerEngineBasic::ProcessDollar},
+    {'%', &LexerEngineBasic::ProcessPercent},
+    {'&', &LexerEngineBasic::ProcessAmpersand},
+    {'(', &LexerEngineBasic::ProcessLeftParen},
+    {')', &LexerEngineBasic::ProcessRightParen},
+    {'{', &LexerEngineBasic::ProcessLeftBrace},
+    {'}', &LexerEngineBasic::ProcessRightBrace},
+    {'[', &LexerEngineBasic::ProcessLeftBracket},
+    {']', &LexerEngineBasic::ProcessRightBracket},
+    {'+', &LexerEngineBasic::ProcessPlus},
+    {',', &LexerEngineBasic::ProcessComma},
+    {'-', &LexerEngineBasic::ProcessMinus},
+    {'.', &LexerEngineBasic::ProcessDot},
+    {':', &LexerEngineBasic::ProcessColon},
+    {';', &LexerEngineBasic::ProcessSemicolon},
+    {'<', &LexerEngineBasic::ProcessLess},
+    {'=', &LexerEngineBasic::ProcessEquals},
+    {'>', &LexerEngineBasic::ProcessGreater},
+    {'@', &LexerEngineBasic::ProcessAt},
+    {'\\', &LexerEngineBasic::ProcessBackslash},
+    {'^', &LexerEngineBasic::ProcessCaret},
+    {'_', &LexerEngineBasic::ProcessUnderscore},
+    {'`', &LexerEngineBasic::ProcessBacktick},
+    {'|', &LexerEngineBasic::ProcessPipe},
+
+    {'\n', &LexerEngineBasic::ProcessLineFeed},
+    {'\r', &LexerEngineBasic::ProcessCarriageReturn},
+    {'*', &LexerEngineBasic::ProcessAsterisk},
+    {'\'', &LexerEngineBasic::ProcessApostrophe},
+    {'/', &LexerEngineBasic::ProcessSlash},
+    }};
+
+
     void ProcessSpace() { DEF_GENERATION_BASE(Space);};
     void ProcessLineFeed() { DEF_GENERATION_BASE(LineFeed);};
 
@@ -84,44 +122,6 @@ private:
     void ProcessApostrophe();
     void ProcessSlash();
 
-
-    std::unordered_map<char, LexEnginePtr> map{ {
-    {' ', &LexerEngine::ProcessSpace},
-    {'\'', &LexerEngine::ProcessQuotation},
-    {'#', &LexerEngine::ProcessHash},
-    {'$', &LexerEngine::ProcessDollar},
-    {'%', &LexerEngine::ProcessPercent},
-    {'&', &LexerEngine::ProcessAmpersand},
-    {'(', &LexerEngine::ProcessLeftParen},
-    {')', &LexerEngine::ProcessRightParen},
-    {'{', &LexerEngine::ProcessLeftBrace},
-    {'}', &LexerEngine::ProcessRightBrace},
-    {'[', &LexerEngine::ProcessLeftBracket},
-    {']', &LexerEngine::ProcessRightBracket},
-    {'+', &LexerEngine::ProcessPlus},
-    {',', &LexerEngine::ProcessComma},
-    {'-', &LexerEngine::ProcessMinus},
-    {'.', &LexerEngine::ProcessDot},
-    {':', &LexerEngine::ProcessColon},
-    {';', &LexerEngine::ProcessSemicolon},
-    {'<', &LexerEngine::ProcessLess},
-    {'=', &LexerEngine::ProcessEquals},
-    {'>', &LexerEngine::ProcessGreater},
-    {'@', &LexerEngine::ProcessAt},
-    {'\\', &LexerEngine::ProcessBackslash},
-    {'^', &LexerEngine::ProcessCaret},
-    {'_', &LexerEngine::ProcessUnderscore},
-    {'`', &LexerEngine::ProcessBacktick},
-    {'|', &LexerEngine::ProcessPipe},
-
-    {'\n', &LexerEngine::ProcessLineFeed},
-    {'\r', &LexerEngine::ProcessCarriageReturn},
-    {'*', &LexerEngine::ProcessAsterisk},
-    {'\'', &LexerEngine::ProcessApostrophe},
-    {'/', &LexerEngine::ProcessSlash},
-
-}};
-
     // Обновляем проверку идентификаторов:
     bool is_unicode_identifier_start(char32_t c) {
         if (((c >= constexprToChar(TTokenID::A) && c <= constexprToChar(TTokenID::Z)) ||
@@ -147,7 +147,7 @@ private:
     std::string SourceCode = "";
     std::vector<LexToken> BufferToken;
 public:
-	LexerEngine(const std::string source) { 
+	LexerEngineBasic(const std::string source) { 
         SourceCode = source; 
         LexerRun();
     };
@@ -157,7 +157,7 @@ public:
     }
 };
 
-void LexerEngine::LexerRun() {
+void LexerEngineBasic::LexerRun() {
 
     while (neof()) {
         if (is_unicode_identifier_start(GetChar()) || is_digit(GetChar())) {
@@ -203,11 +203,11 @@ void LexerEngine::LexerRun() {
 
 }
 
-const char LexerEngine::GetChar() {
+const char LexerEngineBasic::GetChar() {
     return SourceCode[PosBuffer];
 }
 
-void LexerEngine::push_back_token_storage() {
+void LexerEngineBasic::push_back_token_storage() {
     if (!storage_value.empty()) {
         LexToken LexToken{ TTokenID::Identifier, storage_value, CurrentLine, CurrentColumn };
         BufferToken.push_back(LexToken);
@@ -215,7 +215,7 @@ void LexerEngine::push_back_token_storage() {
     }
 }
 
-void LexerEngine::parse_number() {
+void LexerEngineBasic::parse_number() {
     push_back_token_storage();
 
     size_t start = PosBuffer;
@@ -264,7 +264,7 @@ void LexerEngine::parse_number() {
     PosBuffer--;
 }
 
-void LexerEngine::ProcessCarriageReturn() {
+void LexerEngineBasic::ProcessCarriageReturn() {
     push_back_token_storage();
     // Если после `\r` идёт `\n` (Windows: `\r\n`), пропускаем `\n`
     if (PosBuffer + 1 < SourceCode.size() && SourceCode[PosBuffer + 1] == '\n') {
@@ -272,7 +272,7 @@ void LexerEngine::ProcessCarriageReturn() {
     }
 }
 
-void LexerEngine::ProcessApostrophe() {
+void LexerEngineBasic::ProcessApostrophe() {
     push_back_token_storage();
     std::string str_literal;
     PosBuffer++;  // Пропускаем открывающую кавычку
@@ -325,7 +325,7 @@ void LexerEngine::ProcessApostrophe() {
     BufferToken.push_back(token);
 }
 
-void LexerEngine::ProcessSlash() {
+void LexerEngineBasic::ProcessSlash() {
     push_back_token_storage();
     PosBuffer++;
     char _getchar = GetChar();

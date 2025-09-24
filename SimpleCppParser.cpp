@@ -41,8 +41,8 @@ public:
 
 int main()
 {
-    LexerEngine lexEngine(code);
-    auto lexbuffer = lexEngine.GetBufferToken();
+    LexerEngineBasic lexEngineBasic(code);
+    auto lexbuffer = lexEngineBasic.GetBufferToken();
     
     if (false)
     {
