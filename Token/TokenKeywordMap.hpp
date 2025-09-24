@@ -1,8 +1,11 @@
+
 #ifndef LEXER_TOKEN_KEYWORDMAP
 #define LEXER_TOKEN_KEYWORDMAP
 
-#include <unordered_map>
 #include "TokenID.hpp"
+
+#include <unordered_map>
+#include <string>
 
 constexpr char const_tolower(char c) {
     return (c >= 'A' && c <= 'Z') ? c + ('a' - 'A') : c;

@@ -1,5 +1,8 @@
+
 #ifndef LEXER_TOKEN
 #define LEXER_TOKEN
+
+#include <string>
 
 enum class TTokenID : long long {
     // Заглавные буквы A-Z

@@ -1,7 +1,8 @@
-﻿#include <iostream>
-#include <string>
-
+﻿
 #include "LexerCpp.hpp"
+
+#include <iostream>
+#include <string>
 
 std::string code = R"(
 class EUpdateError : EDatabaseError {

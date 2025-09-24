@@ -1,9 +1,11 @@
+
 #ifndef LEXER_TOKEN_DERECTIVEMAP
 #define LEXER_TOKEN_DERECTIVEMAP
 
+#include "TokenID.hpp"
+
 #include <string>
 #include <unordered_map>
-#include "TokenID.hpp"
 
 const std::unordered_map<std::string, TTokenID> TokenDirectiveMap = {
     {"#ifdef",      TTokenID::IfDefDirective},

@@ -1,15 +1,15 @@
-﻿#include <string>
+﻿
+#include "TokenID.hpp"
+#include "TokenKeywordMap.hpp"
+#include "TokenDirectiveMap.hpp"
+
+#include <string>
 #include <vector>
 #include <algorithm>
 #include <string_view>
 #include <utility>
 #include <array>
-
 #include <unordered_map>
-
-#include "TokenID.hpp"
-#include "TokenKeywordMap.hpp"
-#include "TokenDirectiveMap.hpp"
 
 using Callback = void(*)(std::string);
 Callback LexError;
