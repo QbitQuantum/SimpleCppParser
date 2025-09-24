@@ -117,8 +117,9 @@ enum class TTokenID : long long {
     Or,          // or
     Not,         // not
     Xor,         // xor
-    Shl,         // shl
-    Shr,         // shr
+    Shl,         // <<
+    Shr,         // >>
+    ScResOp,     // ::
 
     // Сравнения
     NotEqual,    // <>
@@ -336,6 +337,7 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(Xor);        
     GENERATE_NAME(Shl);        
     GENERATE_NAME(Shr);        
+    GENERATE_NAME(ScResOp);
     GENERATE_NAME(NotEqual);        
     GENERATE_NAME(LessEqual);        
     GENERATE_NAME(GreaterEqual);              

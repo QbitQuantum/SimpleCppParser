@@ -79,13 +79,6 @@ static const std::unordered_map<uint32_t, TTokenID> TokenKeywordMap = {
     {ConstexprCppHash("or"),         {TTokenID::Or}},
     {ConstexprCppHash("not"),        {TTokenID::Not}},
     {ConstexprCppHash("xor"),        {TTokenID::Xor}},
-    {ConstexprCppHash("Shl"),        {TTokenID::Shl}},
-    {ConstexprCppHash("Shr"),        {TTokenID::Shr}},
-
-    // —равнени€
-    {ConstexprCppHash("<>"),        {TTokenID::NotEqual}},
-    {ConstexprCppHash("<="),        {TTokenID::LessEqual}},
-    {ConstexprCppHash(">="),        {TTokenID::GreaterEqual}},
 
     // ===== ”правл€ющие конструкции =====
     {ConstexprCppHash("if"),           {TTokenID::If}},
@@ -115,8 +108,6 @@ static const std::unordered_map<uint32_t, TTokenID> TokenKeywordMap = {
     {ConstexprCppHash("property"),     {TTokenID::Property} },
     {ConstexprCppHash("static"),         TTokenID::Static },
     {ConstexprCppHash("final"),          TTokenID::Final },
-
-    {ConstexprCppHash("__fastcall"),     {TTokenID::FastCall} },
 };
 
 static_assert(ConstexprCppHash("div") != ConstexprCppHash("mod"));
