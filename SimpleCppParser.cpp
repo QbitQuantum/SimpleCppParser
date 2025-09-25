@@ -1,5 +1,6 @@
 ﻿
 #include "LexerEngineBasic.hpp"
+#include "LexerEngineAdvance.hpp"
 
 #include <iostream>
 #include <string>
