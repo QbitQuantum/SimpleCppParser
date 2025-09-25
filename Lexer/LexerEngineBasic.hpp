@@ -49,7 +49,7 @@ private:
 
     std::unordered_map<char, LexEnginePtr> map{ {
     {' ', &LexerEngineBasic::ProcessSpace},
-    {'\"', &LexerEngineBasic::ProcessQuotation},
+    {'"', &LexerEngineBasic::ProcessQuotation},
     {'#', &LexerEngineBasic::ProcessHash},
     {'$', &LexerEngineBasic::ProcessDollar},
     {'%', &LexerEngineBasic::ProcessPercent},
