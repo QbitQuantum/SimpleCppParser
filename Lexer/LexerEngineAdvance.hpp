@@ -19,7 +19,6 @@ private:
 	{TTokenID::Quotation, &LexerEngineAdvance::ProcessQuotation},   // "
 	{TTokenID::Hash, &LexerEngineAdvance::ProcessHash},             // #
 	{TTokenID::Dollar, &LexerEngineAdvance::ProcessDollar},         // $
-	{TTokenID::Percent, &LexerEngineAdvance::ProcessPercent},       // %
 	{TTokenID::Ampersand, &LexerEngineAdvance::ProcessAmpersand},   // &
 	{TTokenID::Plus, &LexerEngineAdvance::ProcessPlus},             // +
 	{TTokenID::Minus, &LexerEngineAdvance::ProcessMinus},           // -
@@ -39,7 +38,6 @@ private:
 	LexToken ProcessQuotation();
 	LexToken ProcessHash();
 	LexToken ProcessDollar();
-	LexToken ProcessPercent();
 	LexToken ProcessAmpersand();
 	LexToken ProcessPlus();
 	LexToken ProcessMinus();
