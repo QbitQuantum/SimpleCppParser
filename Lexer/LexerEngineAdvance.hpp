@@ -262,7 +262,7 @@ LexToken LexerEngineAdvance::ProcessGreater() /* = */ {
 }
 
 // Обработка символа больше
-LexToken LexerEngineAdvance::ProcessGreater() /* > */ {
+LexToken LexerEngineAdvance::ProcessEquals() /* > */ {
 	LexToken TLexToken = {
 		TTokenID::Greater,
 		">",
