@@ -11,6 +11,7 @@ private:
 	int SizeBufferBasic = 0;
 private:
 	std::vector<LexToken> LexerTokenBufferAdvance;
+	std::vector<LexToken> LexerTokenBufferBasic;
 	void Init(const std::vector<LexToken>& lexbuffer);
 
 	std::unordered_map<TTokenID, LexEnginePtr> map{ {
@@ -61,6 +62,8 @@ public:
 	LexerEngineAdvance(const std::vector<LexToken> & lexbuffer) {
 		SizeBufferBasic = lexbuffer.size();
 		LexerTokenBufferAdvance.reserve(SizeBufferBasic);
+		LexerTokenBufferBasic.reserve(SizeBufferBasic);
+		LexerTokenBufferBasic = lexbuffer;
 		Init(lexbuffer);
 	}
 };
