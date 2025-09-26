@@ -6,7 +6,7 @@
 
 class LexerEngineAdvance {
 private:
-	using LexEnginePtr = void (LexerEngineAdvance::*)();
+	using LexEnginePtr = LexToken(LexerEngineAdvance::*)();
 private:
 	std::vector<LexToken> BufferToken;
 	void Init(const std::vector<LexToken>& lexbuffer);
@@ -17,12 +17,6 @@ private:
 	{TTokenID::Dollar, &LexerEngineAdvance::ProcessDollar},         // $
 	{TTokenID::Percent, &LexerEngineAdvance::ProcessPercent},       // %
 	{TTokenID::Ampersand, &LexerEngineAdvance::ProcessAmpersand},   // &
-	{TTokenID::LeftParen, &LexerEngineAdvance::ProcessLeftParen},   // (
-	{TTokenID::RightParen, &LexerEngineAdvance::ProcessRightParen}, // )
-	{TTokenID::LeftBrace, &LexerEngineAdvance::ProcessLeftBrace},   // {
-	{TTokenID::RightBrace, &LexerEngineAdvance::ProcessRightBrace}, // }
-	{TTokenID::LeftBracket, &LexerEngineAdvance::ProcessLeftBracket}, // [
-	{TTokenID::RightBracket, &LexerEngineAdvance::ProcessRightBracket}, // ]
 	{TTokenID::Plus, &LexerEngineAdvance::ProcessPlus},             // +
 	{TTokenID::Minus, &LexerEngineAdvance::ProcessMinus},           // -
 	{TTokenID::Dot, &LexerEngineAdvance::ProcessDot},               // .
@@ -38,30 +32,24 @@ private:
 	{TTokenID::Apostrophe, &LexerEngineAdvance::ProcessApostrophe}  // '
 	} };
 
-	void ProcessQuotation();
-	void ProcessHash();
-	void ProcessDollar();
-	void ProcessPercent();
-	void ProcessAmpersand();
-	void ProcessLeftParen();
-	void ProcessRightParen();
-	void ProcessLeftBrace();
-	void ProcessRightBrace();
-	void ProcessLeftBracket();
-	void ProcessRightBracket();
-	void ProcessPlus();
-	void ProcessMinus();
-	void ProcessDot();
-	void ProcessColon();
-	void ProcessLess();
-	void ProcessEquals();
-	void ProcessGreater();
-	void ProcessAt();
-	void ProcessCaret();
-	void ProcessUnderscore();
-	void ProcessPipe();
-	void ProcessAsterisk();
-	void ProcessApostrophe();
+	LexToken ProcessQuotation();
+	LexToken ProcessHash();
+	LexToken ProcessDollar();
+	LexToken ProcessPercent();
+	LexToken ProcessAmpersand();
+	LexToken ProcessPlus();
+	LexToken ProcessMinus();
+	LexToken ProcessDot();
+	LexToken ProcessColon();
+	LexToken ProcessLess();
+	LexToken ProcessEquals();
+	LexToken ProcessGreater();
+	LexToken ProcessAt();
+	LexToken ProcessCaret();
+	LexToken ProcessUnderscore();
+	LexToken ProcessPipe();
+	LexToken ProcessAsterisk();
+	LexToken ProcessApostrophe();
 
 public:
 	LexerEngineAdvance(const std::vector<LexToken> & lexbuffer) {
@@ -70,5 +58,14 @@ public:
 };
 
 void LexerEngineAdvance::Init(const std::vector<LexToken>& lexbuffer) {
-
+	for (const LexToken& TokenID : lexbuffer)
+	{
+		if (auto it = map.find(TokenID.type); it != map.end()) {
+			BufferToken.push_back((this->*it->second)());
+		}
+		else
+		{
+			BufferToken.push_back(TokenID);
+		}
+	}
 }
