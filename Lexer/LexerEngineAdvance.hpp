@@ -290,3 +290,23 @@ LexToken LexerEngineAdvance::ProcessCaret() /* ^ */ {
 		0
 	};
 }
+
+// Обработка символа прямого слэша
+LexToken LexerEngineAdvance::ProcessPipe() /* | */ {
+	LexToken TLexToken = {
+		TTokenID::BitOr,
+		"|",
+		0,
+		0
+	};
+
+	if (PosBuffer + 1 < SizeBufferBasic &&
+		LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Pipe)
+	{
+		TLexToken.type = TTokenID::Or;
+		TLexToken.value = "||";
+		PosBuffer++;
+	}
+
+	return TLexToken;
+}
