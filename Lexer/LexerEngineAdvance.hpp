@@ -1,5 +1,6 @@
 ﻿
 #include "TokenID.hpp"
+#include "TokenDirectiveMap.hpp"
 
 #include <vector>
 #include <unordered_map>
@@ -97,5 +98,28 @@ LexToken LexerEngineAdvance::ProcessQuotation() /* " */ {
 		PosBuffer++;
 	}
 	PosBuffer++;
+	return TLexToken;
+}
+
+// Обработка директив препроцессора
+LexToken LexerEngineAdvance::ProcessHash() /* # */ {
+	PosBuffer++;
+
+	LexToken TLexToken = {
+		TTokenID::Unknown,
+		"",
+		0,
+		0
+	};
+	
+	std::string directive = "#" + LexerTokenBufferBasic[PosBuffer].value;
+
+	auto it = TokenDirectiveMap.find(directive);
+	if (it != TokenDirectiveMap.end())
+	{
+		TLexToken.type = it->second;
+		TLexToken.value = directive;
+	}
+
 	return TLexToken;
 }
