@@ -38,14 +38,11 @@ private:
 	LexToken ProcessAmpersand();
 	LexToken ProcessPlus();
 	LexToken ProcessMinus();
-	LexToken ProcessDot();
 	LexToken ProcessColon();
 	LexToken ProcessLess();
 	LexToken ProcessEquals();
 	LexToken ProcessGreater();
-	LexToken ProcessAt();
 	LexToken ProcessCaret();
-	LexToken ProcessUnderscore();
 	LexToken ProcessPipe();
 	LexToken ProcessAsterisk();
 	LexToken ProcessApostrophe();
