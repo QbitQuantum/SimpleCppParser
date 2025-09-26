@@ -7,8 +7,10 @@
 class LexerEngineAdvance {
 private:
 	using LexEnginePtr = LexToken(LexerEngineAdvance::*)();
+	int PosBuffer = 0;
+	int SizeBufferBasic = 0;
 private:
-	std::vector<LexToken> BufferToken;
+	std::vector<LexToken> LexerTokenBufferAdvance;
 	void Init(const std::vector<LexToken>& lexbuffer);
 
 	std::unordered_map<TTokenID, LexEnginePtr> map{ {
@@ -51,21 +53,28 @@ private:
 	LexToken ProcessAsterisk();
 	LexToken ProcessApostrophe();
 
+	bool neof() {
+		return PosBuffer < SizeBufferBasic;
+	}
+
 public:
 	LexerEngineAdvance(const std::vector<LexToken> & lexbuffer) {
+		SizeBufferBasic = lexbuffer.size();
+		LexerTokenBufferAdvance.reserve(SizeBufferBasic);
 		Init(lexbuffer);
 	}
 };
 
 void LexerEngineAdvance::Init(const std::vector<LexToken>& lexbuffer) {
-	for (const LexToken& TokenID : lexbuffer)
-	{
-		if (auto it = map.find(TokenID.type); it != map.end()) {
-			BufferToken.push_back((this->*it->second)());
-		}
-		else
-		{
-			BufferToken.push_back(TokenID);
-		}
+	
+	while (neof()) {
+		auto it = map.find(lexbuffer[PosBuffer].type);
+
+		LexerTokenBufferAdvance.push_back(
+			it != map.end() ?
+			(this->*it->second)() : lexbuffer[PosBuffer]
+		);
+
+		PosBuffer++;
 	}
 }
