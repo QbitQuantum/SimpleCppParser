@@ -242,7 +242,7 @@ LexToken LexerEngineAdvance::ProcessLess() /* < */ {
 }
 
 // Обработка символа ровно
-LexToken LexerEngineAdvance::ProcessEquals() /* = */ {
+LexToken LexerEngineAdvance::ProcessGreater() /* = */ {
 	LexToken TLexToken = {
 		TTokenID::Equals,
 		"=",
@@ -255,6 +255,26 @@ LexToken LexerEngineAdvance::ProcessEquals() /* = */ {
 	{
 		TLexToken.type = TTokenID::Equal;
 		TLexToken.value = "==";
+		PosBuffer++;
+	}
+
+	return TLexToken;
+}
+
+// Обработка символа больше
+LexToken LexerEngineAdvance::ProcessGreater() /* > */ {
+	LexToken TLexToken = {
+		TTokenID::Greater,
+		">",
+		0,
+		0
+	};
+
+	if (PosBuffer + 1 < SizeBufferBasic &&
+		LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Equals)
+	{
+		TLexToken.type = TTokenID::GreaterEqual;
+		TLexToken.value = ">=";
 		PosBuffer++;
 	}
 
