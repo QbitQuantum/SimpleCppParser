@@ -123,3 +123,21 @@ LexToken LexerEngineAdvance::ProcessHash() /* # */ {
 
 	return TLexToken;
 }
+
+// Обработка имени идентификатора
+LexToken LexerEngineAdvance::ProcessDollar() /* $ */ {
+	PosBuffer++;
+
+	LexToken TLexToken = {
+		TTokenID::Identifier,
+		"",
+		0,
+		0
+	};
+
+	std::string Identifier = "$" + LexerTokenBufferBasic[PosBuffer].value;
+
+	TLexToken.value = Identifier;
+
+	return TLexToken;
+}
