@@ -171,7 +171,8 @@ enum class TTokenID : long long {
     EndIfDirective,
     UndefDirective,
     IfDirective,
-    ElseDirective
+    ElseDirective,
+    IncludeDeirective
 
 };
 
@@ -371,6 +372,7 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(UndefDirective);    
     GENERATE_NAME(IfDirective);  
     GENERATE_NAME(ElseDirective);
+    GENERATE_NAME(IncludeDeirective);
     default:
         return "Unknow";
     }
