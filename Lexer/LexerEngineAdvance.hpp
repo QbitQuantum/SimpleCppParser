@@ -213,3 +213,30 @@ LexToken LexerEngineAdvance::ProcessColon() /* : */ {
 
 	return TLexToken;
 }
+
+// Обработка символа уменьшения
+LexToken LexerEngineAdvance::ProcessLess() /* < */ {
+	LexToken TLexToken = {
+		TTokenID::Less,
+		"<",
+		0,
+		0
+	};
+
+	if (PosBuffer + 1 < SizeBufferBasic &&
+		LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Equals)
+	{
+		TLexToken.type = TTokenID::LessEqual;
+		TLexToken.value = "<=";
+		PosBuffer++;
+	}
+	else if (PosBuffer + 1 < SizeBufferBasic &&
+		LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Greater)
+	{
+		TLexToken.type = TTokenID::NotEqual;
+		TLexToken.value = "<>";
+		PosBuffer++;
+	}
+
+	return TLexToken;
+}
