@@ -113,21 +113,41 @@ enum class TTokenID : long long {
     // Арифметические
     Div,         // div
     Mod,         // mod
-    Square,         // square
+    Inc,         // ++ (инкремент)
+    Dec,         // -- (декремент)
+    Power,       // ** (возведение в степень)
 
-    // Логические/битовые
-    And,         // and
-    Or,          // or
-    Not,         // not
-    Xor,         // xor
-    Shl,         // <<
-    Shr,         // >>
-    ScResOp,     // ::
+    // Присваивания
+    Assign,      // =
+    PlusAssign,  // +=
+    MinusAssign, // -=
+    MultAssign,  // *=
+    DivAssign,   // /=
+    ModAssign,   // %=
+    AndAssign,   // &=
+    OrAssign,    // |=
+    XorAssign,   // ^=
+    ShlAssign,   // <<=
+    ShrAssign,   // >>=
 
     // Сравнения
+    Equal,       // ==
     NotEqual,    // <>
     LessEqual,   // <=
     GreaterEqual,// >=
+
+    // Логические/битовые
+    And,         // &&
+    Or,          // ||
+    Not,         // !
+    Xor,         // ^ (исключающее ИЛИ)
+    BitAnd,      // & (побитовое И)
+    BitOr,       // | (побитовое ИЛИ)
+    BitNot,      // ~ (побитовое НЕ)
+    Shl,         // <<
+    Shr,         // >>
+
+    ScResOp,     // ::
 
     // ===== Управляющие конструкции =====
     If,
@@ -337,11 +357,11 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(Square);
     GENERATE_NAME(And);        
     GENERATE_NAME(Or);        
-    GENERATE_NAME(Not);        
-    GENERATE_NAME(Xor);        
+    GENERATE_NAME(Not);      
     GENERATE_NAME(Shl);        
     GENERATE_NAME(Shr);        
     GENERATE_NAME(ScResOp);
+    GENERATE_NAME(Equal);
     GENERATE_NAME(NotEqual);        
     GENERATE_NAME(LessEqual);        
     GENERATE_NAME(GreaterEqual);              

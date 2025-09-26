@@ -139,3 +139,23 @@ LexToken LexerEngineAdvance::ProcessDollar() /* $ */ {
 
 	return TLexToken;
 }
+
+// Обработка амперсанда
+LexToken LexerEngineAdvance::ProcessAmpersand() /* & */ {
+	LexToken TLexToken = {
+		TTokenID::BitAnd,
+		"&",
+		0,
+		0
+	};
+	
+	if (PosBuffer + 1 < SizeBufferBasic && 
+		LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Ampersand)
+	{
+		TLexToken.type = TTokenID::And;
+		TLexToken.value = "&&";
+		PosBuffer++;
+	}
+
+	return TLexToken;
+}
