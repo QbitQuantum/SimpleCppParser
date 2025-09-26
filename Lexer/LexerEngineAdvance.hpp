@@ -159,3 +159,43 @@ LexToken LexerEngineAdvance::ProcessAmpersand() /* & */ {
 
 	return TLexToken;
 }
+
+// Обработка плюса
+LexToken LexerEngineAdvance::ProcessPlus() /* + */ {
+	LexToken TLexToken = {
+		TTokenID::Plus,
+		"+",
+		0,
+		0
+	};
+
+	if (PosBuffer + 1 < SizeBufferBasic &&
+		LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Plus)
+	{
+		TLexToken.type = TTokenID::Inc;
+		TLexToken.value = "++";
+		PosBuffer++;
+	}
+
+	return TLexToken;
+}
+
+// Обработка минуса
+LexToken LexerEngineAdvance::ProcessMinus() /* - */ {
+	LexToken TLexToken = {
+		TTokenID::Minus,
+		"+",
+		0,
+		0
+	};
+
+	if (PosBuffer + 1 < SizeBufferBasic &&
+		LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Minus)
+	{
+		TLexToken.type = TTokenID::Dec;
+		TLexToken.value = "--";
+		PosBuffer++;
+	}
+
+	return TLexToken;
+}
