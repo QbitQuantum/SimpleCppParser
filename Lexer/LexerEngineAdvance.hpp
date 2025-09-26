@@ -22,14 +22,11 @@ private:
 	{TTokenID::Ampersand, &LexerEngineAdvance::ProcessAmpersand},   // &
 	{TTokenID::Plus, &LexerEngineAdvance::ProcessPlus},             // +
 	{TTokenID::Minus, &LexerEngineAdvance::ProcessMinus},           // -
-	{TTokenID::Dot, &LexerEngineAdvance::ProcessDot},               // .
 	{TTokenID::Colon, &LexerEngineAdvance::ProcessColon},           // :
 	{TTokenID::Less, &LexerEngineAdvance::ProcessLess},             // <
 	{TTokenID::Equals, &LexerEngineAdvance::ProcessEquals},         // =
 	{TTokenID::Greater, &LexerEngineAdvance::ProcessGreater},       // >
-	{TTokenID::At, &LexerEngineAdvance::ProcessAt},                 // @
 	{TTokenID::Caret, &LexerEngineAdvance::ProcessCaret},           // ^
-	{TTokenID::Underscore, &LexerEngineAdvance::ProcessUnderscore}, // _
 	{TTokenID::Pipe, &LexerEngineAdvance::ProcessPipe},             // |
 	{TTokenID::Asterisk, &LexerEngineAdvance::ProcessAsterisk},     // *
 	{TTokenID::Apostrophe, &LexerEngineAdvance::ProcessApostrophe}  // '
