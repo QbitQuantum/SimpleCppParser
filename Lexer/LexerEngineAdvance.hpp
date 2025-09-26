@@ -196,3 +196,23 @@ LexToken LexerEngineAdvance::ProcessMinus() /* - */ {
 
 	return TLexToken;
 }
+
+// Обработка двоеточие
+LexToken LexerEngineAdvance::ProcessColon() /* : */ {
+	LexToken TLexToken = {
+		TTokenID::Colon,
+		":",
+		0,
+		0
+	};
+
+	if (PosBuffer + 1 < SizeBufferBasic &&
+		LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Colon)
+	{
+		TLexToken.type = TTokenID::ScResOp;
+		TLexToken.value = "::";
+		PosBuffer++;
+	}
+
+	return TLexToken;
+}
