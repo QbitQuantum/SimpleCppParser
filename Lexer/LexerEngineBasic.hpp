@@ -72,7 +72,6 @@ private:
     {'@', &LexerEngineBasic::ProcessAt},
     {'\\', &LexerEngineBasic::ProcessBackslash},
     {'^', &LexerEngineBasic::ProcessCaret},
-    {'_', &LexerEngineBasic::ProcessUnderscore},
     {'`', &LexerEngineBasic::ProcessBacktick},
     {'|', &LexerEngineBasic::ProcessPipe},
 
@@ -114,14 +113,13 @@ private:
     void ProcessAt() { DEF_GENERATION_BASE(At); };
     void ProcessBackslash() { DEF_GENERATION_BASE(Backslash); };
     void ProcessCaret() { DEF_GENERATION_BASE(Caret); };
-    void ProcessUnderscore() { DEF_GENERATION_BASE(Underscore); };
     void ProcessBacktick() { DEF_GENERATION_BASE(Backtick); };
     void ProcessPipe() { DEF_GENERATION_BASE(Pipe); };
     void ProcessTilde() { DEF_GENERATION_BASE(Tilde); };
     void ProcessAsterisk() { DEF_GENERATION_BASE(Asterisk); };
+    void ProcessApostrophe() { DEF_GENERATION_BASE(Apostrophe); };
 
     void ProcessCarriageReturn();
-    void ProcessApostrophe();
     void ProcessSlash();
 
     // Обновляем проверку идентификаторов:
@@ -272,59 +270,6 @@ void LexerEngineBasic::ProcessCarriageReturn() {
     if (PosBuffer + 1 < SourceCode.size() && SourceCode[PosBuffer + 1] == '\n') {
         PosBuffer++;  // Пропускаем `\n`, чтобы не дублировать LineFeed
     }
-}
-
-void LexerEngineBasic::ProcessApostrophe() {
-    push_back_token_storage();
-    std::string str_literal;
-    PosBuffer++;  // Пропускаем открывающую кавычку
-
-    while (neof()) {
-        if (GetChar() == '\'') {
-            // Обработка экранированной кавычки
-            if (PosBuffer + 1 < SourceCode.size() && SourceCode[PosBuffer + 1] == '\'') {
-                str_literal += '\'';
-                PosBuffer += 2;
-            }
-            else {
-                PosBuffer++;
-                break;
-            }
-        }
-        else if (GetChar() == '#') {
-            // Обработка управляющих последовательностей (#13, #$A и т.д.)
-            PosBuffer++;
-            if (neof() && GetChar() == '$') {
-                // Шестнадцатеричная последовательность (#$A)
-                PosBuffer++;
-                std::string hex_seq;
-                while (neof() && isxdigit(GetChar())) {
-                    hex_seq += GetChar();
-                    PosBuffer++;
-                }
-                if (!hex_seq.empty()) {
-                    str_literal += static_cast<char>(std::stoi(hex_seq, nullptr, 16));
-                }
-            }
-            else {
-                // Десятичная последовательность (#13)
-                std::string dec_seq;
-                while (neof() && isdigit(GetChar())) {
-                    dec_seq += GetChar();
-                    PosBuffer++;
-                }
-                if (!dec_seq.empty()) {
-                    str_literal += static_cast<char>(std::stoi(dec_seq));
-                }
-            }
-        }
-        else {
-            str_literal += GetChar();
-            PosBuffer++;
-        }
-    }
-    LexToken token{ TTokenID::StringLiteral, str_literal, CurrentLine, CurrentColumn };
-    BufferToken.push_back(token);
 }
 
 void LexerEngineBasic::ProcessSlash() {
