@@ -280,3 +280,13 @@ LexToken LexerEngineAdvance::ProcessEquals() /* > */ {
 
 	return TLexToken;
 }
+
+// Обработка символа ^
+LexToken LexerEngineAdvance::ProcessCaret() /* ^ */ {
+	return LexToken {
+		TTokenID::Xor,
+		"^",
+		0,
+		0
+	};
+}
