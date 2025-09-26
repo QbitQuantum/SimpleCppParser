@@ -240,3 +240,23 @@ LexToken LexerEngineAdvance::ProcessLess() /* < */ {
 
 	return TLexToken;
 }
+
+// Обработка символа ровно
+LexToken LexerEngineAdvance::ProcessEquals() /* = */ {
+	LexToken TLexToken = {
+		TTokenID::Equals,
+		"=",
+		0,
+		0
+	};
+
+	if (PosBuffer + 1 < SizeBufferBasic &&
+		LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Equals)
+	{
+		TLexToken.type = TTokenID::Equal;
+		TLexToken.value = "==";
+		PosBuffer++;
+	}
+
+	return TLexToken;
+}
