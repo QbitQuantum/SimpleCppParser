@@ -61,6 +61,10 @@ public:
 		LexerTokenBufferBasic = lexbuffer;
 		Init(lexbuffer);
 	}
+
+	std::vector<LexToken> GetBufferLexerAdvanceToken() {
+		return LexerTokenBufferAdvance;
+	}
 };
 
 void LexerEngineAdvance::Init(const std::vector<LexToken>& lexbuffer) {

@@ -27,9 +27,12 @@ int main()
     LexerEngineBasic lexEngineBasic(code);
     auto lexbufferBasic = lexEngineBasic.GetBufferLexerBasicToken();
     
+    LexerEngineAdvance lexEngineAdvance(lexbufferBasic);
+    auto lexbufferAdvance = lexEngineAdvance.GetBufferLexerAdvanceToken();
+
     if (false)
     {
-        for (auto& Tok : lexbufferBasic)
+        for (auto& Tok : lexbufferAdvance)
             if (Tok.type != TTokenID::Space && Tok.type != TTokenID::LineFeed)
                 std::cout << NameTTokenID(Tok.type) << " |" << Tok.value << "|\n";
     }
