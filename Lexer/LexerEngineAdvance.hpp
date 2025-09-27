@@ -83,13 +83,18 @@ void LexerEngineAdvance::Init(const std::vector<LexToken>& lexbuffer) {
 
 // Обработка строковых литералов 
 LexToken LexerEngineAdvance::ProcessQuotation() /* " */ {
-	PosBuffer++;
 	LexToken TLexToken = {
 		TTokenID::StringLiteral,
 		"",
 		0,
 		0	
 	};
+	if (LexerTokenBufferAdvance.back().value == "L")
+	{
+		LexerTokenBufferAdvance.pop_back();
+		TLexToken.type = TTokenID::WStringLiteral;
+	}
+	PosBuffer++;
 
 	while (LexerTokenBufferBasic[PosBuffer].type != TTokenID::Quotation) {
 		TLexToken.value += LexerTokenBufferBasic[PosBuffer].value;

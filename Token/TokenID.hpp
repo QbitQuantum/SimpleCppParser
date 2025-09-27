@@ -102,6 +102,7 @@ enum class TTokenID : long long {
     FloatLiteral,    // 3.14, 2.5e10
     CharLiteral,     // 'A', #65
     StringLiteral,   // 'text', "text"
+    WStringLiteral,   // L"text"
     HexLiteral,
     BinaryLiteral,
     BooleanLiteral,
@@ -349,6 +350,7 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(FloatLiteral);
     GENERATE_NAME(CharLiteral);
     GENERATE_NAME(StringLiteral);
+    GENERATE_NAME(WStringLiteral);
     GENERATE_NAME(HexLiteral);
     GENERATE_NAME(BinaryLiteral);
     GENERATE_NAME(BooleanLiteral);
