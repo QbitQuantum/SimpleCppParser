@@ -330,3 +330,18 @@ LexToken LexerEngineAdvance::ProcessAsterisk() /* * */ {
 
 	return TLexToken;
 }
+
+// Обработка строковых литералов 
+LexToken LexerEngineAdvance::ProcessApostrophe() /* ' */ {
+	PosBuffer++;
+	LexToken TLexToken = {
+		TTokenID::StringLiteral,
+		"",
+		0,
+		0
+	};
+	TLexToken.value = LexerTokenBufferBasic[PosBuffer].value;
+	PosBuffer++;
+	PosBuffer++;
+	return TLexToken;
+}
