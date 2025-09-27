@@ -196,7 +196,13 @@ LexToken LexerEngineAdvance::ProcessMinus() /* - */ {
 		TLexToken.value = "--";
 		PosBuffer++;
 	}
-
+	else if (PosBuffer + 1 < SizeBufferBasic &&
+		LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Greater)
+	{
+		TLexToken.type = TTokenID::Pointer;
+		TLexToken.value = "->";
+		PosBuffer++;
+	}
 	return TLexToken;
 }
 

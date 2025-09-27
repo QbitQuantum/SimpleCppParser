@@ -150,6 +150,8 @@ enum class TTokenID : long long {
     ScResOp,     // ::
     Ellipsis,    // ...
 
+    Pointer,     // ->
+
     // ===== Управляющие конструкции =====
     If,
     Else,
