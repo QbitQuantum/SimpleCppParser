@@ -10,6 +10,8 @@ private:
 	using LexEnginePtr = LexToken(LexerEngineAdvance::*)();
 	int PosBuffer = 0;
 	int SizeBufferBasic = 0;
+
+	bool IsInclude = false;
 private:
 	std::vector<LexToken> LexerTokenBufferAdvance;
 	std::vector<LexToken> LexerTokenBufferBasic;
@@ -122,6 +124,7 @@ LexToken LexerEngineAdvance::ProcessHash() /* # */ {
 	{
 		TLexToken.type = it->second;
 		TLexToken.value = directive;
+		IsInclude = TLexToken.type == TTokenID::IncludeDeirective;
 	}
 
 	return TLexToken;
@@ -239,6 +242,23 @@ LexToken LexerEngineAdvance::ProcessLess() /* < */ {
 		0,
 		0
 	};
+
+	PosBuffer++;
+
+	if (IsInclude)
+	{
+		TLexToken.type = TTokenID::Identifier;
+		std::string content = "";
+
+		while (neof() && LexerTokenBufferBasic[PosBuffer].type != TTokenID::Greater) {
+			content += LexerTokenBufferBasic[PosBuffer].value;
+			PosBuffer++;
+		}
+
+		TLexToken.value = content;
+		IsInclude = false;
+		return TLexToken;
+	}
 
 	if (PosBuffer + 1 < SizeBufferBasic &&
 		LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Equals)
