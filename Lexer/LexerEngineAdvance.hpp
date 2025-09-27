@@ -184,7 +184,7 @@ LexToken LexerEngineAdvance::ProcessPlus() /* + */ {
 LexToken LexerEngineAdvance::ProcessMinus() /* - */ {
 	LexToken TLexToken = {
 		TTokenID::Minus,
-		"+",
+		"-",
 		0,
 		0
 	};
