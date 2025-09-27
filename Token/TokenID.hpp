@@ -148,6 +148,7 @@ enum class TTokenID : long long {
     Shr,         // >>
 
     ScResOp,     // ::
+    Ellipsis,    // ...
 
     // ===== Управляющие конструкции =====
     If,
@@ -361,6 +362,7 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(Shl);        
     GENERATE_NAME(Shr);        
     GENERATE_NAME(ScResOp);
+    GENERATE_NAME(Ellipsis);
     GENERATE_NAME(Equal);
     GENERATE_NAME(NotEqual);        
     GENERATE_NAME(LessEqual);        
