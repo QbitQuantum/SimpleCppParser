@@ -205,6 +205,11 @@ constexpr char constexprToChar(TTokenID s) {
     return static_cast<char>(s);
 }
 
+// Вспомогательная функция для преобразования char в enum
+constexpr TTokenID constexprToTTokenID(char s) {
+    return static_cast<TTokenID>(s);
+}
+
 #define GENERATE_NAME(name) \
 case TTokenID::name: return #name; \
 

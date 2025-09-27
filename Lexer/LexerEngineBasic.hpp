@@ -315,8 +315,9 @@ void LexerEngineBasic::ProcessQuotation() {
     LexToken LexTokenQuotation{ TTokenID::Identifier, content, 0, 0 };
     BufferToken.push_back(LexTokenQuotation);
 
-    PosBuffer++;
-
     LexToken DefLexTokenQuotationEnd{ TTokenID::Quotation, std::string(1, '"'), 0, 0 };
     BufferToken.push_back(DefLexTokenQuotationEnd);
+
+    PosBuffer++;
+    BufferToken.push_back({ constexprToTTokenID(SourceCode[PosBuffer]), std::string(1, SourceCode[PosBuffer]), 0, 0 });
 }
