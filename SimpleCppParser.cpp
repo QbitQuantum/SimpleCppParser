@@ -25,11 +25,11 @@ int main()
 {
     std::string code = ReadFile("../CppCode.cpp");
     LexerEngineBasic lexEngineBasic(code);
-    auto lexbuffer = lexEngineBasic.GetBufferLexerBasicToken();
+    auto lexbufferBasic = lexEngineBasic.GetBufferLexerBasicToken();
     
     if (false)
     {
-        for (auto& Tok : lexbuffer)
+        for (auto& Tok : lexbufferBasic)
             if (Tok.type != TTokenID::Space && Tok.type != TTokenID::LineFeed)
                 std::cout << NameTTokenID(Tok.type) << " |" << Tok.value << "|\n";
     }
