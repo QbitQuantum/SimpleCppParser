@@ -354,7 +354,7 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(Nullptr);
     GENERATE_NAME(Div);        
     GENERATE_NAME(Mod);        
-    GENERATE_NAME(Square);
+    GENERATE_NAME(Power);
     GENERATE_NAME(And);        
     GENERATE_NAME(Or);        
     GENERATE_NAME(Not);      

@@ -310,3 +310,23 @@ LexToken LexerEngineAdvance::ProcessPipe() /* | */ {
 
 	return TLexToken;
 }
+
+// Обработка символа астерикса
+LexToken LexerEngineAdvance::ProcessAsterisk() /* * */ {
+	LexToken TLexToken = {
+		TTokenID::Asterisk,
+		"|",
+		0,
+		0
+	};
+
+	if (PosBuffer + 1 < SizeBufferBasic &&
+		LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Asterisk)
+	{
+		TLexToken.type = TTokenID::Power;
+		TLexToken.value = "**";
+		PosBuffer++;
+	}
+
+	return TLexToken;
+}
