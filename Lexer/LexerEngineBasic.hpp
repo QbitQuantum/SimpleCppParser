@@ -86,7 +86,6 @@ private:
     void ProcessSpace() { DEF_GENERATION_BASE(Space);};
     void ProcessLineFeed() { DEF_GENERATION_BASE(LineFeed);};
 
-    void ProcessQuotation() { DEF_GENERATION_BASE(Quotation); };
     void ProcessHash() { DEF_GENERATION_BASE(Hash); };
     void ProcessDollar() { DEF_GENERATION_BASE(Dollar); };
     void ProcessPercent() { DEF_GENERATION_BASE(Percent); };
@@ -121,6 +120,7 @@ private:
 
     void ProcessCarriageReturn();
     void ProcessSlash();
+    void ProcessQuotation();
 
     // Обновляем проверку идентификаторов:
     bool is_unicode_identifier_start(char32_t c) {
@@ -298,4 +298,25 @@ void LexerEngineBasic::ProcessSlash() {
         PosBuffer--;
         DEF_GENERATION_TO_CHAR(TTokenID::Slash);
     }
+}
+
+void LexerEngineBasic::ProcessQuotation() {
+    push_back_token_storage(); 
+
+    LexToken DefLexTokenQuotationBegin{ TTokenID::Quotation, std::string(1, '"'), 0, 0};
+    BufferToken.push_back(DefLexTokenQuotationBegin);
+
+    PosBuffer++;
+    std::string content = "";
+    while (neof() && GetChar() != '"') {
+        content += GetChar();
+        PosBuffer++;
+    }
+    LexToken LexTokenQuotation{ TTokenID::Identifier, content, 0, 0 };
+    BufferToken.push_back(LexTokenQuotation);
+
+    PosBuffer++;
+
+    LexToken DefLexTokenQuotationEnd{ TTokenID::Quotation, std::string(1, '"'), 0, 0 };
+    BufferToken.push_back(DefLexTokenQuotationEnd);
 }
