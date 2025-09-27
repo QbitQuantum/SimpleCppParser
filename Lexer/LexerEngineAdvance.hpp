@@ -254,7 +254,7 @@ LexToken LexerEngineAdvance::ProcessLess() /* < */ {
 }
 
 // Обработка символа ровно
-LexToken LexerEngineAdvance::ProcessGreater() /* = */ {
+LexToken LexerEngineAdvance::ProcessEquals() /* = */ {
 	LexToken TLexToken = {
 		TTokenID::Equals,
 		"=",
@@ -274,7 +274,7 @@ LexToken LexerEngineAdvance::ProcessGreater() /* = */ {
 }
 
 // Обработка символа больше
-LexToken LexerEngineAdvance::ProcessEquals() /* > */ {
+LexToken LexerEngineAdvance::ProcessGreater() /* > */ {
 	LexToken TLexToken = {
 		TTokenID::Greater,
 		">",
