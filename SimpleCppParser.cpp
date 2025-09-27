@@ -5,44 +5,25 @@
 #include <iostream>
 #include <string>
 
-std::string code = R"(
-class EUpdateError : EDatabaseError {
-private:
-    int FErrorCode;
-    int FPreviousError;
-    int FPosition;
-    std::string FContext;
-    Exception FOriginalException;
-public:
-    TIDDeclaration MatchBinarOperatorWithTuple(TSContext SContext, TIDExpression CArray, TIDExpression SecondArg);
-    void ParseEnumType(TScope Scope, TIDEnum Decl);
-    EUpdateError(const std::string NativeError, const std::string Context, int ErrCode, int PrevError, Exception E);
-    EUpdateError() override;
+#include <fstream>
+#include <filesystem>
 
-    std::string Context() {
-        return FContext;
-    }
-    int ErrorCode() {
-        return FErrorCode;
-    }
-    int PreviousError() {
-        return FPreviousError;
-    }
-    Exception OriginalException() {
-        return FOriginalException;
-    }
-    int Position() {
-        return FPosition;
-    }
-    void Position(int _Position) {
-        FPosition = _Position;
-    }
+std::string ReadFile(std::string filepath) {
+
+    std::ifstream file(filepath, std::ios::binary | std::ios::ate);
+    if (!file)
+        return "";
+    auto size = file.tellg();
+    std::string content(size, '\0');
+    file.seekg(0);
+    file.read(&content[0], size);
+    return content;
 };
 
-)";
 
 int main()
 {
+    std::string code = ReadFile("../CppCode.cpp");
     LexerEngineBasic lexEngineBasic(code);
     auto lexbuffer = lexEngineBasic.GetBufferToken();
     
