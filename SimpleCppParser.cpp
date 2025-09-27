@@ -25,7 +25,7 @@ int main()
 {
     std::string code = ReadFile("../CppCode.cpp");
     LexerEngineBasic lexEngineBasic(code);
-    auto lexbuffer = lexEngineBasic.GetBufferToken();
+    auto lexbuffer = lexEngineBasic.GetBufferLexerBasicToken();
     
     if (false)
     {

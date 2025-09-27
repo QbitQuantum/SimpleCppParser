@@ -152,7 +152,7 @@ public:
         LexerRun();
     };
 
-    std::vector<LexToken> GetBufferToken () {
+    std::vector<LexToken> GetBufferLexerBasicToken () {
         return BufferToken;
     }
 };
