@@ -15,7 +15,7 @@ const std::unordered_map<std::string, TTokenID> TokenDirectiveMap = {
     {"#undef",      TTokenID::UndefDirective},
     {"#if",         TTokenID::IfDirective},
     {"#else",       TTokenID::ElseDirective},
-    {"#include",       TTokenID::ElseDirective},
+    {"#include",       TTokenID::IncludeDeirective},
 };
 
 #endif // LEXER_TOKEN_DERECTIVEMAP
