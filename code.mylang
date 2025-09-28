@@ -96,18 +96,20 @@ public:
             call __client->Method();
 
         var[double] d = 3.14;
-        var[int] i = call static_cast<int, d>;  // Преобразование double в int
+        var[int] i = call static_cast<int>(d);  // Преобразование double в int
 
         var[Base*] basePtr = call new(Derived());
-        var[Derived*] derivedPtr = call dynamic_cast<Derived*, basePtr>; // Безопасное приведение к Derived
+        var[Derived*] derivedPtr = call dynamic_cast<Derived*>(basePtr); // Безопасное приведение к Derived
         call delete(basePtr);
 
         var[const double] c = 3.14;
-        call const_cast(c);
+        call const_cast<double>(c);
+        mutable_c = 3.0;
+
         c = 3.0;
 
         var[int] number = 65;
-        var[char*] charPtr = reinterpret_cast<char*, &number>;
+        var[char*] charPtr = reinterpret_cast<char*>(&number);
 
 
         // auto param = "Download";
