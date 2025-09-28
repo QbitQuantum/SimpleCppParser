@@ -1,9 +1,10 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var[const int] INDEX_INVALID = -1;
 
-using ERequestError = function[void] [__fastcall(__closure*)] (TNetHTTPClient*, string Link, LLinkWorkType, string Error);
-using ERequestEvent = function[void] [__fastcall(__closure*)] (TNetHTTPClient*, string Link, LLinkWorkType);
-using ERequestObtainData = function[void] [__fastcall(__closure*)] (TObject*, string Data, int Arg);
+using ERequestError = function[void][__fastcall(__closure*)](TNetHTTPClient*, string Link, LLinkWorkType, string Error);
+using ERequestEvent = function[void][__fastcall(__closure*)](TNetHTTPClient*, string Link, LLinkWorkType);
+using ERequestObtainData = function[void][__fastcall(__closure*)](TObject*, string Data, int Arg);
 
 // base link class
 class OctetBaseLink : OctetBaseNode {
@@ -19,28 +20,28 @@ private:
         var[bool] __abort = false;
         var[int] __arg = INDEX_INVALID;
 
-        function[void] [__fastcall] _eventerror(TObject* const, const string);
-        function[void] [__fastcall] _eventcomplete(TObject* const, const _di_IHTTPResponse);
-        function[void] [__fastcall] _eventreceive(TObject* const, __int64 AContentLength, __int64 AReadCount, bool& Abort);
+        function[void][__fastcall] _eventerror(TObject* const, const string);
+        function[void][__fastcall] _eventcomplete(TObject* const, const _di_IHTTPResponse);
+        function[void][__fastcall] _eventreceive(TObject* const, __int64 AContentLength, __int64 AReadCount, bool& Abort);
 
     public:
-        
+
         var[string] RequestTag;
         pointer[ERequestObtainData] OnObtainData = nullptr;
         var[bool] Completed = false;
 
         __property string Link = { __link };
 
-        function[void] [__fastcall] Get();
-        function[void] [__fastcall] Abort();
+        function[void][__fastcall] Get();
+        function[void][__fastcall] Abort();
 
-        function[void] [__fastcall] OctetBaseLinkRequest(OctetBaseLink*, string RequestTag, string Link, ERequestObtainData, int Argument = INDEX_INVALID);
+        function[void][__fastcall] OctetBaseLinkRequest(OctetBaseLink*, string RequestTag, string Link, ERequestObtainData, int Argument = INDEX_INVALID);
     };
 
 protected:
 
     // internal data
-    function[bool] [__fastcall] _start(LLinkWorkType, string);
+    function[bool][__fastcall] _start(LLinkWorkType, string);
 
     var[TNetHTTPClient*] __client = nullptr, __asyncclient = nullptr;
     var[LLinkWorkType] __work = lwIdle;
@@ -52,15 +53,15 @@ protected:
     var[int] __lastcode = link::response::timeout;
 
     // class init
-    function[void] [__fastcall] _init();
+    function[void][__fastcall] _init();
 
     // header methods
-    function[void] [__fastcall] _setheaders(TNetHTTPClient*, bool State);
+    function[void][__fastcall] _setheaders(TNetHTTPClient*, bool State);
 
     // internal events
-    function[void] [__fastcall] _eventerror(TObject* const, const string);
-    function[void] [__fastcall] _eventcomplete(TObject* const, const _di_IHTTPResponse);
-    function[void] [__fastcall] _eventauth(TObject* const, TAuthTargetType Target, const string, const string, string&, string&, bool&, TAuthPersistenceType&);
+    function[void][__fastcall] _eventerror(TObject* const, const string);
+    function[void][__fastcall] _eventcomplete(TObject* const, const _di_IHTTPResponse);
+    function[void][__fastcall] _eventauth(TObject* const, TAuthTargetType Target, const string, const string, string&, string&, bool&, TAuthPersistenceType&);
 
 public:
 
@@ -75,19 +76,54 @@ public:
 
     // base network methods
 
-    function[string] [__fastcall] Read(string, int Type = link::type::critical);
-    function[void] [__fastcall] Read(string, ERequestObtainData, string RequestTag, int Argument = INDEX_INVALID);
-    function[void] [__fastcall] Cache(string Link, ERequestObtainData Event, string RequestTag, int Argument = INDEX_INVALID);
-    function[string] [__fastcall] Cache(string Link);
-    function[void] [__fastcall] Stop(string RequestTag = "");
-    function[bool] [__fastcall] Write(string, string Data, TStringStream* Response = NULL);
-    function[void] [__fastcall] Write(string, string, ERequestObtainData Event, string RequestTag, int Argument = INDEX_INVALID);
-    function[bool] [__fastcall] Delete(string);
-    function[bool] [__fastcall] Auth(string, string User, string Pass, TStringStream* Response = NULL);
-    function[string] [__fastcall] ResponseCode();
-    function[string] [__fastcall] ResponseCode(int, string);
-    function[void] [__fastcall] ClearCache(int AgeDays);
-    function[string] [__fastcall] ClearCache(bool Download)
+    function[string][__fastcall] Read(string, int Type = link::type::critical);
+    function[void][__fastcall] Read(string, ERequestObtainData, string RequestTag, int Argument = INDEX_INVALID);
+    function[void][__fastcall] Cache(string Link, ERequestObtainData Event, string RequestTag, int Argument = INDEX_INVALID);
+    function[string][__fastcall] Cache(string Link);
+    function[void][__fastcall] Stop(string RequestTag = "");
+    function[bool][__fastcall] Write(string, string Data, TStringStream* Response = NULL);
+    function[void][__fastcall] Write(string, string, ERequestObtainData Event, string RequestTag, int Argument = INDEX_INVALID);
+    function[bool][__fastcall] Delete(string);
+    function[bool][__fastcall] Auth(string, string User, string Pass, TStringStream* Response = NULL);
+    function[string][__fastcall] ResponseCode();
+    function[string][__fastcall] ResponseCode(int, string);
+    function[void][__fastcall] ClearCache(int AgeDays);
+    function[string][__fastcall] ClearCache(bool Download) {
+
+        call ResponseCode();
+
+        if (__client)
+            call __client->Method();
+
+        var[double] d = 3.14;
+        var[int] i = call static_cast<int, d>;  // Преобразование double в int
+
+        var[Base*] basePtr = call new(Derived());
+        var[Derived*] derivedPtr = call dynamic_cast<Derived*, basePtr>; // Безопасное приведение к Derived
+        call delete(basePtr);
+
+        var[const double] c = 3.14;
+        call const_cast(c);
+        c = 3.0;
+
+        var[int] number = 65;
+        var[char*] charPtr = reinterpret_cast<char*, &number>;
+
+
+        // auto param = "Download";
+        var[string] param = "Download";
+
+        if (Download)
+        {
+            param += " true";
+        }
+        else
+        {
+            param = " false";
+        }
+        return param;
+    
+    };
 
     // properties
     __property TNetHTTPClient* Client = { __asyncclient };
@@ -98,20 +134,18 @@ public:
     __property int LastResponseCode = { __lastcode, __lastcode };
     __property int ConnectionHost = { __host };
 
-    function[void] [__fastcall] OctetBaseLink(TComponent*, int ConnectionTimeout = link::connection::timeout, int ResponseTimeout = link::response::timeout, int ConnectionTimeoutAsync =
+    function[void][__fastcall] OctetBaseLink(TComponent*, int ConnectionTimeout = link::connection::timeout, int ResponseTimeout = link::response::timeout, int ConnectionTimeoutAsync =
         link::connection::timeout_async, int ResponseTimeoutAsync = link::response::timeout_async);
 }
 
-class<T, K> 
-Base : Derive <T> {
-    function[T] [__fastcall] Stop(K RequestTag);
+class<T, K>
+    Base : Derive <T> {
+    function[T][__fastcall] Stop(K RequestTag);
     var[K] Data;
     var[K*] PointData = nullptr;
 }
 
-
-
-var [map<int, string>] code_map = 
+var[map<int, string>] code_map =
 {
 
     {link::response::success, L"Готово"},
@@ -129,3 +163,5 @@ var [map<int, string>] code_map =
     {link::response::internalerror, L"Внутренняя ошибка сервера"},
 
 };
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
