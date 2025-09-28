@@ -247,7 +247,7 @@ LexToken LexerEngineAdvance::ProcessLess() /* < */ {
 
 	if (IsInclude)
 	{
-		TLexToken.type = TTokenID::Identifier;
+		TLexToken.type = TTokenID::StringLiteral;
 		std::string content = "";
 
 		while (neof() && LexerTokenBufferBasic[PosBuffer].type != TTokenID::Greater) {
