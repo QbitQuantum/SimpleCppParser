@@ -362,7 +362,7 @@ LexToken LexerEngineAdvance::ProcessPipe() /* | */ {
 LexToken LexerEngineAdvance::ProcessAsterisk() /* * */ {
 	LexToken TLexToken = {
 		TTokenID::Asterisk,
-		"|",
+		"*",
 		0,
 		0
 	};
