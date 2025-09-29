@@ -1,7 +1,6 @@
 ﻿
 #include "TokenID.hpp"
 #include "TokenKeywordMap.hpp"
-#include "TokenDirectiveMap.hpp"
 
 #include "LexerError.hh"
 
