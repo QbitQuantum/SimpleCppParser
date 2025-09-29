@@ -159,28 +159,32 @@ void LexerEngineBasic::LexerRun() {
         if (is_unicode_identifier_start(GetChar()) || is_digit(GetChar())) {
             
             if (is_digit(GetChar()))
+            {
                 parse_number();
-            
-            size_t start = PosBuffer;
-            while (neof() && (is_unicode_identifier_start(GetChar()) || is_digit(GetChar()))) {
-                PosBuffer++;
             }
+            else
+            {
+                size_t start = PosBuffer;
+                while (neof() && (is_unicode_identifier_start(GetChar()) || is_digit(GetChar()))) {
+                    PosBuffer++;
+                }
 
-            std::string identifier = SourceCode.substr(start, PosBuffer - start);       
-            PosBuffer--;
+                std::string identifier = SourceCode.substr(start, PosBuffer - start);
+                PosBuffer--;
 
-            // Проверяем, является ли собранная строка ключевым словом
-            auto it = TokenKeywordMap.find(CppHash(identifier));
-            bool IsKeyword = it != TokenKeywordMap.end();
+                // Проверяем, является ли собранная строка ключевым словом
+                auto it = TokenKeywordMap.find(CppHash(identifier));
+                bool IsKeyword = it != TokenKeywordMap.end();
 
-            LexToken LexToken{ 
-                IsKeyword ? it->second : TTokenID::Identifier,
-                identifier, 
-                CurrentLine, 
-                CurrentColumn };
-            BufferToken.push_back(LexToken);
+                LexToken LexToken{
+                    IsKeyword ? it->second : TTokenID::Identifier,
+                    identifier,
+                    CurrentLine,
+                    CurrentColumn };
+                BufferToken.push_back(LexToken);
 
-            CurrentLine += identifier.size();
+                CurrentLine += identifier.size();
+            }
         }
         else
         {
@@ -219,7 +223,8 @@ void LexerEngineBasic::parse_number() {
     bool is_float = false;
 
     // Проверяем на шестнадцатеричное число ($FF)
-    if (GetChar() == '0' && PosBuffer + 1 < SourceCode.size() &&
+    if (GetChar() == '0' && 
+        PosBuffer + 1 < SourceCode.size() &&
         (SourceCode[PosBuffer + 1] == 'x' || SourceCode[PosBuffer + 1] == 'X')) {
         is_hex = true;
         PosBuffer += 2;
@@ -241,7 +246,7 @@ void LexerEngineBasic::parse_number() {
                 }
                 is_float = true;
             }
-            else if (GetChar() < '0' || GetChar() > '9') {
+            else if (!is_digit(GetChar())) {
                 break;
             }
         }
