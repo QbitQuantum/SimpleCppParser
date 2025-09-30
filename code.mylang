@@ -107,6 +107,13 @@ public:
         var[int] number = 65;
         var[char*] charPtr = reinterpret_cast<char*>(&number);
 
+        call 
+        try 
+            { } 
+        catch(var[Exeption*] E) 
+            { } 
+        finally 
+            { };
 
         // auto param = "Download";
         var[string] param = "Download";
@@ -120,7 +127,6 @@ public:
             param = " false";
         }
         return param;
-    
     };
 
     // properties
@@ -135,14 +141,30 @@ public:
 
     function[void][__fastcall] OctetBaseLink(TComponent*, int ConnectionTimeout = link::connection::timeout, int ResponseTimeout = link::response::timeout, int ConnectionTimeoutAsync =
         link::connection::timeout_async, int ResponseTimeoutAsync = link::response::timeout_async);
-}
+};
 
 function[void][__fastcall] OctetBaseLink::OctetBaseLinkRequest::Abort()  {
     var[const int] = 1;
-}
+};
 
 class Base<T, K> : Derive<T> {
     function[T][__fastcall] Stop(K RequestTag);
     var[K] Data;
     var[K*] PointData = nullptr;
-}
+};
+
+function[int] main[] () {
+    
+    return 0;
+};
+
+/*
+function[int] main[] (var[int] argc, var[char*] argv) {
+    return 0;
+};
+
+function[int] main[] () {
+    
+    return call int(); // Равен хз, ну пускай -1;
+};
+*/
