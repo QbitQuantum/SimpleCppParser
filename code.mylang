@@ -1,7 +1,7 @@
-include "math.mylang"
-include "utils"
-include "math.txt"
-include <vector>
+#include "math.mylang"
+#include "utils"
+#include "math.txt"
+#include <vector>
 
 var[const int] INDEX_INVALID = i"-1"; // Для отрицательных чисел заключаем в "" с суффиксом i
 
