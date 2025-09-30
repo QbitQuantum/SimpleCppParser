@@ -157,17 +157,17 @@ class Base<T, K> : Derive<T> {
     var[K*] PointData = nullptr;
 };
 
-function[int] main[] () {
+function[int][] main () {
     
     return 0;
 };
 
 /*
-function[int] main[] (var[int] argc, var[char*] argv) {
+function[int][] main (var[int] argc, var[char*] argv) {
     return 0;
 };
 
-function[int] main[] () {
+function[int][] main () {
     
     return call int(); // Равен хз, ну пускай -1;
 };
