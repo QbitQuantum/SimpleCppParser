@@ -94,10 +94,15 @@ LexToken LexerEngineAdvance::ProcessQuotation() /* " */ {
 		0,
 		0	
 	};
-	if (LexerTokenBufferAdvance.back().value == "L")
+	if (LexerTokenBufferAdvance.back().value == "l")
 	{
 		LexerTokenBufferAdvance.pop_back();
 		TLexToken.type = TTokenID::WStringLiteral;
+	}
+	else if (LexerTokenBufferAdvance.back().value == "i")
+	{
+		LexerTokenBufferAdvance.pop_back();
+		TLexToken.type = TTokenID::IntegerLiteral;
 	}
 	PosBuffer++;
 
@@ -212,13 +217,6 @@ LexToken LexerEngineAdvance::ProcessMinus() /* - */ {
 	{
 		TLexToken.type = TTokenID::Pointer;
 		TLexToken.value = "->";
-		PosBuffer++;
-	}
-	else if (PosBuffer + 1 < SizeBufferBasic &&
-		LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::IntegerLiteral)
-	{
-		TLexToken.type = TTokenID::IntegerLiteral;
-		TLexToken.value = "-" + LexerTokenBufferBasic[PosBuffer + 1].value;
 		PosBuffer++;
 	}
 	return TLexToken;
@@ -382,14 +380,24 @@ LexToken LexerEngineAdvance::ProcessAsterisk() /* * */ {
 LexToken LexerEngineAdvance::ProcessApostrophe() /* ' */ {
 	PosBuffer++;
 	LexToken TLexToken = {
-		TTokenID::StringLiteral,
+		TTokenID::CharLiteral,
 		"",
 		0,
 		0
 	};
-	TLexToken.value = LexerTokenBufferBasic[PosBuffer].value;
+	if (LexerTokenBufferAdvance.back().value == "l")
+	{
+		LexerTokenBufferAdvance.pop_back();
+		TLexToken.type = TTokenID::WCharLiteral;
+	}
 	PosBuffer++;
+
+	while (LexerTokenBufferBasic[PosBuffer].type != TTokenID::Apostrophe) {
+		TLexToken.value += LexerTokenBufferBasic[PosBuffer].value;
+		PosBuffer++;
+	}
 	PosBuffer++;
+
 	return TLexToken;
 }
 
