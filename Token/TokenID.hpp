@@ -184,6 +184,8 @@ enum class TTokenID : long long {
     FastCall,
     Static,
     Final,
+    Var,
+    Function,
 
     // ===== Комментарии =====
     LineComment,    // //
@@ -402,6 +404,8 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(Protected);
     GENERATE_NAME(Public);
     GENERATE_NAME(Static);        
+    GENERATE_NAME(Var);
+    GENERATE_NAME(Function);
     GENERATE_NAME(Final);
     GENERATE_NAME(LineComment);
     GENERATE_NAME(BlockComment);
