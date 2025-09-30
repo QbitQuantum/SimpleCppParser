@@ -96,7 +96,7 @@ public:
         var[double] d = 3.14;
         var[int] i = call static_cast<int>(d);  // Преобразование double в int
 
-        var[Base*] basePtr = call new(Derived());
+        var[Base*] basePtr = call new(call Derived());
         var[Derived*] derivedPtr = call dynamic_cast<Derived*>(basePtr); // Безопасное приведение к Derived
         call delete(basePtr);
 
@@ -141,8 +141,7 @@ function[void][__fastcall] OctetBaseLink::OctetBaseLinkRequest::Abort()  {
     var[const int] = 1;
 }
 
-class<T, K>
-    Base : Derive <T> {
+class Base<T, K> : Derive<T> {
     function[T][__fastcall] Stop(K RequestTag);
     var[K] Data;
     var[K*] PointData = nullptr;
