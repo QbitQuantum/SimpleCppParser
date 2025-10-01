@@ -68,7 +68,7 @@ public:
 		Init(lexbuffer);
 	}
 
-	std::vector<LexToken> GetBufferLexerAdvanceToken() {
+	const std::vector<LexToken>& GetBufferLexerAdvanceToken() const {
 		return LexerTokenBufferAdvance;
 	}
 };
