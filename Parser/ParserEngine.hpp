@@ -4,6 +4,7 @@
 #pragma once
 
 #include "LexerEngineAdvance.hpp"
+#include "Node.hpp"
 
 class ParserEngine
 {
