@@ -10,7 +10,6 @@
 
 #include <string>
 #include <vector>
-#include <utility>
 #include <unordered_map>
 
 using Callback = void(*)(std::string);
