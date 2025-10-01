@@ -1,6 +1,7 @@
 
-#ifndef LEXER_TOKEN
-#define LEXER_TOKEN
+#ifndef TOKEN_ID_HPP
+#define TOKEN_ID_HPP
+#pragma once
 
 #include <string>
 
@@ -422,4 +423,4 @@ std::string NameTTokenID(TTokenID kind) {
     }
 }
 
-#endif // LEXER_TOKEN
+#endif // TOKEN_ID_HPP

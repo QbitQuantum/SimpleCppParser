@@ -1,4 +1,8 @@
 ﻿
+#ifndef LEXER_ENGINE_ADVANCE_HPP
+#define LEXER_ENGINE_ADVANCE_HPP
+#pragma once
+
 #include "TokenID.hpp"
 #include "TokenDirectiveMap.hpp"
 
@@ -56,7 +60,7 @@ private:
 	}
 
 public:
-	LexerEngineAdvance(const std::vector<LexToken> & lexbuffer) {
+	LexerEngineAdvance(const std::vector<LexToken>& lexbuffer) {
 		SizeBufferBasic = lexbuffer.size();
 		LexerTokenBufferAdvance.reserve(SizeBufferBasic);
 		LexerTokenBufferBasic.reserve(SizeBufferBasic);
@@ -70,7 +74,7 @@ public:
 };
 
 void LexerEngineAdvance::Init(const std::vector<LexToken>& lexbuffer) {
-	
+
 	while (neof()) {
 		auto it = map.find(lexbuffer[PosBuffer].type);
 
@@ -85,14 +89,14 @@ void LexerEngineAdvance::Init(const std::vector<LexToken>& lexbuffer) {
 
 // Обработка строковых литералов 
 LexToken LexerEngineAdvance::ProcessQuotation() /* " */ {
-	
+
 	IsInclude = false;
 
 	LexToken TLexToken = {
 		TTokenID::StringLiteral,
 		"",
 		0,
-		0	
+		0
 	};
 	if (LexerTokenBufferAdvance.back().value == "l")
 	{
@@ -124,7 +128,7 @@ LexToken LexerEngineAdvance::ProcessHash() /* # */ {
 		0,
 		0
 	};
-	
+
 	std::string directive = "#" + LexerTokenBufferBasic[PosBuffer].value;
 
 	auto it = TokenDirectiveMap.find(directive);
@@ -164,8 +168,8 @@ LexToken LexerEngineAdvance::ProcessAmpersand() /* & */ {
 		0,
 		0
 	};
-	
-	if (PosBuffer + 1 < SizeBufferBasic && 
+
+	if (PosBuffer + 1 < SizeBufferBasic &&
 		LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Ampersand)
 	{
 		TLexToken.type = TTokenID::And;
@@ -328,7 +332,7 @@ LexToken LexerEngineAdvance::ProcessGreater() /* > */ {
 
 // Обработка символа ^
 LexToken LexerEngineAdvance::ProcessCaret() /* ^ */ {
-	return LexToken {
+	return LexToken{
 		TTokenID::Xor,
 		"^",
 		0,
@@ -421,3 +425,5 @@ LexToken LexerEngineAdvance::ProcessDot() /* . */ {
 	}
 	return TLexToken;
 }
+
+#endif // LEXER_ENGINE_ADVANCE_HPP

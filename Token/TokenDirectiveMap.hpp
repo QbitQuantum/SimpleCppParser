@@ -1,6 +1,7 @@
 
-#ifndef LEXER_TOKEN_DERECTIVEMAP
-#define LEXER_TOKEN_DERECTIVEMAP
+#ifndef TOKEN_DERECTIVE_MAP_HPP
+#define TOKEN_DERECTIVE_MAP_HPP
+#pragma once
 
 #include "TokenID.hpp"
 
@@ -18,4 +19,4 @@ const std::unordered_map<std::string, TTokenID> TokenDirectiveMap = {
     {"#include",       TTokenID::IncludeDeirective},
 };
 
-#endif // LEXER_TOKEN_DERECTIVEMAP
+#endif // TOKEN_DERECTIVE_MAP_HPP

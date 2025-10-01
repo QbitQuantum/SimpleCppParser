@@ -1,4 +1,9 @@
-﻿#include <string>
+﻿
+#ifndef LEXER_ERROR_HH
+#define LEXER_ERROR_HH
+#pragma once
+
+#include <string>
 
 enum class LexErrorType {
     UnclosedString,    // Не закрыта кавычка '
@@ -18,3 +23,5 @@ std::string GetErrorString(LexErrorType type) {
     case LexErrorType::InvalidChar:       return "InvalidChar";
     }
 }
+
+#endif // LEXER_ERROR_HH

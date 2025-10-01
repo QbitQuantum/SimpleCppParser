@@ -1,4 +1,8 @@
 ﻿
+#ifndef LEXER_ENGINE_BASIC_HPP
+#define LEXER_ENGINE_BASIC_HPP
+#pragma once
+
 #include "TokenID.hpp"
 #include "TokenKeywordMap.hpp"
 
@@ -143,7 +147,7 @@ private:
     std::string SourceCode = "";
     std::vector<LexToken> BufferToken;
 public:
-	LexerEngineBasic(const std::string source) { 
+     LexerEngineBasic(const std::string source) {
         SourceCode = source; 
         LexerRun();
     };
@@ -302,7 +306,7 @@ void LexerEngineBasic::ProcessSlash() {
 }
 
 void LexerEngineBasic::ProcessQuotation() {
-    push_back_token_storage(); 
+    push_back_token_storage();
 
     LexToken DefLexTokenQuotationBegin{ TTokenID::Quotation, std::string(1, '"'), 0, 0};
     BufferToken.push_back(DefLexTokenQuotationBegin);
@@ -322,3 +326,5 @@ void LexerEngineBasic::ProcessQuotation() {
     PosBuffer++;
     BufferToken.push_back({ constexprToTTokenID(SourceCode[PosBuffer]), std::string(1, SourceCode[PosBuffer]), 0, 0 });
 }
+
+#endif // LEXER_ENGINE_BASIC_HPP

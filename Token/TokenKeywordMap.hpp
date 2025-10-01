@@ -1,6 +1,7 @@
 
-#ifndef LEXER_TOKEN_KEYWORDMAP
-#define LEXER_TOKEN_KEYWORDMAP
+#ifndef TOKEN_KEYWORD_MAP_HPP
+#define TOKEN_KEYWORD_MAP_HPP
+#pragma once
 
 #include "TokenID.hpp"
 
@@ -117,4 +118,4 @@ static const std::unordered_map<uint32_t, TTokenID> TokenKeywordMap = {
 
 static_assert(ConstexprCppHash("div") != ConstexprCppHash("mod"));
 
-#endif //LEXER_TOKEN_KEYWORDMAP
+#endif //TOKEN_KEYWORD_MAP_HPP
