@@ -24,12 +24,14 @@ std::string ReadFile(std::string filepath) {
 
 int main()
 {
-    std::string code = ReadFile("../CppCode.cpp");
+    std::string code = ReadFile("code.mylang");
     LexerEngineBasic lexEngineBasic(code);
     auto lexbufferBasic = lexEngineBasic.GetBufferLexerBasicToken();
     
     LexerEngineAdvance lexEngineAdvance(lexbufferBasic);
     auto lexbufferAdvance = lexEngineAdvance.GetBufferLexerAdvanceToken();
+
+    ParserEngine parserEngine(lexbufferAdvance);
 
     if (false)
     {
