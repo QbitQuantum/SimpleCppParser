@@ -114,7 +114,6 @@ LexToken LexerEngineAdvance::ProcessQuotation() /* " */ {
 		TLexToken.value += LexerTokenBufferBasic[PosBuffer].value;
 		PosBuffer++;
 	}
-	PosBuffer++;
 	return TLexToken;
 }
 
@@ -399,8 +398,6 @@ LexToken LexerEngineAdvance::ProcessApostrophe() /* ' */ {
 		TLexToken.value += LexerTokenBufferBasic[PosBuffer].value;
 		PosBuffer++;
 	}
-	PosBuffer++;
-
 	return TLexToken;
 }
 
