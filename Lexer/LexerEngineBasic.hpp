@@ -290,13 +290,16 @@ void LexerEngineBasic::ProcessSlash() {
     else if (_getchar == '*')
     {
         PosBuffer++;
-        while (neof() && GetChar() != '*') {
+        while (neof()) {
+            char current = GetChar();
             PosBuffer++;
+
+            // Ищем последовательность */
+            if (current == '*' && neof() && GetChar() == '/') {
+                PosBuffer++; // Пропускаем '/'
+                break; // Конец комментария
+            }
         }
-        //Пропускаем '*'
-        PosBuffer++;
-        //Пропускаем '/'
-        PosBuffer++;
     }
     else
     {
