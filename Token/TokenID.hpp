@@ -188,6 +188,7 @@ enum class TTokenID : long long {
     Var,
     Function,
     Call,
+    Using,
 
     // ===== Комментарии =====
     LineComment,    // //
@@ -409,6 +410,7 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(Var);
     GENERATE_NAME(Function);
     GENERATE_NAME(Call);
+    GENERATE_NAME(Using);
     GENERATE_NAME(Final);
     GENERATE_NAME(LineComment);
     GENERATE_NAME(BlockComment);
