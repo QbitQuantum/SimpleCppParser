@@ -148,7 +148,7 @@ public:
 };
 
 function[void][__fastcall] OctetBaseLink::OctetBaseLinkRequest::Abort()  {
-    var[const int] = 1;
+    var[const int] number = 1;
 };
 
 class Base<T, K> : Derive<T> {
