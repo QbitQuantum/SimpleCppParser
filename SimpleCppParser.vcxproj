@@ -105,7 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\AxeMODE\Desktop\SimpleCppParser\Lexer;C:\Users\AxeMODE\Desktop\SimpleCppParser\Token;C:\Users\AxeMODE\Desktop\SimpleCppParser\Parser;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\AxeMODE\Desktop\SimpleCppParser\Lexer;C:\Users\AxeMODE\Desktop\SimpleCppParser\Token;C:\Users\AxeMODE\Desktop\SimpleCppParser\Parser;C:\Users\AxeMODE\Desktop\SimpleCppParser\Ast;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,7 +121,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\AxeMODE\Desktop\SimpleCppParser\Lexer;C:\Users\AxeMODE\Desktop\SimpleCppParser\Token;C:\Users\AxeMODE\Desktop\SimpleCppParser\Parser;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\AxeMODE\Desktop\SimpleCppParser\Lexer;C:\Users\AxeMODE\Desktop\SimpleCppParser\Token;C:\Users\AxeMODE\Desktop\SimpleCppParser\Parser;C:\Users\AxeMODE\Desktop\SimpleCppParser\Ast;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
