@@ -19,7 +19,7 @@ private:
 private:
 	std::vector<LexToken> LexerTokenBufferAdvance;
 	std::vector<LexToken> LexerTokenBufferBasic;
-	void Init(const std::vector<LexToken>& lexbuffer);
+	void Init();
 
 	std::unordered_map<TTokenID, LexEnginePtr> map{ {
 	{TTokenID::Quotation, &LexerEngineAdvance::ProcessQuotation},   // "
@@ -65,7 +65,7 @@ public:
 		LexerTokenBufferAdvance.reserve(SizeBufferBasic);
 		LexerTokenBufferBasic.reserve(SizeBufferBasic);
 		LexerTokenBufferBasic = lexbuffer;
-		Init(lexbuffer);
+		Init();
 	}
 
 	const std::vector<LexToken>& GetBufferLexerAdvanceToken() const {
@@ -73,14 +73,14 @@ public:
 	}
 };
 
-void LexerEngineAdvance::Init(const std::vector<LexToken>& lexbuffer) {
+void LexerEngineAdvance::Init() {
 
 	while (neof()) {
-		auto it = map.find(lexbuffer[PosBuffer].type);
+		auto it = map.find(LexerTokenBufferBasic[PosBuffer].type);
 
 		LexerTokenBufferAdvance.push_back(
 			it != map.end() ?
-			(this->*it->second)() : lexbuffer[PosBuffer]
+			(this->*it->second)() : LexerTokenBufferBasic[PosBuffer]
 		);
 
 		PosBuffer++;
