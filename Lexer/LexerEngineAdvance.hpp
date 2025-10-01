@@ -394,7 +394,6 @@ LexToken LexerEngineAdvance::ProcessApostrophe() /* ' */ {
 		LexerTokenBufferAdvance.pop_back();
 		TLexToken.type = TTokenID::WCharLiteral;
 	}
-	PosBuffer++;
 
 	while (LexerTokenBufferBasic[PosBuffer].type != TTokenID::Apostrophe) {
 		TLexToken.value += LexerTokenBufferBasic[PosBuffer].value;
