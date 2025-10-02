@@ -116,6 +116,7 @@ static const std::unordered_map<uint32_t, TTokenID> TokenKeywordMap = {
     {ConstexprCppHash("call"),          TTokenID::Call },
     {ConstexprCppHash("function"),     TTokenID::Function },
     {ConstexprCppHash("using"),         TTokenID::Using },
+    {ConstexprCppHash("access"),         TTokenID::Access },
 };
 
 static_assert(ConstexprCppHash("div") != ConstexprCppHash("mod"));
