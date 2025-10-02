@@ -52,14 +52,14 @@ protected:
     var[string] __host, __lastresult;
 
     var[int] 
-        __contime = access link::connection::timeout, 
-        __restime = access link::response::timeout;
+        __contime = access[link::connection] timeout, 
+        __restime = access[link::response] timeout;
 
     var[int] 
-        __contimeasync = access link::connection::timeout_async, 
-        __restimeasync = access link::response::timeout_async;
+        __contimeasync = access[link::connection] timeout_async, 
+        __restimeasync = access[link::response] timeout_async;
     var[int] 
-        __lastcode = access link::response::timeout;
+        __lastcode = access[link::response] timeout;
 
     // class init
     function[void][__fastcall] _init();
@@ -85,7 +85,7 @@ public:
 
     // base network methods
 
-    function[string][__fastcall] Read(string, int Type = access link::type::critical);
+    function[string][__fastcall] Read(string, int Type = access[link::type] critical);
     function[void][__fastcall] Read(string, ERequestObtainData, string RequestTag, int Argument = INDEX_INVALID);
     function[void][__fastcall] Cache(string Link, ERequestObtainData Event, string RequestTag, int Argument = INDEX_INVALID);
     function[string][__fastcall] Cache(string Link);
@@ -149,11 +149,15 @@ public:
     __property int ConnectionHost = { __host };
     __property int ConnectionTask = { nullptr, __host };
 
-    function[void][__fastcall] OctetBaseLink(TComponent*, int ConnectionTimeout = access link::connection::timeout, int ResponseTimeout = access link::response::timeout, int ConnectionTimeoutAsync =
-        access link::connection::timeout_async, int ResponseTimeoutAsync = access link::response::timeout_async);
+    function[void][__fastcall] OctetBaseLink(
+        TComponent*, 
+        int ConnectionTimeout = access[link::connection] timeout, 
+        int ResponseTimeout = access[link::response] timeout, 
+        int ConnectionTimeoutAsync = access[link::connection] timeout_async, 
+        int ResponseTimeoutAsync = access[link::response] timeout_async);
 };
 
-function[void][__fastcall] access OctetBaseLink::OctetBaseLinkRequest::Abort()  {
+function[void][__fastcall] access[OctetBaseLink::OctetBaseLinkRequest] Abort()  {
     var[const int] number = 1;
 };
 
