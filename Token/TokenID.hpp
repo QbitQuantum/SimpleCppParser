@@ -429,4 +429,14 @@ std::string NameTTokenID(TTokenID kind) {
     }
 }
 
+struct LexToken {
+    TTokenID type;
+    std::string value;
+    size_t line = 0;
+    size_t column = 0;
+
+    bool operator == (const LexToken& other) const {
+        return type == other.type;
+    };
+};
 #endif // TOKEN_ID_HPP

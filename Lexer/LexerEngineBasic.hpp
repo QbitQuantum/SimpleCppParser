@@ -25,17 +25,6 @@ push_back_token_storage(); \
 LexToken LexToken{ TTokenID::##X, std::string(1, constexprToChar(TTokenID::##X)), CurrentLine, CurrentColumn }; \
 BufferToken.push_back(LexToken); \
 
-struct LexToken {
-    TTokenID type;
-    std::string value;
-    size_t line = 0;
-    size_t column = 0;
-
-    bool operator == (const LexToken& other) const {
-        return type == other.type;
-    };
-};
-
 class LexerEngineBasic {
 private:
     using LexEnginePtr = void (LexerEngineBasic::*)();
