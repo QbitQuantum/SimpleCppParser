@@ -6,6 +6,9 @@
 #include <string>
 
 enum class TTokenID : long long {
+    
+    /* ::Токены 1 уровня:: */
+
     // Заглавные буквы A-Z
     A = 'A', B = 'B', C = 'C', D = 'D', E = 'E', F = 'F', G = 'G', H = 'H', I = 'I', J = 'J',
     K = 'K', L = 'L', M = 'M', N = 'N', O = 'O', P = 'P', Q = 'Q', R = 'R', S = 'S', T = 'T',
@@ -97,6 +100,8 @@ enum class TTokenID : long long {
     neof,          // Конец файла
     Unknown,      // Неизвестный символ
     Identifier,   // Идентификатор (varName, Class1)
+
+    /* ::Токены 2 уровня:: */
 
     // ===== Литералы =====
     IntegerLiteral,  // 123, $FF
