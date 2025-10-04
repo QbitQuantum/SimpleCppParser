@@ -182,17 +182,19 @@ static:
 class Derived : Base {
 
 public:
-    function[void] [ovveride] PublicMethodBase() { };
+    function[void] [override] PublicMethodBase() { };
     function[void] [] Derived() { };
+    class Math {
+    static:
+        function[void] [] PublicMethodBase() { };
+    }
 static:
     var[int] StaticData = 1;
     function[void][] StaticMethodBase() { };
 
-    class Math {
-    static:
-        function[void] [] PublicMethodBase() { };
+private:
+    var[int] m_pivate = 1;
 
-    }
 }
 
 function[void] [] PublicMethodBase() { };
