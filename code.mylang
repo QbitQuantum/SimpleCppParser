@@ -170,8 +170,49 @@ class Base<T, K> : Derive<T> {
     var[K*] PointData = nullptr;
 };
 
+class Base {
+
+public:
+    var[int] PublicBaseData;
+    function[void] [virtual] PublicMethodBase() { };
+    function[void] [] Base() { };
+static:
+    var[int] StaticBaseData;
+    function[void][] StaticMethodBase() { };
+}
+
+class Derived : Base {
+
+public:
+    function[void] [ovveride] PublicMethodBase() { };
+    function[void] [] Derived() { };
+static:
+    var[int] StaticData = 1;
+    function[void][] StaticMethodBase() { };
+
+    class Math {
+    static:
+        function[void] [] PublicMethodBase() { };
+
+    }
+}
+
+function[void] [] PublicMethodBase() { };
+
 function[int][] main () {
     
+    var[Derived*] un = call new(call access[Derived] Derived());
+
+    call access[] PublicMethodBase();                    // глобальный
+    call access[this] PublicMethodBase();                    // текущий контекс
+    call access[Derived] StaticMethodBase();          // статический
+    call access[Derived::Math] PublicMethodBase();    // статический вложенного класса
+    
+    call un.PublicMethodBase();                 // Объект напрямую
+    call un=>PublicMethodBase();               // явный вызов базовой версии 
+    call un->PublicMethodBase();               // виртуальный через указатель  
+        
+    delete(un);
     return 0;
 };
 
