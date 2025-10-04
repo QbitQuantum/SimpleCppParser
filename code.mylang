@@ -117,14 +117,14 @@ public:
 
         var[int] i = call static_cast<int>(d);  // Преобразование double в int
 
-        var[Base*] basePtr = call new Derived();
-        var[Derived*] derivedPtr = call dynamic_cast<Derived*>(basePtr); // Безопасное приведение к Derived
-        call delete basePtr;
+        var[Base*] basePtr = call access[] new Derived();
+        var[Derived*] derivedPtr = call access[] dynamic_cast<Derived*>(basePtr); // Безопасное приведение к Derived
+        call access[] delete basePtr;
 
         var[const double] c = 3.14;
 
         var[int] number = 65;
-        var[char*] charPtr = call reinterpret_cast<char*>(&number);
+        var[char*] charPtr = call access[] reinterpret_cast<char*>(&number);
 
         // var[auto] param = "Download";
         var[string] param = "Download";
@@ -201,7 +201,7 @@ function[void] [] PublicMethodBase() { };
 
 function[int][] main () {
     
-    var[Derived*] un = call new Derived();
+    var[Derived*] un = call access[] new Derived();
 
     call access[] PublicMethodBase();                    // глобальный
     call access[This] PublicMethodBase();                    // текущий контекс
@@ -212,7 +212,7 @@ function[int][] main () {
     call access[This] un=>PublicMethodBase();               // явный вызов базовой версии 
     call access[This] un->PublicMethodBase();               // виртуальный через указатель  
         
-    call delete un;
+    call access[] delete un;
     return 0;
 };
 
