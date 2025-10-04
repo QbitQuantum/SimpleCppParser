@@ -102,10 +102,10 @@ public:
     function[void][__fastcall] ClearCache(int AgeDays);
     function[string][__fastcall] ClearCache(bool Download) {
         
-        call ResponseCode();
+        call access[This] ResponseCode();
 
         if (__client)
-        {    call __client->Method(); };
+        {    call access[This] __client->Method(); };
 
         var[double] d = 3.14;
 
@@ -117,16 +117,14 @@ public:
 
         var[int] i = call static_cast<int>(d);  // Преобразование double в int
 
-        var[Base*] basePtr = call new(call Derived());
+        var[Base*] basePtr = call new Derived();
         var[Derived*] derivedPtr = call dynamic_cast<Derived*>(basePtr); // Безопасное приведение к Derived
-        call delete(basePtr);
+        call delete basePtr;
 
         var[const double] c = 3.14;
-        call const_cast<double>(c);
-        c = 3.0;
 
         var[int] number = 65;
-        var[char*] charPtr = reinterpret_cast<char*>(&number);
+        var[char*] charPtr = call reinterpret_cast<char*>(&number);
 
         // var[auto] param = "Download";
         var[string] param = "Download";
@@ -201,18 +199,18 @@ function[void] [] PublicMethodBase() { };
 
 function[int][] main () {
     
-    var[Derived*] un = call new(call access[Derived] Derived());
+    var[Derived*] un = call new Derived();
 
     call access[] PublicMethodBase();                    // глобальный
-    call access[this] PublicMethodBase();                    // текущий контекс
+    call access[This] PublicMethodBase();                    // текущий контекс
     call access[Derived] StaticMethodBase();          // статический
     call access[Derived::Math] PublicMethodBase();    // статический вложенного класса
     
-    call un.PublicMethodBase();                 // Объект напрямую
-    call un=>PublicMethodBase();               // явный вызов базовой версии 
-    call un->PublicMethodBase();               // виртуальный через указатель  
+    call access[This] un.PublicMethodBase();                 // Объект напрямую
+    call access[This] un=>PublicMethodBase();               // явный вызов базовой версии 
+    call access[This] un->PublicMethodBase();               // виртуальный через указатель  
         
-    delete(un);
+    call delete un;
     return 0;
 };
 
