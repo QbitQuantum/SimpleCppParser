@@ -72,6 +72,9 @@ protected:
     function[void][__fastcall] _eventcomplete(TObject* const, const _di_IHTTPResponse);
     function[void][__fastcall] _eventauth(TObject* const, TAuthTargetType Target, const string, const string, string&, string&, bool&, TAuthPersistenceType&);
 
+static:
+    function[void][__fastcall] _eventexecute(TObject* const, const string);
+
 public:
 
     // variables
