@@ -114,8 +114,6 @@ enum class TTokenID : long long {
     HexLiteral,
     BinaryLiteral,
     BooleanLiteral,
-    True,            // true
-    False,           // false
     Nullptr,             // nullptr
 
     // ===== Операторы (расширенный) =====
@@ -374,8 +372,6 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(HexLiteral);
     GENERATE_NAME(BinaryLiteral);
     GENERATE_NAME(BooleanLiteral);
-    GENERATE_NAME(True);
-    GENERATE_NAME(False);
     GENERATE_NAME(Nullptr);
     GENERATE_NAME(Div);        
     GENERATE_NAME(Mod);        
