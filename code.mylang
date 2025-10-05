@@ -115,7 +115,7 @@ public:
         var[char] ch = 'A';
         var[w_char] w_ch = l'A';
 
-        var[int] i = call static_cast<int>(d);  // Преобразование double в int
+        var[int] i = call access[] static_cast<int>(d);  // Преобразование double в int
 
         var[Base*] basePtr = call access[] new Derived();
         var[Derived*] derivedPtr = call access[] dynamic_cast<Derived*>(basePtr); // Безопасное приведение к Derived
