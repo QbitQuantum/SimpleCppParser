@@ -83,8 +83,11 @@ static const std::unordered_map<uint32_t, TTokenID> TokenKeywordMap = {
     {ConstexprCppHash("or"),           TTokenID::Or},
     {ConstexprCppHash("not"),          TTokenID::Not},
     {ConstexprCppHash("xor"),          TTokenID::Xor},
+    
+    // ===== Встроенные значение типов =====
     {ConstexprCppHash("true"),          TTokenID::BooleanLiteral},
     {ConstexprCppHash("false"),          TTokenID::BooleanLiteral},
+    {ConstexprCppHash("nullptr"),          TTokenID::Nullptr},
 
     // ===== Управляющие конструкции =====
     {ConstexprCppHash("if"),           TTokenID::If},
