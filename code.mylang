@@ -102,10 +102,10 @@ public:
     function[void][__fastcall] ClearCache(int AgeDays);
     function[string][__fastcall] ClearCache(bool Download) {
         
-        access[This] call ResponseCode();
+        access[::] call ResponseCode();
 
         if (__client)
-        {    access[This] call __client->Method(); };
+        {    access[::] call __client->Method(); };
 
         var[double] d = 3.14;
 
@@ -204,13 +204,13 @@ function[int][] main () {
     var[Derived*] un = access[] call new Derived();
 
     access[] call PublicMethodBase();                    // глобальный
-    access[This] call PublicMethodBase();                    // текущий контекс
+    access[::] call PublicMethodBase();                    // текущий контекс
     access[Derived] call StaticMethodBase();          // статический
     access[Derived::Math] call PublicMethodBase();    // статический вложенного класса
     
-    access[This] call un.PublicMethodBase();                 // Объект напрямую
-    access[This] call un=>PublicMethodBase();               // явный вызов базовой версии 
-    access[This] call un->PublicMethodBase();               // виртуальный через указатель  
+    access[::] call un.PublicMethodBase();                 // Объект напрямую
+    access[::] call un=>PublicMethodBase();               // явный вызов базовой версии 
+    access[::] call un->PublicMethodBase();               // виртуальный через указатель  
         
     access[] call delete un;
     return 0;
