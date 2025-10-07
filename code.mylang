@@ -102,10 +102,10 @@ public:
     function[void][__fastcall] ClearCache(int AgeDays);
     function[string][__fastcall] ClearCache(bool Download) {
         
-        call access[This] ResponseCode();
+        access[This] call ResponseCode();
 
         if (__client)
-        {    call access[This] __client->Method(); };
+        {    access[This] call __client->Method(); };
 
         var[double] d = 3.14;
 
@@ -115,16 +115,16 @@ public:
         var[char] ch = 'A';
         var[w_char] w_ch = l'A';
 
-        var[int] i = call access[] static_cast<int>(d);  // Преобразование double в int
+        var[int] i = access[] call static_cast<int>(d);  // Преобразование double в int
 
-        var[Base*] basePtr = call access[] new Derived();
-        var[Derived*] derivedPtr = call access[] dynamic_cast<Derived*>(basePtr); // Безопасное приведение к Derived
-        call access[] delete basePtr;
+        var[Base*] basePtr = access[] call new Derived();
+        var[Derived*] derivedPtr = access[] call dynamic_cast<Derived*>(basePtr); // Безопасное приведение к Derived
+        access[] call delete basePtr;
 
         var[const double] c = 3.14;
 
         var[int] number = 65;
-        var[char*] charPtr = call access[] reinterpret_cast<char*>(&number);
+        var[char*] charPtr = access[] call reinterpret_cast<char*>(&number);
 
         // var[auto] param = "Download";
         var[string] param = "Download";
@@ -201,18 +201,18 @@ function[void] [] PublicMethodBase() { };
 
 function[int][] main () {
     
-    var[Derived*] un = call access[] new Derived();
+    var[Derived*] un = access[] call new Derived();
 
-    call access[] PublicMethodBase();                    // глобальный
-    call access[This] PublicMethodBase();                    // текущий контекс
-    call access[Derived] StaticMethodBase();          // статический
-    call access[Derived::Math] PublicMethodBase();    // статический вложенного класса
+    access[] call PublicMethodBase();                    // глобальный
+    access[This] call PublicMethodBase();                    // текущий контекс
+    access[Derived] call StaticMethodBase();          // статический
+    access[Derived::Math] call PublicMethodBase();    // статический вложенного класса
     
-    call access[This] un.PublicMethodBase();                 // Объект напрямую
-    call access[This] un=>PublicMethodBase();               // явный вызов базовой версии 
-    call access[This] un->PublicMethodBase();               // виртуальный через указатель  
+    access[This] call un.PublicMethodBase();                 // Объект напрямую
+    access[This] call un=>PublicMethodBase();               // явный вызов базовой версии 
+    access[This] call un->PublicMethodBase();               // виртуальный через указатель  
         
-    call access[] delete un;
+    access[] call delete un;
     return 0;
 };
 
@@ -223,6 +223,6 @@ function[int][] main (var[int] argc, var[char*] argv) {
 
 function[int][] main () {
     
-    return call int(); // Равен хз, ну пускай -1;
+    return int(); // Равен хз, ну пускай -1;
 };
 */
