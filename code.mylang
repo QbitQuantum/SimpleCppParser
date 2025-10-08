@@ -102,10 +102,10 @@ public:
     function[void][__fastcall] ClearCache(int AgeDays);
     function[string][__fastcall] ClearCache(bool Download) {
         
-        access[::] call ResponseCode();
+        call access[::] ResponseCode();
 
         if (__client)
-        {    access[::] call __client->Method(); };
+        {   call access[::] __client->Method(); };
 
         var[double] d = 3.14;
 
@@ -115,16 +115,16 @@ public:
         var[char] ch = 'A';
         var[w_char] w_ch = l'A';
 
-        var[int] i = access[] call static_cast<int>(d);  // Преобразование double в int
+        var[int] i = call access[] static_cast<int>(d);  // Преобразование double в int
 
-        var[Base*] basePtr = access[] call new Derived();
-        var[Derived*] derivedPtr = access[] call dynamic_cast<Derived*>(basePtr); // Безопасное приведение к Derived
-        access[] call delete basePtr;
+        var[Base*] basePtr = call access[] new Derived();
+        var[Derived*] derivedPtr = call access[] dynamic_cast<Derived*>(basePtr); // Безопасное приведение к Derived
+        call access[] delete basePtr;
 
         var[const double] c = 3.14;
 
         var[int] number = 65;
-        var[char*] charPtr = access[] call reinterpret_cast<char*>(&number);
+        var[char*] charPtr = call access[] reinterpret_cast<char*>(&number);
 
         // var[auto] param = "Download";
         var[string] param = "Download";
@@ -201,18 +201,18 @@ function[void] [] PublicMethodBase() { };
 
 function[int][] main () {
     
-    var[Derived*] un = access[] call new Derived();
+    var[Derived*] un = call access[] new Derived();
 
-    access[] call PublicMethodBase();                    // глобальный
-    access[::] call PublicMethodBase();                    // текущий контекс
-    access[Derived] call StaticMethodBase();          // статический
-    access[Derived::Math] call PublicMethodBase();    // статический вложенного класса
+    call access[] PublicMethodBase();                    // глобальный
+    call access[::] PublicMethodBase();                    // текущий контекс
+    call access[Derived] StaticMethodBase();          // статический
+    call access[Derived::Math] PublicMethodBase();    // статический вложенного класса
     
-    access[::] call un.PublicMethodBase();                 // Объект напрямую
-    access[::] call un=>PublicMethodBase();               // явный вызов базовой версии 
-    access[::] call un->PublicMethodBase();               // виртуальный через указатель  
+    call access[::] un.PublicMethodBase();                 // Объект напрямую
+    call access[::] un=>PublicMethodBase();               // явный вызов базовой версии 
+    call access[::] un->PublicMethodBase();               // виртуальный через указатель  
         
-    access[] call delete un;
+    call access[] delete un;
     return 0;
 };
 
