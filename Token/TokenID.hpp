@@ -191,7 +191,6 @@ enum class TTokenID : long long {
     Final,
     Var,
     Function,
-    Call,
     Using,
     Access,
 
@@ -413,7 +412,6 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(Static);        
     GENERATE_NAME(Var);
     GENERATE_NAME(Function);
-    GENERATE_NAME(Call);
     GENERATE_NAME(Using);
     GENERATE_NAME(Access);
     GENERATE_NAME(Final);
