@@ -169,7 +169,7 @@ void LexerEngineBasic::LexerRun() {
                 bool IsKeyword = it != TokenKeywordMap.end();
 
                 LexToken LexToken{
-                    IsKeyword ? it->second : TTokenID::Identifier,
+                    IsKeyword ? it->second : TTokenID::Literal,
                     identifier,
                     CurrentLine,
                     CurrentColumn };
@@ -201,7 +201,7 @@ const char LexerEngineBasic::GetChar() {
 
 void LexerEngineBasic::push_back_token_storage() {
     if (!storage_value.empty()) {
-        LexToken LexToken{ TTokenID::Identifier, storage_value, CurrentLine, CurrentColumn };
+        LexToken LexToken{ TTokenID::Literal, storage_value, CurrentLine, CurrentColumn };
         BufferToken.push_back(LexToken);
         storage_value = "";
     }
@@ -308,7 +308,7 @@ void LexerEngineBasic::ProcessQuotation() {
         content += GetChar();
         PosBuffer++;
     }
-    LexToken LexTokenQuotation{ TTokenID::Identifier, content, 0, 0 };
+    LexToken LexTokenQuotation{ TTokenID::Literal, content, 0, 0 };
     BufferToken.push_back(LexTokenQuotation);
 
     LexToken DefLexTokenQuotationEnd{ TTokenID::Quotation, std::string(1, '"'), 0, 0 };

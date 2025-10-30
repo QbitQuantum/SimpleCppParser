@@ -7,7 +7,7 @@
 
 enum class TTokenID : long long {
     
-    /* ::Токены 1 уровня:: */
+    /*************************** Токены по умолчанию:: ***************************/
 
     // Заглавные буквы A-Z
     A = 'A', B = 'B', C = 'C', D = 'D', E = 'E', F = 'F', G = 'G', H = 'H', I = 'I', J = 'J',
@@ -99,30 +99,30 @@ enum class TTokenID : long long {
     FirstSpecialToken = 256,
     neof,          // Конец файла
     Unknown,      // Неизвестный символ
-    Identifier,   // Идентификатор (varName, Class1)
 
-    /* ::Токены 2 уровня:: */
+    /*************************** Токены лексера ***************************/
 
     // ===== Литералы =====
-    IntegerLiteral,  // 123, $FF
-    FloatLiteral,    // 3.14, 2.5e10
-    CharLiteral,     // 'A', #65
-    WCharLiteral,     // L'A'
-    StringLiteral,   // 'text', "text"
-    WStringLiteral,   // L"text"
-    IdentifierLiteral,   
-    HexLiteral,
-    BinaryLiteral,
-    BooleanLiteral,
-    Nullptr,             // nullptr
+    Literal,
+    Not,         // !
+    Xor,         // ^ (исключающее ИЛИ)
+    BitAnd,      // & (побитовое И)
+    BitOr,       // | (побитовое ИЛИ)
+    BitNot,      // ~ (побитовое НЕ)
 
-    // ===== Операторы (расширенный) =====
-    // Арифметические
-    Div,         // div
-    Mod,         // mod
-    Inc,         // ++ (инкремент)
-    Dec,         // -- (декремент)
-    Power,       // ** (возведение в степень)
+    /*************************** Токены пре-лексера ***************************/
+
+    IntegerLiteral,      // 123, -456, 0, 1000 (целочисленные значения в десятичной системе)
+    FloatLiteral,        // 3.14, 2.5e10, -0.5f, 1.0e-5 (числа с плавающей точкой, могут содержать экспоненту)
+    CharLiteral,         // 'A', '\n', '#', '9' (одиночные символы в апострофах, включая escape-последовательности)
+    WCharLiteral,        // L'A', L'Я', L'字' (wide-символы с префиксом L)
+    StringLiteral,       // "text", "Hello World!", "123" (строки в двойных кавычках)
+    WStringLiteral,      // L"text", L"Привет", L"中文文本" (wide-строки с префиксом L)
+    IdentifierLiteral,   // name, age, counter, myVariable (имена переменных, функций, классов)
+    HexLiteral,          // 0xFF, 0x1A3, 0xDEADBEEF (шестнадцатеричные числа с префиксом 0x)
+    BinaryLiteral,       // 0b1010, 0b11001100, 0b1 (двоичные числа с префиксом 0b, C++14 и выше)
+    BooleanLiteral,      // true, false (логические значения)
+    NullptrLiteral,      // nullptr (нулевой указатель, C++11 и выше)
 
     // Присваивания
     Assign,      // =
@@ -134,8 +134,8 @@ enum class TTokenID : long long {
     AndAssign,   // &=
     OrAssign,    // |=
     XorAssign,   // ^=
-    ShlAssign,   // <<=
-    ShrAssign,   // >>=
+    ShlAssign,   // Shl= аналог: <<=
+    ShrAssign,   // Shr= аналог: >>=
 
     // Сравнения
     Equal,       // ==
@@ -143,56 +143,50 @@ enum class TTokenID : long long {
     LessEqual,   // <=
     GreaterEqual,// >=
 
-    // Логические/битовые
-    And,         // &&
-    Or,          // ||
-    Not,         // !
-    Xor,         // ^ (исключающее ИЛИ)
-    BitAnd,      // & (побитовое И)
-    BitOr,       // | (побитовое ИЛИ)
-    BitNot,      // ~ (побитовое НЕ)
-    Shl,         // <<
-    Shr,         // >>
-
-    ScResOp,     // ::
-    Ellipsis,    // ...
-
-    Pointer,     // ->
+    
+    // ===== Операторы (расширенный) =====
+    // Арифметические
+    Div,         // div
+    Mod,         // mod
 
     // ===== Управляющие конструкции =====
-    If,
-    Else,
-    Case,
-    For,
-    While,
-    Do,
-    Try,
-    Catch,
-    Return,
+    If, // if
+    Else, // else 
+    While, // while
+    For, // for
+    Try, // try
+    Catch, // catch
+    Case, // case
+    Return, // return
+    Break,       // break
+    Continue,    // continue
+    Switch,      // switch
+    Default,     // default
+    New,         // new
+    Delete_,      // delete
 
     // ===== Объявление типов =====
-    Class,
-    Const,
-    Struct,
+    Class, // class
+    Override, // ovveride
+    Virtual, // virtual
 
-    // ===== Процедуры/функции =====
-    Override,
-    Virtual,
+    // ===== квалификаторы =====
+    Const, // const
 
     // ===== Модификаторы =====
-    Private,
-    Protected,
-    Public,
+    Private, // private
+    Protected, // protected
+    Public, // public
+    Static, // static
+    Final, // final
 
     // ===== Прочее =====
-    Property,
-    FastCall,
-    Static,
-    Final,
-    Var,
-    Function,
-    Using,
-    Access,
+    Property, // __property
+    FastCall, // __fastcall
+    Var, // var
+    Function, // function
+    Using, // using
+    Access, // access
 
     // ===== Комментарии =====
     LineComment,    // //
@@ -206,8 +200,23 @@ enum class TTokenID : long long {
     UndefDirective,
     IfDirective,
     ElseDirective,
-    IncludeDeirective
+    IncludeDirective,
 
+    // ===== Операторы (расширенный) =====
+    // Арифметические
+    Inc,         // ++ (инкремент)
+    Dec,         // -- (декремент)
+    Power,       // ** (возведение в степень)
+
+    // Логические/битовые
+    And,         // &&
+    Or,          // ||
+    Shl,         // Shl аналог: <<
+    Shr,         // Shl аналог: >>
+
+    ScResOp,     // ::
+
+    Pointer,     // ->
 };
 
 // Вспомогательная функция для преобразования enum в char
@@ -227,44 +236,44 @@ std::string NameTTokenID(TTokenID kind) {
 
     switch (kind)
     {
-    GENERATE_NAME(A);        
-    GENERATE_NAME(B);        
-    GENERATE_NAME(C);        
-    GENERATE_NAME(D);        
-    GENERATE_NAME(E);        
-    GENERATE_NAME(F);        
-    GENERATE_NAME(G);        
-    GENERATE_NAME(H);        
-    GENERATE_NAME(I);        
-    GENERATE_NAME(J);        
-    GENERATE_NAME(K);        
-    GENERATE_NAME(L);        
-    GENERATE_NAME(M);        
-    GENERATE_NAME(N);        
-    GENERATE_NAME(O);        
-    GENERATE_NAME(P);        
-    GENERATE_NAME(Q);        
-    GENERATE_NAME(R);        
-    GENERATE_NAME(S);        
-    GENERATE_NAME(T);        
-    GENERATE_NAME(U);        
-    GENERATE_NAME(V);        
-    GENERATE_NAME(W);        
-    GENERATE_NAME(X);        
-    GENERATE_NAME(Y);        
+    GENERATE_NAME(A);
+    GENERATE_NAME(B);
+    GENERATE_NAME(C);
+    GENERATE_NAME(D);
+    GENERATE_NAME(E);
+    GENERATE_NAME(F);
+    GENERATE_NAME(G);
+    GENERATE_NAME(H);
+    GENERATE_NAME(I);
+    GENERATE_NAME(J);
+    GENERATE_NAME(K);
+    GENERATE_NAME(L);
+    GENERATE_NAME(M);
+    GENERATE_NAME(N);
+    GENERATE_NAME(O);
+    GENERATE_NAME(P);
+    GENERATE_NAME(Q);
+    GENERATE_NAME(R);
+    GENERATE_NAME(S);
+    GENERATE_NAME(T);
+    GENERATE_NAME(U);
+    GENERATE_NAME(V);
+    GENERATE_NAME(W);
+    GENERATE_NAME(X);
+    GENERATE_NAME(Y);
     GENERATE_NAME(Z);
 
-    GENERATE_NAME(a);        
-    GENERATE_NAME(b);        
-    GENERATE_NAME(c);        
-    GENERATE_NAME(d);        
-    GENERATE_NAME(e);        
-    GENERATE_NAME(f);        
-    GENERATE_NAME(g);        
-    GENERATE_NAME(h);        
+    GENERATE_NAME(a);
+    GENERATE_NAME(b);
+    GENERATE_NAME(c);
+    GENERATE_NAME(d);
+    GENERATE_NAME(e);
+    GENERATE_NAME(f);
+    GENERATE_NAME(g);
+    GENERATE_NAME(h);
     GENERATE_NAME(i);
     GENERATE_NAME(j);
-    GENERATE_NAME(k);       
+    GENERATE_NAME(k);
     GENERATE_NAME(l);
     GENERATE_NAME(m);
     GENERATE_NAME(n);
@@ -280,7 +289,7 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(x);
     GENERATE_NAME(y);
     GENERATE_NAME(z);
-        
+
     GENERATE_NAME(Zero);
     GENERATE_NAME(One);
     GENERATE_NAME(Two);
@@ -291,7 +300,7 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(Seven);
     GENERATE_NAME(Eight);
     GENERATE_NAME(Nine);
-        
+
     GENERATE_NAME(Space);
     GENERATE_NAME(Exclamation);
     GENERATE_NAME(Quotation);
@@ -360,7 +369,10 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(Delete);
     GENERATE_NAME(FirstSpecialToken);
     GENERATE_NAME(neof);
-    GENERATE_NAME(Identifier);
+
+    GENERATE_NAME(Unknown);
+
+    GENERATE_NAME(Literal);
     GENERATE_NAME(IntegerLiteral);
     GENERATE_NAME(FloatLiteral);
     GENERATE_NAME(CharLiteral);
@@ -371,62 +383,89 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(HexLiteral);
     GENERATE_NAME(BinaryLiteral);
     GENERATE_NAME(BooleanLiteral);
-    GENERATE_NAME(Nullptr);
-    GENERATE_NAME(Div);        
-    GENERATE_NAME(Mod);        
+    GENERATE_NAME(NullptrLiteral);
+
+    GENERATE_NAME(Assign);
+    GENERATE_NAME(PlusAssign);
+    GENERATE_NAME(MinusAssign);
+    GENERATE_NAME(MultAssign);
+    GENERATE_NAME(DivAssign);
+    GENERATE_NAME(ModAssign);
+    GENERATE_NAME(AndAssign);
+    GENERATE_NAME(OrAssign);
+    GENERATE_NAME(XorAssign);
+    GENERATE_NAME(ShlAssign);
+    GENERATE_NAME(ShrAssign);
+    GENERATE_NAME(Equal);
+    GENERATE_NAME(NotEqual);
+    GENERATE_NAME(LessEqual);
+    GENERATE_NAME(GreaterEqual);
+
+    GENERATE_NAME(Div);
+    GENERATE_NAME(Mod);
+
+    GENERATE_NAME(If);
+    GENERATE_NAME(Else);
+    GENERATE_NAME(While);
+    GENERATE_NAME(For);
+    GENERATE_NAME(Try);
+    GENERATE_NAME(Catch);
+    GENERATE_NAME(Case);
+    GENERATE_NAME(Return);
+    GENERATE_NAME(Break);
+    GENERATE_NAME(Continue);
+    GENERATE_NAME(Switch);
+    GENERATE_NAME(Default);
+    GENERATE_NAME(New);
+    GENERATE_NAME(Delete_);
+
+    GENERATE_NAME(Class);
+    GENERATE_NAME(Override);
+    GENERATE_NAME(Virtual);
+
+    GENERATE_NAME(Const);
+
+    GENERATE_NAME(Private);
+    GENERATE_NAME(Protected);
+    GENERATE_NAME(Public);
+    GENERATE_NAME(Static);
+    GENERATE_NAME(Final);
+
+    GENERATE_NAME(Property);
+    GENERATE_NAME(FastCall);
+    GENERATE_NAME(Var);
+    GENERATE_NAME(Function);
+    GENERATE_NAME(Using);
+    GENERATE_NAME(Access);
+
+    GENERATE_NAME(LineComment);
+    GENERATE_NAME(BlockComment);
+
+    GENERATE_NAME(DefineDirective);
+    GENERATE_NAME(IfDefDirective);
+    GENERATE_NAME(IfNDefDirective);
+    GENERATE_NAME(EndIfDirective);
+    GENERATE_NAME(UndefDirective);
+    GENERATE_NAME(IfDirective);
+    GENERATE_NAME(ElseDirective);
+    GENERATE_NAME(IncludeDirective);
+
     GENERATE_NAME(Inc);
     GENERATE_NAME(Dec);
     GENERATE_NAME(Power);
-    GENERATE_NAME(And);        
-    GENERATE_NAME(Or);        
+    GENERATE_NAME(And);
+    GENERATE_NAME(Or);
     GENERATE_NAME(Not);
     GENERATE_NAME(Xor);
     GENERATE_NAME(BitAnd);
     GENERATE_NAME(BitOr);
     GENERATE_NAME(BitNot);
-    GENERATE_NAME(Shl);        
-    GENERATE_NAME(Shr);        
+    GENERATE_NAME(Shl);
+    GENERATE_NAME(Shr);
     GENERATE_NAME(ScResOp);
-    GENERATE_NAME(Ellipsis);
     GENERATE_NAME(Pointer);
-    GENERATE_NAME(Equal);
-    GENERATE_NAME(NotEqual);        
-    GENERATE_NAME(LessEqual);        
-    GENERATE_NAME(GreaterEqual);              
-    GENERATE_NAME(If);      
-    GENERATE_NAME(Else);
-    GENERATE_NAME(Case);       
-    GENERATE_NAME(For); 
-    GENERATE_NAME(While);
-    GENERATE_NAME(Do);
-    GENERATE_NAME(Try);
-    GENERATE_NAME(Catch);
-    GENERATE_NAME(Return);
-    GENERATE_NAME(Class);
-    GENERATE_NAME(Const); 
-    GENERATE_NAME(Override);
-    GENERATE_NAME(Virtual);
-    GENERATE_NAME(Private);  
-    GENERATE_NAME(Protected);
-    GENERATE_NAME(Public);
-    GENERATE_NAME(Static);        
-    GENERATE_NAME(Var);
-    GENERATE_NAME(Function);
-    GENERATE_NAME(Using);
-    GENERATE_NAME(Access);
-    GENERATE_NAME(Final);
-    GENERATE_NAME(LineComment);
-    GENERATE_NAME(BlockComment);
-    GENERATE_NAME(DefineDirective);
-    GENERATE_NAME(IfDefDirective);
-    GENERATE_NAME(IfNDefDirective);
-    GENERATE_NAME(EndIfDirective);        
-    GENERATE_NAME(UndefDirective);    
-    GENERATE_NAME(IfDirective);  
-    GENERATE_NAME(ElseDirective);
-    GENERATE_NAME(IncludeDeirective);
     default:
-        return "Unknow";
+        return "Unknow Token Name";
     }
 }
 

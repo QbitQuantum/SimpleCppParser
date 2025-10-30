@@ -16,7 +16,7 @@ const std::unordered_map<std::string, TTokenID> TokenDirectiveMap = {
     {"#undef",      TTokenID::UndefDirective},
     {"#if",         TTokenID::IfDirective},
     {"#else",       TTokenID::ElseDirective},
-    {"#include",       TTokenID::IncludeDeirective},
+    {"#include",       TTokenID::IncludeDirective},
 };
 
 #endif // TOKEN_DERECTIVE_MAP_HPP

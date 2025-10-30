@@ -19,14 +19,14 @@ private:
 	}
 
 	std::unordered_map<TTokenID, ParserEnginePtr> map{{
-	{TTokenID::IncludeDeirective, &ParserEngine::ProcessIncludeDeirective},
+	{TTokenID::IncludeDirective, &ParserEngine::ProcessIncludeDirective},
 	{TTokenID::Using, &ParserEngine::ProcessUsing},
 	{TTokenID::Class, &ParserEngine::ProcessClass},
 	{TTokenID::Function, &ParserEngine::ProcessFunction},
 	{TTokenID::Var, &ParserEngine::ProcessVar},
 	}};
 
-	void ProcessIncludeDeirective() {};
+	void ProcessIncludeDirective() {};
 	void ProcessUsing() {};
 	void ProcessClass() {};
 	void ProcessFunction() {};

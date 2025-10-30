@@ -78,16 +78,10 @@ static const std::unordered_map<uint32_t, TTokenID> TokenKeywordMap = {
     {ConstexprCppHash("div"),          TTokenID::Div},
     {ConstexprCppHash("mod"),          TTokenID::Mod},
 
-    // Логические/битовые
-    {ConstexprCppHash("and"),          TTokenID::And},
-    {ConstexprCppHash("or"),           TTokenID::Or},
-    {ConstexprCppHash("not"),          TTokenID::Not},
-    {ConstexprCppHash("xor"),          TTokenID::Xor},
-    
     // ===== Встроенные значение типов =====
-    {ConstexprCppHash("true"),          TTokenID::BooleanLiteral},
-    {ConstexprCppHash("false"),          TTokenID::BooleanLiteral},
-    {ConstexprCppHash("nullptr"),          TTokenID::Nullptr},
+    {ConstexprCppHash("true"),         TTokenID::BooleanLiteral},
+    {ConstexprCppHash("false"),        TTokenID::BooleanLiteral},
+    {ConstexprCppHash("nullptr"),      TTokenID::NullptrLiteral},
 
     // ===== Управляющие конструкции =====
     {ConstexprCppHash("if"),           TTokenID::If},
@@ -95,32 +89,39 @@ static const std::unordered_map<uint32_t, TTokenID> TokenKeywordMap = {
     {ConstexprCppHash("case"),         TTokenID::Case},
     {ConstexprCppHash("for"),          TTokenID::For},
     {ConstexprCppHash("while"),        TTokenID::While},
-    {ConstexprCppHash("do"),           TTokenID::Do},
     {ConstexprCppHash("try"),          TTokenID::Try},
     {ConstexprCppHash("catch"),        TTokenID::Catch},
     {ConstexprCppHash("return"),       TTokenID::Return},
 
-    // ===== Объявление типов =====
-    {ConstexprCppHash("const"),        TTokenID::Const},
-    {ConstexprCppHash("class"),        TTokenID::Class},
+    {ConstexprCppHash("break"),        TTokenID::Break},
+    {ConstexprCppHash("continue"),     TTokenID::Continue},
+    {ConstexprCppHash("switch"),       TTokenID::Switch},
+    {ConstexprCppHash("default"),      TTokenID::Default},
+    {ConstexprCppHash("new"),          TTokenID::New},
+    {ConstexprCppHash("delete"),       TTokenID::Delete_},
 
-    // ===== Процедуры/функции =====
+    // ===== Объявление типов =====
+    {ConstexprCppHash("class"),        TTokenID::Class},
     {ConstexprCppHash("override"),     TTokenID::Override},
     {ConstexprCppHash("virtual"),      TTokenID::Virtual},
+    {ConstexprCppHash("final"),        TTokenID::Final},
+
+    // ===== квалификаторы =====
+    {ConstexprCppHash("const"),        TTokenID::Const},
 
     // ===== Модификаторы =====
     {ConstexprCppHash("private"),      TTokenID::Private},
     {ConstexprCppHash("protected"),    TTokenID::Protected},
     {ConstexprCppHash("public"),       TTokenID::Public},
+    {ConstexprCppHash("static"),       TTokenID::Static },
 
     // ===== Прочее =====
-    {ConstexprCppHash("property"),     TTokenID::Property },
-    {ConstexprCppHash("static"),       TTokenID::Static },
-    {ConstexprCppHash("final"),        TTokenID::Final },
+    {ConstexprCppHash("__property"),   TTokenID::Property },
+    {ConstexprCppHash("__fastcall"),   TTokenID::FastCall },
     {ConstexprCppHash("var"),          TTokenID::Var },
     {ConstexprCppHash("function"),     TTokenID::Function },
-    {ConstexprCppHash("using"),         TTokenID::Using },
-    {ConstexprCppHash("access"),         TTokenID::Access },
+    {ConstexprCppHash("using"),        TTokenID::Using },
+    {ConstexprCppHash("access"),       TTokenID::Access },
 };
 
 static_assert(ConstexprCppHash("div") != ConstexprCppHash("mod"));

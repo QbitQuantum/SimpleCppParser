@@ -36,7 +36,6 @@ private:
 	{TTokenID::Pipe, &LexerEngineAdvance::ProcessPipe},             // |
 	{TTokenID::Asterisk, &LexerEngineAdvance::ProcessAsterisk},     // *
 	{TTokenID::Apostrophe, &LexerEngineAdvance::ProcessApostrophe}, // '
-	{TTokenID::Dot, &LexerEngineAdvance::ProcessDot }		        // .
 	} };
 
 	LexToken ProcessQuotation();
@@ -53,7 +52,6 @@ private:
 	LexToken ProcessPipe();
 	LexToken ProcessAsterisk();
 	LexToken ProcessApostrophe();
-	LexToken ProcessDot();
 
 	bool neof() {
 		return PosBuffer < SizeBufferBasic;
@@ -135,7 +133,7 @@ LexToken LexerEngineAdvance::ProcessHash() /* # */ {
 	{
 		TLexToken.type = it->second;
 		TLexToken.value = directive;
-		IsInclude = TLexToken.type == TTokenID::IncludeDeirective;
+		IsInclude = TLexToken.type == TTokenID::IncludeDirective;
 	}
 
 	return TLexToken;
@@ -146,7 +144,7 @@ LexToken LexerEngineAdvance::ProcessDollar() /* $ */ {
 	PosBuffer++;
 
 	LexToken TLexToken = {
-		TTokenID::Identifier,
+		TTokenID::IdentifierLiteral,
 		"",
 		0,
 		0
@@ -400,26 +398,4 @@ LexToken LexerEngineAdvance::ProcessApostrophe() /* ' */ {
 	}
 	return TLexToken;
 }
-
-// Обработка символа точки
-LexToken LexerEngineAdvance::ProcessDot() /* . */ {
-	LexToken TLexToken = {
-		TTokenID::Dot,
-		".",
-		0,
-		0
-	};
-	if (PosBuffer + 1 < SizeBufferBasic &&
-		LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Dot &&
-		PosBuffer + 2 < SizeBufferBasic &&
-		LexerTokenBufferBasic[PosBuffer + 2].type == TTokenID::Dot)
-	{
-		TLexToken.type = TTokenID::Ellipsis;
-		TLexToken.value = "...";
-		PosBuffer++;
-		PosBuffer++;
-	}
-	return TLexToken;
-}
-
 #endif // LEXER_ENGINE_ADVANCE_HPP
