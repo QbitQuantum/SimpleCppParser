@@ -36,79 +36,79 @@ private:
 private:
 
     std::unordered_map<char, LexEnginePtr> map{ {
-    {' ', &LexerEngineBasic::ProcessSpace},
-    {'"', &LexerEngineBasic::ProcessQuotation},
-    {'#', &LexerEngineBasic::ProcessHash},
-    {'$', &LexerEngineBasic::ProcessDollar},
-    {'%', &LexerEngineBasic::ProcessPercent},
-    {'&', &LexerEngineBasic::ProcessAmpersand},
-    {'(', &LexerEngineBasic::ProcessLeftParen},
-    {')', &LexerEngineBasic::ProcessRightParen},
-    {'{', &LexerEngineBasic::ProcessLeftBrace},
-    {'}', &LexerEngineBasic::ProcessRightBrace},
-    {'[', &LexerEngineBasic::ProcessLeftBracket},
-    {']', &LexerEngineBasic::ProcessRightBracket},
-    {'+', &LexerEngineBasic::ProcessPlus},
-    {',', &LexerEngineBasic::ProcessComma},
-    {'-', &LexerEngineBasic::ProcessMinus},
-    {'.', &LexerEngineBasic::ProcessDot},
-    {':', &LexerEngineBasic::ProcessColon},
-    {';', &LexerEngineBasic::ProcessSemicolon},
-    {'<', &LexerEngineBasic::ProcessLess},
-    {'=', &LexerEngineBasic::ProcessEquals},
-    {'>', &LexerEngineBasic::ProcessGreater},
-    {'@', &LexerEngineBasic::ProcessAt},
-    {'\\', &LexerEngineBasic::ProcessBackslash},
-    {'^', &LexerEngineBasic::ProcessCaret},
-    {'`', &LexerEngineBasic::ProcessBacktick},
-    {'|', &LexerEngineBasic::ProcessPipe},
+    {' ', &LexerEngineBasic::Space},
+    {'"', &LexerEngineBasic::Quotation},
+    {'#', &LexerEngineBasic::Hash},
+    {'$', &LexerEngineBasic::Dollar},
+    {'%', &LexerEngineBasic::Percent},
+    {'&', &LexerEngineBasic::Ampersand},
+    {'(', &LexerEngineBasic::LeftParen},
+    {')', &LexerEngineBasic::RightParen},
+    {'{', &LexerEngineBasic::LeftBrace},
+    {'}', &LexerEngineBasic::RightBrace},
+    {'[', &LexerEngineBasic::LeftBracket},
+    {']', &LexerEngineBasic::RightBracket},
+    {'+', &LexerEngineBasic::Plus},
+    {',', &LexerEngineBasic::Comma},
+    {'-', &LexerEngineBasic::Minus},
+    {'.', &LexerEngineBasic::Dot},
+    {':', &LexerEngineBasic::Colon},
+    {';', &LexerEngineBasic::Semicolon},
+    {'<', &LexerEngineBasic::Less},
+    {'=', &LexerEngineBasic::Equals},
+    {'>', &LexerEngineBasic::Greater},
+    {'@', &LexerEngineBasic::At},
+    {'\\', &LexerEngineBasic::Backslash},
+    {'^', &LexerEngineBasic::Caret},
+    {'`', &LexerEngineBasic::Backtick},
+    {'|', &LexerEngineBasic::Pipe},
 
-    {'\n', &LexerEngineBasic::ProcessLineFeed},
-    {'\r', &LexerEngineBasic::ProcessCarriageReturn},
-    {'*', &LexerEngineBasic::ProcessAsterisk},
-    {'\'', &LexerEngineBasic::ProcessApostrophe},
-    {'/', &LexerEngineBasic::ProcessSlash},
+    {'\n', &LexerEngineBasic::LineFeed},
+    {'\r', &LexerEngineBasic::CarriageReturn},
+    {'*', &LexerEngineBasic::Asterisk},
+    {'\'', &LexerEngineBasic::Apostrophe},
+    {'/', &LexerEngineBasic::Slash},
     }};
 
 
-    void ProcessSpace() { DEF_GENERATION_BASE(Space);};
-    void ProcessLineFeed() { DEF_GENERATION_BASE(LineFeed);};
+    void Space() { DEF_GENERATION_BASE(Space);};
+    void LineFeed() { DEF_GENERATION_BASE(LineFeed);};
 
-    void ProcessHash() { DEF_GENERATION_BASE(Hash); };
-    void ProcessDollar() { DEF_GENERATION_BASE(Dollar); };
-    void ProcessPercent() { DEF_GENERATION_BASE(Percent); };
-    void ProcessAmpersand() { DEF_GENERATION_BASE(Ampersand); };
+    void Hash() { DEF_GENERATION_BASE(Hash); };
+    void Dollar() { DEF_GENERATION_BASE(Dollar); };
+    void Percent() { DEF_GENERATION_BASE(Percent); };
+    void Ampersand() { DEF_GENERATION_BASE(Ampersand); };
 
-    void ProcessRightParen() { DEF_GENERATION_BASE(RightParen); };
-    void ProcessLeftParen() { DEF_GENERATION_BASE(LeftParen); };
+    void RightParen() { DEF_GENERATION_BASE(RightParen); };
+    void LeftParen() { DEF_GENERATION_BASE(LeftParen); };
 
-    void ProcessRightBrace() { DEF_GENERATION_BASE(RightBrace); };
-    void ProcessLeftBrace() { DEF_GENERATION_BASE(LeftBrace); };
+    void RightBrace() { DEF_GENERATION_BASE(RightBrace); };
+    void LeftBrace() { DEF_GENERATION_BASE(LeftBrace); };
 
-    void ProcessLeftBracket() { DEF_GENERATION_BASE(LeftBracket); };
-    void ProcessRightBracket() { DEF_GENERATION_BASE(RightBracket); };
+    void LeftBracket() { DEF_GENERATION_BASE(LeftBracket); };
+    void RightBracket() { DEF_GENERATION_BASE(RightBracket); };
 
-    void ProcessPlus() { DEF_GENERATION_BASE(Plus); };
-    void ProcessComma() { DEF_GENERATION_BASE(Comma); };
-    void ProcessMinus() { DEF_GENERATION_BASE(Minus); };
-    void ProcessDot() { DEF_GENERATION_BASE(Dot); };
-    void ProcessColon() { DEF_GENERATION_BASE(Colon); };
-    void ProcessSemicolon() { DEF_GENERATION_BASE(Semicolon); };
-    void ProcessLess() { DEF_GENERATION_BASE(Less); };
-    void ProcessEquals() { DEF_GENERATION_BASE(Equals); };
-    void ProcessGreater() { DEF_GENERATION_BASE(Greater); };
-    void ProcessAt() { DEF_GENERATION_BASE(At); };
-    void ProcessBackslash() { DEF_GENERATION_BASE(Backslash); };
-    void ProcessCaret() { DEF_GENERATION_BASE(Caret); };
-    void ProcessBacktick() { DEF_GENERATION_BASE(Backtick); };
-    void ProcessPipe() { DEF_GENERATION_BASE(Pipe); };
-    void ProcessTilde() { DEF_GENERATION_BASE(Tilde); };
-    void ProcessAsterisk() { DEF_GENERATION_BASE(Asterisk); };
-    void ProcessApostrophe() { DEF_GENERATION_BASE(Apostrophe); };
+    void Plus() { DEF_GENERATION_BASE(Plus); };
+    void Comma() { DEF_GENERATION_BASE(Comma); };
+    void Minus() { DEF_GENERATION_BASE(Minus); };
+    void Dot() { DEF_GENERATION_BASE(Dot); };
+    void Colon() { DEF_GENERATION_BASE(Colon); };
+    void Semicolon() { DEF_GENERATION_BASE(Semicolon); };
+    void Less() { DEF_GENERATION_BASE(Less); };
+    void Equals() { DEF_GENERATION_BASE(Equals); };
+    void Greater() { DEF_GENERATION_BASE(Greater); };
+    void At() { DEF_GENERATION_BASE(At); };
+    void Backslash() { DEF_GENERATION_BASE(Backslash); };
+    void Caret() { DEF_GENERATION_BASE(Caret); };
+    void Backtick() { DEF_GENERATION_BASE(Backtick); };
+    void Pipe() { DEF_GENERATION_BASE(Pipe); };
+    void Tilde() { DEF_GENERATION_BASE(Tilde); };
+    void Asterisk() { DEF_GENERATION_BASE(Asterisk); };
+    void Apostrophe() { DEF_GENERATION_BASE(Apostrophe); };
 
-    void ProcessCarriageReturn();
-    void ProcessSlash();
-    void ProcessQuotation();
+    void CarriageReturn();
+    void Slash();
+    void Quotation();
 
     // Обновляем проверку идентификаторов:
     bool is_unicode_identifier_start(char32_t c) {
@@ -257,7 +257,7 @@ void LexerEngineBasic::parse_number() {
     PosBuffer--;
 }
 
-void LexerEngineBasic::ProcessCarriageReturn() {
+void LexerEngineBasic::CarriageReturn() {
     push_back_token_storage();
     // Если после `\r` идёт `\n` (Windows: `\r\n`), пропускаем `\n`
     if (PosBuffer + 1 < SourceCode.size() && SourceCode[PosBuffer + 1] == '\n') {
@@ -265,7 +265,7 @@ void LexerEngineBasic::ProcessCarriageReturn() {
     }
 }
 
-void LexerEngineBasic::ProcessSlash() {
+void LexerEngineBasic::Slash() {
     push_back_token_storage();
     PosBuffer++;
     char _getchar = GetChar();
@@ -296,7 +296,7 @@ void LexerEngineBasic::ProcessSlash() {
     }
 }
 
-void LexerEngineBasic::ProcessQuotation() {
+void LexerEngineBasic::Quotation() {
     push_back_token_storage();
 
     LexToken DefLexTokenQuotationBegin{ TTokenID::Quotation, std::string(1, '"'), 0, 0};

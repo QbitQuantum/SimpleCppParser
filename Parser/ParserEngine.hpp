@@ -19,18 +19,18 @@ private:
 	}
 
 	std::unordered_map<TTokenID, ParserEnginePtr> map{{
-	{TTokenID::IncludeDirective, &ParserEngine::ProcessIncludeDirective},
-	{TTokenID::Using, &ParserEngine::ProcessUsing},
-	{TTokenID::Class, &ParserEngine::ProcessClass},
-	{TTokenID::Function, &ParserEngine::ProcessFunction},
-	{TTokenID::Var, &ParserEngine::ProcessVar},
+	{TTokenID::IncludeDirective, &ParserEngine::IncludeDirective},
+	{TTokenID::Using, &ParserEngine::Using},
+	{TTokenID::Class, &ParserEngine::Class},
+	{TTokenID::Function, &ParserEngine::Function},
+	{TTokenID::Var, &ParserEngine::Var},
 	}};
 
-	void ProcessIncludeDirective() {};
-	void ProcessUsing() {};
-	void ProcessClass() {};
-	void ProcessFunction() {};
-	void ProcessVar() {};
+	void IncludeDirective() {};
+	void Using() {};
+	void Class() {};
+	void Function() {};
+	void Var() {};
 
 public:
 	std::vector<LexToken> ParserEngineBuffer;
