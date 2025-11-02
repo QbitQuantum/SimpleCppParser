@@ -209,7 +209,6 @@ function[int][] main () {
     access[Derived::Math] PublicMethodBase(); // статический вложенного класса
     
     un.PublicMethodBase();           // Объект напрямую
-    un=>PublicMethodBase();          // явный вызов базовой версии 
     un->PublicMethodBase();          // виртуальный через указатель  
         
     delete un;
