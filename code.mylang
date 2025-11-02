@@ -3,7 +3,7 @@
 #include "math.txt"
 #include <vector>
 
-var[const int] INDEX_INVALID = i"-1"; // Для отрицательных чисел заключаем в "" с суффиксом i
+var[const int] INDEX_INVALID = -1;
 
 using ERequestError = function[void][__fastcall(__closure*)](TNetHTTPClient*, string Link, LLinkWorkType, string Error);
 using ERequestEvent = function[void][__fastcall(__closure*)](TNetHTTPClient*, string Link, LLinkWorkType);
