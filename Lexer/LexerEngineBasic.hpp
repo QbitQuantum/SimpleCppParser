@@ -15,11 +15,6 @@
 using Callback = void(*)(std::string);
 Callback LexError;
 
-#define DEF_GENERATION_TO_CHAR(X) \
-push_back_token_storage(); \
-LexToken LexToken{ X, std::string(1, constexprToChar(X)), CurrentLine, CurrentColumn }; \
-BufferToken.push_back(LexToken); \
-
 #define DEF_GENERATION_BASE(X) \
 push_back_token_storage(); \
 LexToken LexToken{ TTokenID::##X, std::string(1, constexprToChar(TTokenID::##X)), CurrentLine, CurrentColumn }; \
@@ -105,10 +100,10 @@ private:
     void Tilde() { DEF_GENERATION_BASE(Tilde); };
     void Asterisk() { DEF_GENERATION_BASE(Asterisk); };
     void Apostrophe() { DEF_GENERATION_BASE(Apostrophe); };
+    void Quotation() { DEF_GENERATION_BASE(Quotation);};
 
     void CarriageReturn();
     void Slash();
-    void Quotation();
 
     // Обновляем проверку идентификаторов:
     bool is_unicode_identifier_start(char32_t c) {
@@ -118,14 +113,11 @@ private:
             return true;
         return (c >= 0xC0); // Все символы выше ASCII
     }
-    bool is_digit(char32_t c) {
-        return (c >= constexprToChar(TTokenID::Zero) && c <= constexprToChar(TTokenID::Nine));
-    }
+
     bool neof() {
         return PosBuffer < SourceCode.size();
     }
 
-    void parse_number();
     void push_back_token_storage();
     
     const char GetChar();
@@ -148,46 +140,32 @@ public:
 void LexerEngineBasic::LexerRun() {
 
     while (neof()) {
-        if (is_unicode_identifier_start(GetChar()) || is_digit(GetChar())) {
-            
-            if (is_digit(GetChar()))
-            {
-                parse_number();
-            }
-            else
-            {
-                size_t start = PosBuffer;
-                while (neof() && (is_unicode_identifier_start(GetChar()) || is_digit(GetChar()))) {
-                    PosBuffer++;
-                }
-
-                std::string identifier = SourceCode.substr(start, PosBuffer - start);
-                PosBuffer--;
-
-                // Проверяем, является ли собранная строка ключевым словом
-                auto it = TokenKeywordMap.find(CppHash(identifier));
-                bool IsKeyword = it != TokenKeywordMap.end();
-
-                LexToken LexToken{
-                    IsKeyword ? it->second : TTokenID::Literal,
-                    identifier,
-                    CurrentLine,
-                    CurrentColumn };
-                BufferToken.push_back(LexToken);
-
-                CurrentLine += identifier.size();
-            }
+        
+        if (auto it = map.find(GetChar()); it != map.end()) {
+            (this->*it->second)();
         }
         else
-        {
+        {   
+            size_t start = PosBuffer;
+            while (neof() && (is_unicode_identifier_start(GetChar()) || isdigit(GetChar()))) {
+                PosBuffer++;
+            }
 
-            if (auto it = map.find(GetChar()); it != map.end()) {
-                (this->*it->second)();
-            }
-            else
-            {
-                storage_value += GetChar();
-            }
+            std::string identifier = SourceCode.substr(start, PosBuffer - start);
+            PosBuffer--;
+
+            // Проверяем, является ли собранная строка ключевым словом
+            auto itKeywordMap = TokenKeywordMap.find(CppHash(identifier));
+            bool IsKeyword = itKeywordMap != TokenKeywordMap.end();
+
+            LexToken LexToken{
+                IsKeyword ? itKeywordMap->second : TTokenID::Literal,
+                identifier,
+                CurrentLine,
+                CurrentColumn };
+            BufferToken.push_back(LexToken);
+
+            CurrentLine += identifier.size();
         }
         CurrentLine++;
         PosBuffer++;
@@ -205,56 +183,6 @@ void LexerEngineBasic::push_back_token_storage() {
         BufferToken.push_back(LexToken);
         storage_value = "";
     }
-}
-
-void LexerEngineBasic::parse_number() {
-    push_back_token_storage();
-
-    size_t start = PosBuffer;
-    bool is_hex = false;
-    bool is_float = false;
-
-    // Проверяем на шестнадцатеричное число ($FF)
-    if (GetChar() == '0' && 
-        PosBuffer + 1 < SourceCode.size() &&
-        (SourceCode[PosBuffer + 1] == 'x' || SourceCode[PosBuffer + 1] == 'X')) {
-        is_hex = true;
-        PosBuffer += 2;
-    }
-
-    while (neof()) {
-        if (is_hex) {
-            if (!isxdigit(GetChar())) break;  // Только 0-9, A-F
-        }
-        else {
-            if (GetChar() == '.') {
-                if (is_float) break;  // Уже была точка → ошибка
-                is_float = true;
-            }
-            else if (GetChar() == 'e' || GetChar() == 'E') {
-                if (PosBuffer + 1 < SourceCode.size() &&
-                    (SourceCode[PosBuffer + 1] == '+' || SourceCode[PosBuffer + 1] == '-')) {
-                    PosBuffer++;  // Пропускаем знак экспоненты
-                }
-                is_float = true;
-            }
-            else if (!is_digit(GetChar())) {
-                break;
-            }
-        }
-        PosBuffer++;
-    }
-
-    std::string num_str = SourceCode.substr(start, PosBuffer - start);
-    TTokenID kind =
-        is_float ? TTokenID::FloatLiteral :
-        is_hex ? TTokenID::HexLiteral :
-        TTokenID::IntegerLiteral;
-
-    LexToken LexToken{ kind, num_str, CurrentLine, CurrentColumn };
-    BufferToken.push_back(LexToken);
-    CurrentLine += num_str.size();
-    PosBuffer--;
 }
 
 void LexerEngineBasic::CarriageReturn() {
@@ -292,30 +220,7 @@ void LexerEngineBasic::Slash() {
     else
     {
         PosBuffer--;
-        DEF_GENERATION_TO_CHAR(TTokenID::Slash);
+        DEF_GENERATION_BASE(Slash);
     }
 }
-
-void LexerEngineBasic::Quotation() {
-    push_back_token_storage();
-
-    LexToken DefLexTokenQuotationBegin{ TTokenID::Quotation, std::string(1, '"'), 0, 0};
-    BufferToken.push_back(DefLexTokenQuotationBegin);
-
-    PosBuffer++;
-    std::string content = "";
-    while (neof() && GetChar() != '"') {
-        content += GetChar();
-        PosBuffer++;
-    }
-    LexToken LexTokenQuotation{ TTokenID::Literal, content, 0, 0 };
-    BufferToken.push_back(LexTokenQuotation);
-
-    LexToken DefLexTokenQuotationEnd{ TTokenID::Quotation, std::string(1, '"'), 0, 0 };
-    BufferToken.push_back(DefLexTokenQuotationEnd);
-
-    PosBuffer++;
-    BufferToken.push_back({ constexprToTTokenID(SourceCode[PosBuffer]), std::string(1, SourceCode[PosBuffer]), 0, 0 });
-}
-
 #endif // LEXER_ENGINE_BASIC_HPP
