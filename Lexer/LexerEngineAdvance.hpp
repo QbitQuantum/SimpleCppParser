@@ -25,7 +25,6 @@ private:
 	std::unordered_map<TTokenID, LexEnginePtr> map{ {
 	{TTokenID::Quotation, &LexerEngineAdvance::Quotation},   // "
 	{TTokenID::Hash, &LexerEngineAdvance::Hash},             // #
-	{TTokenID::Dollar, &LexerEngineAdvance::Dollar},         // $
 	{TTokenID::Ampersand, &LexerEngineAdvance::Ampersand},   // &
 	{TTokenID::Plus, &LexerEngineAdvance::Plus},             // +
 	{TTokenID::Minus, &LexerEngineAdvance::Minus},           // -
@@ -42,7 +41,6 @@ private:
 
 	LexToken Quotation();
 	LexToken Hash();
-	LexToken Dollar();
 	LexToken Ampersand();
 	LexToken Plus();
 	LexToken Minus();
@@ -139,24 +137,6 @@ LexToken LexerEngineAdvance::Hash() /* # */ {
 		TLexToken.value = directive;
 		IsInclude = TLexToken.type == TTokenID::IncludeDirective;
 	}
-
-	return TLexToken;
-}
-
-// Обработка имени идентификатора
-LexToken LexerEngineAdvance::Dollar() /* $ */ {
-	PosBuffer++;
-
-	LexToken TLexToken = {
-		TTokenID::IdentifierLiteral,
-		"",
-		0,
-		0
-	};
-
-	std::string Identifier = "$" + LexerTokenBufferBasic[PosBuffer].value;
-
-	TLexToken.value = Identifier;
 
 	return TLexToken;
 }
