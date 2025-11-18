@@ -189,6 +189,7 @@ enum class TTokenID : long long {
 
     Using, // using
     Pointer, // pointer
+    Type, // type
 
     // ===== Комментарии =====
     LineComment,    // //

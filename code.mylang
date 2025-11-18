@@ -11,6 +11,16 @@ using pointer ERequestError = function[void][__fastcall(__closure*)](TNetHTTPCli
 using pointer ERequestEvent = function[void][__fastcall(__closure*)](TNetHTTPClient*, string Link, LLinkWorkType);
 using pointer ERequestObtainData = function[void][__fastcall(__closure*)](TObject*, string Data, int Arg);
 
+/*
+using type 
+{
+    string = System::UnicodeString;
+    w_string = System::WideString;
+}
+*/
+using type string = System::UnicodeString;
+using type w_string = System::WideString;
+
 var[const int] INDEX_INVALID = -1;
 // base link class
 class OctetBaseLink : OctetBaseNode {
@@ -21,7 +31,7 @@ private:
     class OctetBaseLinkRequest : TNetHTTPRequest {
 
     private:
-        var[string] __link;
+        var[type[string]] __link;
         var[OctetBaseLink*] __parent;
         var[bool] __abort = false;
         var[int] __arg = INDEX_INVALID;
@@ -32,7 +42,7 @@ private:
 
     public:
 
-        var[string] RequestTag;
+        var[type[string]] RequestTag;
         pointer[ERequestObtainData] OnObtainData = nullptr;
         var[bool] Completed = false;
 
@@ -52,7 +62,7 @@ protected:
     var[TNetHTTPClient*] __client = nullptr, __asyncclient = nullptr;
     var[LLinkWorkType] __work = lwIdle;
 
-    var[string] __host, __lastresult;
+    var[type[string]] __host, __lastresult;
 
     var[int] 
         __contime = access[link::connection] timeout, 
@@ -81,7 +91,7 @@ static:
 public:
 
     // variables
-    var[string] DefaultLink, UpdateLink, UserIdent, MachineIdent;
+    var[type[string]] DefaultLink, UpdateLink, UserIdent, MachineIdent;
 
     var[bool] LocalLinking = false, InputCache = false, OutputCache = false;
 
@@ -112,8 +122,8 @@ public:
 
         var[double] d = 3.14;
 
-        var[string] str = "string moment";
-        var[w_string] w_str = l"string moment";
+        var[type[string]] str = "string moment";
+        var[type[w_string]] w_str = l"string moment";
 
         var[char] ch = 'A';
         var[w_char] w_ch = l'A';
@@ -130,7 +140,7 @@ public:
         var[char*] charPtr = reinterpret_cast<char*>(&number);
 
         // var[auto] param = "Download";
-        var[string] param = "Download";
+        var[type[string]] param = "Download";
 
         if (Download)
         {
