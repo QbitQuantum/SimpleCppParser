@@ -1,10 +1,17 @@
 
-var[const int] INDEX_INVALID = -1;
-
+/*
+using pointer 
+{
+    function[void][__fastcall(__closure*)](TNetHTTPClient*, string Link, LLinkWorkType, string Error);
+    function[void][__fastcall(__closure*)](TNetHTTPClient*, string Link, LLinkWorkType);
+    function[void][__fastcall(__closure*)](TObject*, string Data, int Arg);
+}
+*/
 using pointer ERequestError = function[void][__fastcall(__closure*)](TNetHTTPClient*, string Link, LLinkWorkType, string Error);
 using pointer ERequestEvent = function[void][__fastcall(__closure*)](TNetHTTPClient*, string Link, LLinkWorkType);
 using pointer ERequestObtainData = function[void][__fastcall(__closure*)](TObject*, string Data, int Arg);
 
+var[const int] INDEX_INVALID = -1;
 // base link class
 class OctetBaseLink : OctetBaseNode {
 
