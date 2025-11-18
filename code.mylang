@@ -21,6 +21,20 @@ using type
 using type string = System::UnicodeString;
 using type w_string = System::WideString;
 
+/*
+using access 
+{
+    BaseRequest = OctetBaseLink::OctetBaseLinkRequest;
+    LinkConnection = link::connection;
+    LinkResponse = link::response;
+    LinkType = link::type;
+}
+*/
+using access BaseRequest = OctetBaseLink::OctetBaseLinkRequest;
+using access LinkConnection = link::connection;
+using access LinkResponse = link::response;
+using access LinkType = link::type;
+
 var[const int] INDEX_INVALID = -1;
 // base link class
 class OctetBaseLink : OctetBaseNode {
@@ -65,14 +79,14 @@ protected:
     var[type[string]] __host, __lastresult;
 
     var[int] 
-        __contime = access[link::connection] timeout, 
-        __restime = access[link::response] timeout;
+        __contime = access[LinkConnection] timeout, 
+        __restime = access[LinkResponse] timeout;
 
     var[int] 
-        __contimeasync = access[link::connection] timeout_async, 
-        __restimeasync = access[link::response] timeout_async;
+        __contimeasync = access[LinkConnection] timeout_async, 
+        __restimeasync = access[LinkResponse] timeout_async;
     var[int] 
-        __lastcode = access[link::response] timeout;
+        __lastcode = access[LinkResponse] timeout;
 
     // class init
     function[void][__fastcall] _init();
@@ -101,7 +115,7 @@ public:
 
     // base network methods
 
-    function[string][__fastcall] Read(string, int Type = access[link::type] critical);
+    function[string][__fastcall] Read(string, int Type = access[LinkType] critical);
     function[void][__fastcall] Read(string, ERequestObtainData, string RequestTag, int Argument = INDEX_INVALID);
     function[void][__fastcall] Cache(string Link, ERequestObtainData Event, string RequestTag, int Argument = INDEX_INVALID);
     function[string][__fastcall] Cache(string Link);
@@ -165,13 +179,14 @@ public:
 
     function[void][__fastcall] OctetBaseLink(
         TComponent*, 
-        int ConnectionTimeout = access[link::connection] timeout, 
-        int ResponseTimeout = access[link::response] timeout, 
-        int ConnectionTimeoutAsync = access[link::connection] timeout_async, 
-        int ResponseTimeoutAsync = access[link::response] timeout_async);
+        int ConnectionTimeout = access[LinkConnection] timeout, 
+        int ResponseTimeout = access[LinkResponse] timeout, 
+        int ConnectionTimeoutAsync = access[LinkConnection] timeout_async, 
+        int ResponseTimeoutAsync = access[LinkResponse] timeout_async);
 };
 
-function[void][__fastcall] access[OctetBaseLink::OctetBaseLinkRequest] Abort()  {
+function[void][__fastcall] OctetBaseLink::OctetBaseLinkRequest::Abort()  {
+function[void][__fastcall] access[BaseRequest] Abort()  {
     var[const int] number = 1;
 };
 
@@ -216,10 +231,9 @@ function[int][] main () {
     
     var[Derived*] un = new Derived();
 
-    PublicMethodBase();            // текущий контекст
-    access[::] PublicMethodBase();              // глобальный
-    access[Derived] StaticMethodBase();       // статический
-    access[Derived::Math] PublicMethodBase(); // статический вложенного класса
+    PublicMethodBase();            // текущий контекст -> глобальный
+    Derived::StaticMethodBase();       // статический
+    Derived::Math::PublicMethodBase(); // статический вложенного класса
     
     un.PublicMethodBase();           // Объект напрямую
     un->PublicMethodBase();          // виртуальный через указатель  
