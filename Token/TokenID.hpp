@@ -185,8 +185,10 @@ enum class TTokenID : long long {
     FastCall, // __fastcall
     Var, // var
     Function, // function
-    Using, // using
     Access, // access
+
+    Using, // using
+    Pointer, // pointer
 
     // ===== Комментарии =====
     LineComment,    // //
@@ -435,8 +437,10 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(FastCall);
     GENERATE_NAME(Var);
     GENERATE_NAME(Function);
-    GENERATE_NAME(Using);
     GENERATE_NAME(Access);
+
+    GENERATE_NAME(Using);
+    GENERATE_NAME(Pointer);
 
     GENERATE_NAME(LineComment);
     GENERATE_NAME(BlockComment);
