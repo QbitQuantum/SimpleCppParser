@@ -216,7 +216,7 @@ enum class TTokenID : long long {
 
     ScResOp,     // ::
 
-    Pointer,     // ->
+    Arrow,     // ->
 };
 
 // Вспомогательная функция для преобразования enum в char
@@ -463,7 +463,7 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(Shl);
     GENERATE_NAME(Shr);
     GENERATE_NAME(ScResOp);
-    GENERATE_NAME(Pointer);
+    GENERATE_NAME(Arrow);
     default:
         return "Unknow Token Name";
     }
