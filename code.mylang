@@ -161,7 +161,7 @@ public:
         int ResponseTimeoutAsync = access[LinkResponse] timeout_async);
 };
 
-function[void][__fastcall] OctetBaseLink::OctetBaseLinkRequest::Abort()  {
+// function[void][__fastcall] OctetBaseLink::OctetBaseLinkRequest::Abort()  {
 function[void][__fastcall] access[BaseRequest] Abort()  {
     var[const int] number = 1;
 };
