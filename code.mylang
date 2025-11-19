@@ -1,35 +1,11 @@
 
-/*
-using pointer 
-{
-    function[void][__fastcall(__closure*)](TNetHTTPClient*, string Link, LLinkWorkType, string Error);
-    function[void][__fastcall(__closure*)](TNetHTTPClient*, string Link, LLinkWorkType);
-    function[void][__fastcall(__closure*)](TObject*, string Data, int Arg);
-}
-*/
 using pointer ERequestError = function[void][__fastcall(__closure*)](TNetHTTPClient*, string Link, LLinkWorkType, string Error);
 using pointer ERequestEvent = function[void][__fastcall(__closure*)](TNetHTTPClient*, string Link, LLinkWorkType);
 using pointer ERequestObtainData = function[void][__fastcall(__closure*)](TObject*, string Data, int Arg);
 
-/*
-using type 
-{
-    string = System::UnicodeString;
-    w_string = System::WideString;
-}
-*/
 using type string = System::UnicodeString;
 using type w_string = System::WideString;
 
-/*
-using access 
-{
-    BaseRequest = OctetBaseLink::OctetBaseLinkRequest;
-    LinkConnection = link::connection;
-    LinkResponse = link::response;
-    LinkType = link::type;
-}
-*/
 using access BaseRequest = OctetBaseLink::OctetBaseLinkRequest;
 using access LinkConnection = link::connection;
 using access LinkResponse = link::response;
