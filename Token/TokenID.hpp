@@ -442,6 +442,7 @@ std::string NameTTokenID(TTokenID kind) {
 
     GENERATE_NAME(Using);
     GENERATE_NAME(Pointer);
+    GENERATE_NAME(Type);
 
     GENERATE_NAME(LineComment);
     GENERATE_NAME(BlockComment);
