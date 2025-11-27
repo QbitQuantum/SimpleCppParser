@@ -3,7 +3,7 @@
 #define PARSER_ENGINE_HPP
 #pragma once
 
-#include "LexerEngineAdvance.hpp"
+#include "PostLexer.hpp"
 #include "Node.hpp"
 
 class ParserEngine
@@ -35,8 +35,8 @@ private:
 public:
 	std::vector<LexToken> ParserEngineBuffer;
 
-	ParserEngine(const LexerEngineAdvance& advance) : 
-		ParserEngineBuffer(advance.GetBufferLexerAdvanceToken()) {
+	ParserEngine(const PostLexer& advance) : 
+		ParserEngineBuffer(advance.GetBufferPostLexerToken()) {
 		Init();
 	};
 

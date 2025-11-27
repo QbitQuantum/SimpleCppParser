@@ -1,6 +1,6 @@
 ﻿
-#ifndef LEXER_ENGINE_ADVANCE_HPP
-#define LEXER_ENGINE_ADVANCE_HPP
+#ifndef POST_LEXER_HPP
+#define POST_LEXER_HPP
 #pragma once
 
 #include "TokenID.hpp"
@@ -10,9 +10,9 @@
 #include <unordered_map>
 #include <ctype.h>
 
-class LexerEngineAdvance {
+class PostLexer {
 private:
-	using LexEnginePtr = LexToken(LexerEngineAdvance::*)();
+	using LexEnginePtr = LexToken(PostLexer::*)();
 	int PosBuffer = 0;
 	int SizeBufferBasic = 0;
 
@@ -23,20 +23,20 @@ private:
 	void Init();
 
 	std::unordered_map<TTokenID, LexEnginePtr> map{ {
-	{TTokenID::Quotation, &LexerEngineAdvance::Quotation},   // "
-	{TTokenID::Hash, &LexerEngineAdvance::Hash},             // #
-	{TTokenID::Ampersand, &LexerEngineAdvance::Ampersand},   // &
-	{TTokenID::Plus, &LexerEngineAdvance::Plus},             // +
-	{TTokenID::Minus, &LexerEngineAdvance::Minus},           // -
-	{TTokenID::Colon, &LexerEngineAdvance::Colon},           // :
-	{TTokenID::Less, &LexerEngineAdvance::Less},             // <
-	{TTokenID::Equals, &LexerEngineAdvance::Equals},         // =
-	{TTokenID::Greater, &LexerEngineAdvance::Greater},       // >
-	{TTokenID::Caret, &LexerEngineAdvance::Caret},           // ^
-	{TTokenID::Pipe, &LexerEngineAdvance::Pipe},             // |
-	{TTokenID::Asterisk, &LexerEngineAdvance::Asterisk},     // *
-	{TTokenID::Apostrophe, &LexerEngineAdvance::Apostrophe}, // '
-	{TTokenID::Literal, &LexerEngineAdvance::Literal},       // Literal
+	{TTokenID::Quotation, &PostLexer::Quotation},   // "
+	{TTokenID::Hash, &PostLexer::Hash},             // #
+	{TTokenID::Ampersand, &PostLexer::Ampersand},   // &
+	{TTokenID::Plus, &PostLexer::Plus},             // +
+	{TTokenID::Minus, &PostLexer::Minus},           // -
+	{TTokenID::Colon, &PostLexer::Colon},           // :
+	{TTokenID::Less, &PostLexer::Less},             // <
+	{TTokenID::Equals, &PostLexer::Equals},         // =
+	{TTokenID::Greater, &PostLexer::Greater},       // >
+	{TTokenID::Caret, &PostLexer::Caret},           // ^
+	{TTokenID::Pipe, &PostLexer::Pipe},             // |
+	{TTokenID::Asterisk, &PostLexer::Asterisk},     // *
+	{TTokenID::Apostrophe, &PostLexer::Apostrophe}, // '
+	{TTokenID::Literal, &PostLexer::Literal},       // Literal
 	} };
 
 	LexToken Quotation();
@@ -59,7 +59,7 @@ private:
 	}
 
 public:
-	LexerEngineAdvance(const std::vector<LexToken>& lexbuffer) {
+	PostLexer(const std::vector<LexToken>& lexbuffer) {
 		SizeBufferBasic = lexbuffer.size();
 		LexerTokenBufferAdvance.reserve(SizeBufferBasic);
 		LexerTokenBufferBasic.reserve(SizeBufferBasic);
@@ -67,12 +67,12 @@ public:
 		Init();
 	}
 
-	const std::vector<LexToken>& GetBufferLexerAdvanceToken() const {
+	const std::vector<LexToken>& GetBufferPostLexerToken() const {
 		return LexerTokenBufferAdvance;
 	}
 };
 
-void LexerEngineAdvance::Init() {
+void PostLexer::Init() {
 
 	while (neof()) {
 		auto it = map.find(LexerTokenBufferBasic[PosBuffer].type);
@@ -87,7 +87,7 @@ void LexerEngineAdvance::Init() {
 }
 
 // Обработка строковых литералов 
-LexToken LexerEngineAdvance::Quotation() /* " */ {
+LexToken PostLexer::Quotation() /* " */ {
 
 	IsInclude = false;
 
@@ -118,7 +118,7 @@ LexToken LexerEngineAdvance::Quotation() /* " */ {
 }
 
 // Обработка директив препроцессора
-LexToken LexerEngineAdvance::Hash() /* # */ {
+LexToken PostLexer::Hash() /* # */ {
 	PosBuffer++;
 
 	LexToken TLexToken = {
@@ -142,7 +142,7 @@ LexToken LexerEngineAdvance::Hash() /* # */ {
 }
 
 // Обработка амперсанда
-LexToken LexerEngineAdvance::Ampersand() /* & */ {
+LexToken PostLexer::Ampersand() /* & */ {
 	LexToken TLexToken = {
 		TTokenID::BitAnd,
 		"&",
@@ -162,7 +162,7 @@ LexToken LexerEngineAdvance::Ampersand() /* & */ {
 }
 
 // Обработка плюса
-LexToken LexerEngineAdvance::Plus() /* + */ {
+LexToken PostLexer::Plus() /* + */ {
 	LexToken TLexToken = {
 		TTokenID::Plus,
 		"+",
@@ -182,7 +182,7 @@ LexToken LexerEngineAdvance::Plus() /* + */ {
 }
 
 // Обработка минуса
-LexToken LexerEngineAdvance::Minus() /* - */ {
+LexToken PostLexer::Minus() /* - */ {
 	LexToken TLexToken = {
 		TTokenID::Minus,
 		"-",
@@ -208,7 +208,7 @@ LexToken LexerEngineAdvance::Minus() /* - */ {
 }
 
 // Обработка двоеточие
-LexToken LexerEngineAdvance::Colon() /* : */ {
+LexToken PostLexer::Colon() /* : */ {
 	LexToken TLexToken = {
 		TTokenID::Colon,
 		":",
@@ -228,7 +228,7 @@ LexToken LexerEngineAdvance::Colon() /* : */ {
 }
 
 // Обработка символа уменьшения
-LexToken LexerEngineAdvance::Less() /* < */ {
+LexToken PostLexer::Less() /* < */ {
 	LexToken TLexToken = {
 		TTokenID::Less,
 		"<",
@@ -272,7 +272,7 @@ LexToken LexerEngineAdvance::Less() /* < */ {
 }
 
 // Обработка символа ровно
-LexToken LexerEngineAdvance::Equals() /* = */ {
+LexToken PostLexer::Equals() /* = */ {
 	LexToken TLexToken = {
 		TTokenID::Equals,
 		"=",
@@ -292,7 +292,7 @@ LexToken LexerEngineAdvance::Equals() /* = */ {
 }
 
 // Обработка символа больше
-LexToken LexerEngineAdvance::Greater() /* > */ {
+LexToken PostLexer::Greater() /* > */ {
 	LexToken TLexToken = {
 		TTokenID::Greater,
 		">",
@@ -312,7 +312,7 @@ LexToken LexerEngineAdvance::Greater() /* > */ {
 }
 
 // Обработка символа ^
-LexToken LexerEngineAdvance::Caret() /* ^ */ {
+LexToken PostLexer::Caret() /* ^ */ {
 	return LexToken{
 		TTokenID::Xor,
 		"^",
@@ -322,7 +322,7 @@ LexToken LexerEngineAdvance::Caret() /* ^ */ {
 }
 
 // Обработка символа прямого слэша
-LexToken LexerEngineAdvance::Pipe() /* | */ {
+LexToken PostLexer::Pipe() /* | */ {
 	LexToken TLexToken = {
 		TTokenID::BitOr,
 		"|",
@@ -342,7 +342,7 @@ LexToken LexerEngineAdvance::Pipe() /* | */ {
 }
 
 // Обработка символа астерикса
-LexToken LexerEngineAdvance::Asterisk() /* * */ {
+LexToken PostLexer::Asterisk() /* * */ {
 	LexToken TLexToken = {
 		TTokenID::Asterisk,
 		"*",
@@ -362,7 +362,7 @@ LexToken LexerEngineAdvance::Asterisk() /* * */ {
 }
 
 // Обработка строковых литералов 
-LexToken LexerEngineAdvance::Apostrophe() /* ' */ {
+LexToken PostLexer::Apostrophe() /* ' */ {
 	PosBuffer++;
 	LexToken TLexToken = {
 		TTokenID::CharLiteral,
@@ -390,7 +390,7 @@ LexToken LexerEngineAdvance::Apostrophe() /* ' */ {
 }
 
 // Обработка типа литералов 
-LexToken LexerEngineAdvance::Literal() /* Literal */ {
+LexToken PostLexer::Literal() /* Literal */ {
 
 	LexToken TLexToken = LexerTokenBufferBasic[PosBuffer];
 	TLexToken.type = TTokenID::IdentifierLiteral;
@@ -447,4 +447,4 @@ LexToken LexerEngineAdvance::Literal() /* Literal */ {
 
 	return TLexToken;
 }
-#endif // LEXER_ENGINE_ADVANCE_HPP
+#endif // POST_LEXER_HPP

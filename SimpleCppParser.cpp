@@ -1,6 +1,6 @@
 ﻿
 #include "Lexer.hpp"
-#include "LexerEngineAdvance.hpp"
+#include "PostLexer.hpp"
 #include "ParserEngine.hpp"
 
 #include <iostream>
@@ -26,16 +26,16 @@ int main()
 {
     std::string code = ReadFile("code.mylang");
     Lexer lexer(code);
-    auto lexbufferBasic = lexer.GetBufferLexerToken();
+    auto lexerbuffer = lexer.GetBufferLexerToken();
     
-    LexerEngineAdvance lexEngineAdvance(lexbufferBasic);
-    auto lexbufferAdvance = lexEngineAdvance.GetBufferLexerAdvanceToken();
+    PostLexer postLexer(lexerbuffer);
+    auto postlexerbuffer = postLexer.GetBufferPostLexerToken();
 
-    ParserEngine parserEngine(lexbufferAdvance);
+    ParserEngine parserEngine(postlexerbuffer);
 
     if (false)
     {
-        for (auto& Tok : lexbufferAdvance)
+        for (auto& Tok : postlexerbuffer)
             if (Tok.type != TTokenID::Space && Tok.type != TTokenID::LineFeed)
                 std::cout << NameTTokenID(Tok.type) << " |" << Tok.value << "|\n";
     }
