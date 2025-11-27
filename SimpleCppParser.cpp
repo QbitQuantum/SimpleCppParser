@@ -1,5 +1,5 @@
 ﻿
-#include "LexerEngineBasic.hpp"
+#include "Lexer.hpp"
 #include "LexerEngineAdvance.hpp"
 #include "ParserEngine.hpp"
 
@@ -25,8 +25,8 @@ std::string ReadFile(std::string filepath) {
 int main()
 {
     std::string code = ReadFile("code.mylang");
-    LexerEngineBasic lexEngineBasic(code);
-    auto lexbufferBasic = lexEngineBasic.GetBufferLexerBasicToken();
+    Lexer lexer(code);
+    auto lexbufferBasic = lexer.GetBufferLexerToken();
     
     LexerEngineAdvance lexEngineAdvance(lexbufferBasic);
     auto lexbufferAdvance = lexEngineAdvance.GetBufferLexerAdvanceToken();

@@ -1,6 +1,6 @@
 ﻿
-#ifndef LEXER_ENGINE_BASIC_HPP
-#define LEXER_ENGINE_BASIC_HPP
+#ifndef LEXER_HPP
+#define LEXER_HPP
 #pragma once
 
 #include "TokenID.hpp"
@@ -20,9 +20,9 @@ push_back_token_storage(); \
 LexToken LexToken{ TTokenID::##X, std::string(1, constexprToChar(TTokenID::##X)), CurrentLine, CurrentColumn }; \
 BufferToken.push_back(LexToken); \
 
-class LexerEngineBasic {
+class Lexer {
 private:
-    using LexEnginePtr = void (LexerEngineBasic::*)();
+    using LexEnginePtr = void (Lexer::*)();
 private:
     int CurrentLine = 0;
     int CurrentColumn = 0;
@@ -31,38 +31,38 @@ private:
 private:
 
     std::unordered_map<char, LexEnginePtr> map{ {
-    {' ', &LexerEngineBasic::Space},
-    {'"', &LexerEngineBasic::Quotation},
-    {'#', &LexerEngineBasic::Hash},
-    {'$', &LexerEngineBasic::Dollar},
-    {'%', &LexerEngineBasic::Percent},
-    {'&', &LexerEngineBasic::Ampersand},
-    {'(', &LexerEngineBasic::LeftParen},
-    {')', &LexerEngineBasic::RightParen},
-    {'{', &LexerEngineBasic::LeftBrace},
-    {'}', &LexerEngineBasic::RightBrace},
-    {'[', &LexerEngineBasic::LeftBracket},
-    {']', &LexerEngineBasic::RightBracket},
-    {'+', &LexerEngineBasic::Plus},
-    {',', &LexerEngineBasic::Comma},
-    {'-', &LexerEngineBasic::Minus},
-    {'.', &LexerEngineBasic::Dot},
-    {':', &LexerEngineBasic::Colon},
-    {';', &LexerEngineBasic::Semicolon},
-    {'<', &LexerEngineBasic::Less},
-    {'=', &LexerEngineBasic::Equals},
-    {'>', &LexerEngineBasic::Greater},
-    {'@', &LexerEngineBasic::At},
-    {'\\', &LexerEngineBasic::Backslash},
-    {'^', &LexerEngineBasic::Caret},
-    {'`', &LexerEngineBasic::Backtick},
-    {'|', &LexerEngineBasic::Pipe},
+    {' ', &Lexer::Space},
+    {'"', &Lexer::Quotation},
+    {'#', &Lexer::Hash},
+    {'$', &Lexer::Dollar},
+    {'%', &Lexer::Percent},
+    {'&', &Lexer::Ampersand},
+    {'(', &Lexer::LeftParen},
+    {')', &Lexer::RightParen},
+    {'{', &Lexer::LeftBrace},
+    {'}', &Lexer::RightBrace},
+    {'[', &Lexer::LeftBracket},
+    {']', &Lexer::RightBracket},
+    {'+', &Lexer::Plus},
+    {',', &Lexer::Comma},
+    {'-', &Lexer::Minus},
+    {'.', &Lexer::Dot},
+    {':', &Lexer::Colon},
+    {';', &Lexer::Semicolon},
+    {'<', &Lexer::Less},
+    {'=', &Lexer::Equals},
+    {'>', &Lexer::Greater},
+    {'@', &Lexer::At},
+    {'\\', &Lexer::Backslash},
+    {'^', &Lexer::Caret},
+    {'`', &Lexer::Backtick},
+    {'|', &Lexer::Pipe},
 
-    {'\n', &LexerEngineBasic::LineFeed},
-    {'\r', &LexerEngineBasic::CarriageReturn},
-    {'*', &LexerEngineBasic::Asterisk},
-    {'\'', &LexerEngineBasic::Apostrophe},
-    {'/', &LexerEngineBasic::Slash},
+    {'\n', &Lexer::LineFeed},
+    {'\r', &Lexer::CarriageReturn},
+    {'*', &Lexer::Asterisk},
+    {'\'', &Lexer::Apostrophe},
+    {'/', &Lexer::Slash},
     }};
 
 
@@ -127,17 +127,17 @@ private:
     std::string SourceCode = "";
     std::vector<LexToken> BufferToken;
 public:
-     LexerEngineBasic(const std::string source) {
-        SourceCode = source; 
+     Lexer(const std::string source) {
+        SourceCode = source;
         LexerRun();
     };
 
-    std::vector<LexToken> GetBufferLexerBasicToken () {
+    std::vector<LexToken> GetBufferLexerToken () {
         return BufferToken;
     }
 };
 
-void LexerEngineBasic::LexerRun() {
+void Lexer::LexerRun() {
 
     while (neof()) {
         
@@ -173,11 +173,11 @@ void LexerEngineBasic::LexerRun() {
 
 }
 
-const char LexerEngineBasic::GetChar() {
+const char Lexer::GetChar() {
     return SourceCode[PosBuffer];
 }
 
-void LexerEngineBasic::push_back_token_storage() {
+void Lexer::push_back_token_storage() {
     if (!storage_value.empty()) {
         LexToken LexToken{ TTokenID::Literal, storage_value, CurrentLine, CurrentColumn };
         BufferToken.push_back(LexToken);
@@ -185,7 +185,7 @@ void LexerEngineBasic::push_back_token_storage() {
     }
 }
 
-void LexerEngineBasic::CarriageReturn() {
+void Lexer::CarriageReturn() {
     push_back_token_storage();
     // Если после `\r` идёт `\n` (Windows: `\r\n`), пропускаем `\n`
     if (PosBuffer + 1 < SourceCode.size() && SourceCode[PosBuffer + 1] == '\n') {
@@ -193,7 +193,7 @@ void LexerEngineBasic::CarriageReturn() {
     }
 }
 
-void LexerEngineBasic::Slash() {
+void Lexer::Slash() {
     push_back_token_storage();
     PosBuffer++;
     char _getchar = GetChar();
@@ -223,4 +223,4 @@ void LexerEngineBasic::Slash() {
         DEF_GENERATION_BASE(Slash);
     }
 }
-#endif // LEXER_ENGINE_BASIC_HPP
+#endif // LEXER_HPP
