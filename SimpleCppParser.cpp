@@ -1,6 +1,7 @@
 ﻿
 #include "Lexer.hpp"
 #include "PostLexer.hpp"
+#include "PreParser.hpp"
 #include "ParserEngine.hpp"
 
 #include <iostream>
@@ -25,13 +26,15 @@ std::string ReadFile(std::string filepath) {
 int main()
 {
     std::string code = ReadFile("code.mylang");
+    
     Lexer lexer(code);
     auto lexerbuffer = lexer.GetBufferLexerToken();
     
     PostLexer postLexer(lexerbuffer);
     auto postlexerbuffer = postLexer.GetBufferPostLexerToken();
 
-    ParserEngine parserEngine(postlexerbuffer);
+    PreParser preParser(postlexerbuffer);
+    auto preParserbuffer = preParser.GetBufferPreParserToken();
 
     if (false)
     {
