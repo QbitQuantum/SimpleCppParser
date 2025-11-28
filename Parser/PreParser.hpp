@@ -37,7 +37,7 @@ public:
 		Init();
 	}
 
-	const std::vector<LexToken>& GetBufferPostLexerToken() const {
+	const std::vector<LexToken>& GetBufferPreParserToken() const {
 		return BufferPreParserToken;
 	}
 };
