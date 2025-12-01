@@ -116,7 +116,7 @@ public:
         var[type[w_string]] w_str = l"string moment";
 
         var[char] ch = 'A';
-        var[w_char] w_ch = l'A';
+        var[wchar_t] w_ch = l'A';
 
         var[int] i =  static_cast<int>(d);  // Преобразование double в int
 
