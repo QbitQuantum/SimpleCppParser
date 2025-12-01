@@ -18,8 +18,10 @@ private:
 	std::vector<LexToken> BufferPostLexerToken;
 	void Init();
 
+	std::unordered_map<std::string, std::vector<LexToken>> ResolvedAlias;
+
 	std::unordered_map<TTokenID, LexEnginePtr> map{ {
-	//{TTokenID::Using,				&PreParser::Using},   // Using
+	{TTokenID::Using,		 &PreParser::Using},   // Using
 	} };
 
 	std::vector<LexToken> Using();
@@ -58,5 +60,40 @@ void PreParser::Init() {
 		PosBuffer++;
 	}
 };
+
+std::vector<LexToken> PreParser::Using() {
+
+	PosBuffer++; // Пропускаем текущий токен
+	PosBuffer++; // Пропускаем отступ
+
+	switch (BufferPostLexerToken[PosBuffer].type)
+	{
+	case TTokenID::Pointer:
+	case TTokenID::Type:
+	case TTokenID::Access:
+	{
+		PosBuffer++; // Пропускаем текущий токен
+		PosBuffer++; // Пропускаем отступ
+		std::string Key = BufferPostLexerToken[PosBuffer].value;
+		PosBuffer++; // Пропускаем текущее имя ключа
+		PosBuffer++; // Пропускаем отступ
+		PosBuffer++; // Пропускаем символ '='
+		PosBuffer++; // Пропускаем отступ
+		std::vector<LexToken> cont;
+		while (BufferPostLexerToken[PosBuffer].type != TTokenID::Semicolon) {
+			cont.push_back(BufferPostLexerToken[PosBuffer]);
+			PosBuffer++;
+		}
+		PosBuffer++; // Пропускаем символ ';'
+		if (auto its = ResolvedAlias.find(Key); its == ResolvedAlias.end())
+			ResolvedAlias[Key] = cont;
+		break;
+	}
+	default:
+		break;
+	}
+	return std::vector<LexToken>();
+};
+
 
 #endif // PRE_PARSER_HPP
