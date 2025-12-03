@@ -72,7 +72,7 @@ std::vector<LexToken> PreParser::Using() {
 	case TTokenID::Type:
 	case TTokenID::Access:
 	{
-		PosBuffer++; // Пропускаем текущий токен
+		PosBuffer++; // Пропускаем текущий символ pointer/type/access
 		PosBuffer++; // Пропускаем отступ
 		std::string Key = BufferPostLexerToken[PosBuffer].value;
 		PosBuffer++; // Пропускаем текущее имя ключа
@@ -84,7 +84,6 @@ std::vector<LexToken> PreParser::Using() {
 			cont.push_back(BufferPostLexerToken[PosBuffer]);
 			PosBuffer++;
 		}
-		PosBuffer++; // Пропускаем символ ';'
 		if (auto its = ResolvedAlias.find(Key); its == ResolvedAlias.end())
 			ResolvedAlias[Key] = cont;
 		break;
