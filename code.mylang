@@ -1,7 +1,7 @@
 
-using pointer ERequestError = function[void][__fastcall(__closure*)](TNetHTTPClient*, string Link, LLinkWorkType, string Error);
-using pointer ERequestEvent = function[void][__fastcall(__closure*)](TNetHTTPClient*, string Link, LLinkWorkType);
-using pointer ERequestObtainData = function[void][__fastcall(__closure*)](TObject*, string Data, int Arg);
+using pointer ERequestError = function[void][__fastcall](TNetHTTPClient*, string Link, LLinkWorkType, string Error);
+using pointer ERequestEvent = function[void][__fastcall](TNetHTTPClient*, string Link, LLinkWorkType);
+using pointer ERequestObtainData = function[void][__fastcall](TObject*, string Data, int Arg);
 
 using type string = System::UnicodeString;
 using type w_string = System::WideString;
