@@ -36,7 +36,7 @@ private:
         pointer[ERequestObtainData] OnObtainData = nullptr;
         var[bool] Completed = false;
 
-        __property[string] Link = { __link };
+        __property Link = { __link };
 
         function[void][__fastcall] Get();
         function[void][__fastcall] Abort();
@@ -144,14 +144,14 @@ public:
     };
 
     // properties
-    __property[TNetHTTPClient*] Client = { __asyncclient };
-    __property[int] ConnectionTimeout = { __contime };
-    __property[int] ResponseTimeout = { __restime };
-    __property[int] ConnectionTimeoutAsync = { __contimeasync };
-    __property[int] ResponseTimeoutAsync = { __restimeasync };
-    __property[int] LastResponseCode = { __lastcode, __lastcode };
-    __property[int] ConnectionHost = { __host };
-    __property[int] ConnectionTask = { nullptr, __host };
+    __property Client = { __asyncclient };
+    __property ConnectionTimeout = { __contime };
+    __property ResponseTimeout = { __restime };
+    __property ConnectionTimeoutAsync = { __contimeasync };
+    __property ResponseTimeoutAsync = { __restimeasync };
+    __property LastResponseCode = { __lastcode, __lastcode };
+    __property ConnectionHost = { __host };
+    __property ConnectionTask = { nullptr, __host };
 
     function[void][__fastcall] OctetBaseLink(
         TComponent*, 
