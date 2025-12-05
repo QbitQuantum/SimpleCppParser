@@ -103,45 +103,7 @@ public:
     function[type[string]][__fastcall] ResponseCode();
     function[type[string]][__fastcall] ResponseCode(int, type[string]);
     function[void][__fastcall] ClearCache(int AgeDays);
-    function[type[string]][__fastcall] ClearCache(bool Download) {
-        
-        ResponseCode();
-
-        if (__client)
-        {   __client->Method(); };
-
-        var[double] d = 3.14;
-
-        var[type[string]] str = "string moment";
-        var[type[w_string]] w_str = l"string moment";
-
-        var[char] ch = 'A';
-        var[wchar_t] w_ch = l'A';
-
-        var[int] i =  static_cast<int>(d);  // Преобразование double в int
-
-        var[Base*] basePtr = new Derived();
-        var[Derived*] derivedPtr = dynamic_cast<Derived*>(basePtr); // Безопасное приведение к Derived
-        delete basePtr;
-
-        var[const double] c = 3.14;
-
-        var[int] number = 65;
-        var[char*] charPtr = reinterpret_cast<char*>(&number);
-
-        // var[auto] param = "Download";
-        var[type[string]] param = "Download";
-
-        if (Download)
-        {
-            param += " true";
-        }
-        else
-        {
-            param = " false";
-        };
-        return param;
-    };
+    function[type[string]][__fastcall] ClearCache(bool Download);
 
     // properties
     __property Client = { __asyncclient };
