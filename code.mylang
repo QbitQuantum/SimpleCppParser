@@ -138,25 +138,25 @@ class Base {
 
 public:
     var[int] PublicBaseData;
-    function[void] [virtual] PublicMethodBase() { };
-    function[void] [] Base() { };
+    function[void] [virtual] PublicMethodBase();
+    function[void] [] Base();
 static:
     var[int] StaticBaseData;
-    function[void][] StaticMethodBase() { };
+    function[void][] StaticMethodBase();
 }
 
 class Derived : Base {
 
 public:
-    function[void] [override] PublicMethodBase() { };
-    function[void] [] Derived() { };
+    function[void] [override] PublicMethodBase();
+    function[void] [] Derived();
     class Math {
     static:
-        function[void] [] PublicMethodBase() { };
+        function[void] [] PublicMethodBase();
     }
 static:
     var[int] StaticData = 1;
-    function[void][] StaticMethodBase() { };
+    function[void][] StaticMethodBase();
 
 private:
     var[int] m_pivate = 1;
