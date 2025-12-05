@@ -1,7 +1,7 @@
 
-using pointer ERequestError = function[void][__fastcall](TNetHTTPClient*, string Link, LLinkWorkType, string Error);
-using pointer ERequestEvent = function[void][__fastcall](TNetHTTPClient*, string Link, LLinkWorkType);
-using pointer ERequestObtainData = function[void][__fastcall](TObject*, string Data, int Arg);
+using pointer ERequestError = function[void][__fastcall](TNetHTTPClient*, type[string] Link, LLinkWorkType, string Error);
+using pointer ERequestEvent = function[void][__fastcall](TNetHTTPClient*, type[string] Link, LLinkWorkType);
+using pointer ERequestObtainData = function[void][__fastcall](TObject*, type[string] Data, int Arg);
 
 using type string = System::UnicodeString;
 using type w_string = System::WideString;
@@ -26,7 +26,7 @@ private:
         var[bool] __abort = false;
         var[int] __arg = INDEX_INVALID;
 
-        function[void][__fastcall] _eventerror(TObject* const, const string);
+        function[void][__fastcall] _eventerror(TObject* const, const type[string]);
         function[void][__fastcall] _eventcomplete(TObject* const, const _di_IHTTPResponse);
         function[void][__fastcall] _eventreceive(TObject* const, __int64 AContentLength, __int64 AReadCount, bool& Abort);
 
@@ -41,13 +41,13 @@ private:
         function[void][__fastcall] Get();
         function[void][__fastcall] Abort();
 
-        function[void][__fastcall] OctetBaseLinkRequest(OctetBaseLink*, string RequestTag, string Link, ERequestObtainData, int Argument = INDEX_INVALID);
+        function[void][__fastcall] OctetBaseLinkRequest(OctetBaseLink*, type[string] RequestTag, type[string] Link, ERequestObtainData, int Argument = INDEX_INVALID);
     };
 
 protected:
 
     // internal data
-    function[bool][__fastcall] _start(LLinkWorkType, string);
+    function[bool][__fastcall] _start(LLinkWorkType, type[string]);
 
     var[TNetHTTPClient*] __client = nullptr, __asyncclient = nullptr;
     var[LLinkWorkType] __work = lwIdle;
@@ -71,12 +71,12 @@ protected:
     function[void][__fastcall] _setheaders(TNetHTTPClient*, bool State);
 
     // internal events
-    function[void][__fastcall] _eventerror(TObject* const, const string);
+    function[void][__fastcall] _eventerror(TObject* const, const type[string]);
     function[void][__fastcall] _eventcomplete(TObject* const, const _di_IHTTPResponse);
-    function[void][__fastcall] _eventauth(TObject* const, TAuthTargetType Target, const string, const string, string&, string&, bool&, TAuthPersistenceType&);
+    function[void][__fastcall] _eventauth(TObject* const, TAuthTargetType Target, const type[string], const type[string], type[string]&, type[string]&, bool&, TAuthPersistenceType&);
 
 static:
-    function[void][__fastcall] _eventexecute(TObject* const, const string);
+    function[void][__fastcall] _eventexecute(TObject* const, const type[string]);
 
 public:
 
@@ -91,19 +91,19 @@ public:
 
     // base network methods
 
-    function[string][__fastcall] Read(string, int Type = access[LinkType] critical);
-    function[void][__fastcall] Read(string, ERequestObtainData, string RequestTag, int Argument = INDEX_INVALID);
-    function[void][__fastcall] Cache(string Link, ERequestObtainData Event, string RequestTag, int Argument = INDEX_INVALID);
-    function[string][__fastcall] Cache(string Link);
-    function[void][__fastcall] Stop(string RequestTag = "");
-    function[bool][__fastcall] Write(string, string Data, TStringStream* Response = NULL);
-    function[void][__fastcall] Write(string, string, ERequestObtainData Event, string RequestTag, int Argument = INDEX_INVALID);
-    function[bool][__fastcall] Delete(string);
-    function[bool][__fastcall] Auth(string, string User, string Pass, TStringStream* Response = NULL);
-    function[string][__fastcall] ResponseCode();
-    function[string][__fastcall] ResponseCode(int, string);
+    function[type[string]][__fastcall] Read(type[string], int Type = access[LinkType] critical);
+    function[void][__fastcall] Read(type[string], ERequestObtainData, type[string] RequestTag, int Argument = INDEX_INVALID);
+    function[void][__fastcall] Cache(type[string] Link, ERequestObtainData Event, type[string] RequestTag, int Argument = INDEX_INVALID);
+    function[type[string]][__fastcall] Cache(type[string] Link);
+    function[void][__fastcall] Stop(type[string] RequestTag = "");
+    function[bool][__fastcall] Write(type[string], string Data, TStringStream* Response = NULL);
+    function[void][__fastcall] Write(type[string], type[string], ERequestObtainData Event, type[string] RequestTag, int Argument = INDEX_INVALID);
+    function[bool][__fastcall] Delete(type[string]);
+    function[bool][__fastcall] Auth(type[string], type[string] User, type[string] Pass, TStringStream* Response = NULL);
+    function[type[string]][__fastcall] ResponseCode();
+    function[type[string]][__fastcall] ResponseCode(int, type[string]);
     function[void][__fastcall] ClearCache(int AgeDays);
-    function[string][__fastcall] ClearCache(bool Download) {
+    function[type[string]][__fastcall] ClearCache(bool Download) {
         
         ResponseCode();
 
