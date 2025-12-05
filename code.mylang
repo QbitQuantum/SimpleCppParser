@@ -21,7 +21,7 @@ private:
     class OctetBaseLinkRequest : TNetHTTPRequest {
 
     private:
-        type[string] __link;
+        var[type[string]] __link;
         var[OctetBaseLink*] __parent;
         var[bool] __abort = false;
         var[int] __arg = INDEX_INVALID;
@@ -32,7 +32,7 @@ private:
 
     public:
 
-        type[string] RequestTag;
+        var[type[string]] RequestTag;
         pointer[ERequestObtainData] OnObtainData = nullptr;
         var[bool] Completed = false;
 
@@ -52,7 +52,7 @@ protected:
     var[TNetHTTPClient*] __client = nullptr, __asyncclient = nullptr;
     var[LLinkWorkType] __work = lwIdle;
 
-    type[string] __host, __lastresult;
+    var[type[string]] __host, __lastresult;
 
     var[int] 
         __contime = access[LinkConnection] timeout, 
@@ -81,7 +81,7 @@ static:
 public:
 
     // variables
-    type[string] DefaultLink, UpdateLink, UserIdent, MachineIdent;
+    var[type[string]] DefaultLink, UpdateLink, UserIdent, MachineIdent;
 
     var[bool] LocalLinking = false, InputCache = false, OutputCache = false;
 
@@ -112,8 +112,8 @@ public:
 
         var[double] d = 3.14;
 
-        type[string] str = "string moment";
-        type[w_string] w_str = l"string moment";
+        var[type[string]] str = "string moment";
+        var[type[w_string]] w_str = l"string moment";
 
         var[char] ch = 'A';
         var[wchar_t] w_ch = l'A';
@@ -130,7 +130,7 @@ public:
         var[char*] charPtr = reinterpret_cast<char*>(&number);
 
         // var[auto] param = "Download";
-        type[string] param = "Download";
+        var[type[string]] param = "Download";
 
         if (Download)
         {
