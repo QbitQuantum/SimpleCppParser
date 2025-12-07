@@ -1,14 +1,14 @@
 
-#ifndef PARSER_ENGINE_HPP
-#define PARSER_ENGINE_HPP
+#ifndef PARSER_HPP
+#define PARSER_HPP
 #pragma once
 
 #include "PostLexer.hpp"
 #include "Node.hpp"
 
-class ParserEngine
+class Parser
 {
-	using ParserEnginePtr = void(ParserEngine::*)();
+	using ParserEnginePtr = void(Parser::*)();
 private:
 	int PosBuffer = 0;
 	int SizeBufferParser = 0;
@@ -19,11 +19,11 @@ private:
 	}
 
 	std::unordered_map<TTokenID, ParserEnginePtr> map{{
-	{TTokenID::IncludeDirective, &ParserEngine::IncludeDirective},
-	{TTokenID::Using, &ParserEngine::Using},
-	{TTokenID::Class, &ParserEngine::Class},
-	{TTokenID::Function, &ParserEngine::Function},
-	{TTokenID::Var, &ParserEngine::Var},
+	{TTokenID::IncludeDirective, &Parser::IncludeDirective},
+	{TTokenID::Using, &Parser::Using},
+	{TTokenID::Class, &Parser::Class},
+	{TTokenID::Function, &Parser::Function},
+	{TTokenID::Var, &Parser::Var},
 	}};
 
 	void IncludeDirective() {};
@@ -35,23 +35,23 @@ private:
 public:
 	std::vector<LexToken> ParserEngineBuffer;
 
-	ParserEngine(const PostLexer& advance) : 
+	Parser(const PostLexer& advance) : 
 		ParserEngineBuffer(advance.GetBufferPostLexerToken()) {
 		Init();
 	};
 
-	ParserEngine(const std::vector<LexToken>& Buffer) : 
+	Parser(const std::vector<LexToken>& Buffer) : 
 		ParserEngineBuffer(Buffer) {
 		Init();
 	};
 
-	~ParserEngine();
+	~Parser();
 
 private:
 
 };
 
-void ParserEngine::Init() {
+void Parser::Init() {
 	SizeBufferParser = ParserEngineBuffer.size();
 	
 	while (neof()) {
@@ -61,8 +61,8 @@ void ParserEngine::Init() {
 	}
 };
 
-ParserEngine::~ParserEngine()
+Parser::~Parser()
 {
 }
 
-#endif // PARSER_ENGINE_HPP
+#endif // PARSER_HPP
