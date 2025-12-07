@@ -19,13 +19,9 @@ private:
 	}
 
 	std::unordered_map<TTokenID, ParserEnginePtr> map{{
-	{TTokenID::Class, &Parser::Class},
-	{TTokenID::Function, &Parser::Function},
 	{TTokenID::Var, &Parser::Var},
 	}};
 
-	void Class() {};
-	void Function() {};
 	void Var() {};
 
 public:
