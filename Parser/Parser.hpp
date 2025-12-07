@@ -8,11 +8,12 @@
 
 class Parser
 {
-	using ParserEnginePtr = void(Parser::*)();
+	using ParserEnginePtr = Node * (Parser::*)();
 private:
 	int PosBuffer = 0;
 	int SizeBufferParser = 0;
 
+	std::vector<Node*> ast;
 	void Init();
 	bool neof() {
 		return PosBuffer < SizeBufferParser;
@@ -22,7 +23,7 @@ private:
 	{TTokenID::Var, &Parser::Var},
 	}};
 
-	void Var() {};
+	Node* Var() { return nullptr; };
 
 public:
 	std::vector<LexToken> ParserEngineBuffer;
