@@ -19,15 +19,11 @@ private:
 	}
 
 	std::unordered_map<TTokenID, ParserEnginePtr> map{{
-	{TTokenID::IncludeDirective, &Parser::IncludeDirective},
-	{TTokenID::Using, &Parser::Using},
 	{TTokenID::Class, &Parser::Class},
 	{TTokenID::Function, &Parser::Function},
 	{TTokenID::Var, &Parser::Var},
 	}};
 
-	void IncludeDirective() {};
-	void Using() {};
 	void Class() {};
 	void Function() {};
 	void Var() {};
