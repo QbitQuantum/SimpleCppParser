@@ -96,7 +96,7 @@ public:
     function[void][__fastcall] Cache(type[string] Link, ERequestObtainData Event, type[string] RequestTag, int Argument = INDEX_INVALID);
     function[type[string]][__fastcall] Cache(type[string] Link);
     function[void][__fastcall] Stop(type[string] RequestTag = "");
-    function[bool][__fastcall] Write(type[string], string Data, TStringStream* Response = NULL);
+    function[bool][__fastcall] Write(type[string], type[string] Data, TStringStream* Response = NULL);
     function[void][__fastcall] Write(type[string], type[string], ERequestObtainData Event, type[string] RequestTag, int Argument = INDEX_INVALID);
     function[bool][__fastcall] Delete(type[string]);
     function[bool][__fastcall] Auth(type[string], type[string] User, type[string] Pass, TStringStream* Response = NULL);
