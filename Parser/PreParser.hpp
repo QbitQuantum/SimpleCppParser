@@ -112,7 +112,6 @@ std::vector<LexToken> PreParser::Resolving() {
 		PosBuffer++; // Пропускаем символ '['
 		std::string Key = BufferPostLexerToken[PosBuffer].value;
 		PosBuffer++; // Пропускаем текущее имя ключа
-		PosBuffer++; // Пропускаем символ ']'
 		if (auto its = ResolvedAlias.find(Key); its != ResolvedAlias.end())
 		{
 			switch (Save)
@@ -151,7 +150,6 @@ std::vector<LexToken> PreParser::Resolving() {
 						i++; // Пропускаем символ '['
 						std::string Key = its->second[i].value;
 						i++; // Пропускаем текущее имя ключа
-						i++; // Пропускаем символ ']'
 						if (auto its1 = ResolvedAlias.find(Key); its1 != ResolvedAlias.end())
 							for (const auto& i : its1->second)
 								cont.push_back(i);
