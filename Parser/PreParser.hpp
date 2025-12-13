@@ -126,14 +126,10 @@ std::vector<LexToken> PreParser::Resolving() {
 			case TTokenID::Access:
 			{
 				std::vector<LexToken> cont;
-				LexToken TokenSpace = BufferPostLexerToken[PosBuffer];
-				PosBuffer++; // Пропускаем отступ
-				cont.push_back(TokenSpace);
-				LexToken Identifier = BufferPostLexerToken[PosBuffer];
+				PosBuffer++; // Пропускаем символ ']'
 				for (const auto& i : its->second)
 					cont.push_back(i);
 				cont.push_back(LexToken{ TTokenID::ScResOp, "::", 0, 0 });
-				cont.push_back(Identifier);
 				return cont;
 			}
 			case TTokenID::Pointer:
