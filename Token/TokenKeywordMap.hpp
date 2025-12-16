@@ -114,6 +114,7 @@ static const std::unordered_map<uint32_t, TTokenID> TokenKeywordMap = {
     {ConstexprCppHash("protected"),    TTokenID::Protected},
     {ConstexprCppHash("public"),       TTokenID::Public},
     {ConstexprCppHash("static"),       TTokenID::Static },
+    {ConstexprCppHash("operator"),     TTokenID::Operator },
 
     // ===== Прочее =====
     {ConstexprCppHash("__property"),   TTokenID::Property },

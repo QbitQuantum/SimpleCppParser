@@ -179,6 +179,7 @@ enum class TTokenID : long long {
     Public, // public
     Static, // static
     Final, // final
+    Operator, // operator
 
     // ===== Прочее =====
     Property, // __property
@@ -433,6 +434,7 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(Public);
     GENERATE_NAME(Static);
     GENERATE_NAME(Final);
+    GENERATE_NAME(Operator);
 
     GENERATE_NAME(Property);
     GENERATE_NAME(FastCall);
