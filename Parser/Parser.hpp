@@ -6,6 +6,9 @@
 #include "PostLexer.hpp"
 #include "Node.hpp"
 
+#include <vector>
+#include <unordered_map>
+
 class Parser
 {
 	struct VariableDeclaration
@@ -60,7 +63,7 @@ void Parser::Init() {
 	}
 
 #ifdef _IOSTREAM_
-	if (true)
+	if (false)
 		for (auto& i : ast)
 			if (i) std::cout << i->print() << "\n";
 #endif // _IOSTREAM_
