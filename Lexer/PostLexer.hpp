@@ -92,10 +92,7 @@ LexToken PostLexer::Quotation() /* " */ {
 	IsInclude = false;
 
 	LexToken TLexToken = {
-		TTokenID::StringLiteral,
-		"",
-		0,
-		0
+		TTokenID::StringLiteral, "", 0, 0
 	};
 
 	std::string value = "";
@@ -122,10 +119,7 @@ LexToken PostLexer::Hash() /* # */ {
 	PosBuffer++;
 
 	LexToken TLexToken = {
-		TTokenID::Unknown,
-		"",
-		0,
-		0
+		TTokenID::Unknown, "", 0, 0
 	};
 
 	std::string directive = "#" + LexerTokenBufferBasic[PosBuffer].value;
@@ -144,10 +138,7 @@ LexToken PostLexer::Hash() /* # */ {
 // Обработка амперсанда
 LexToken PostLexer::Ampersand() /* & */ {
 	LexToken TLexToken = {
-		TTokenID::BitAnd,
-		"&",
-		0,
-		0
+		TTokenID::BitAnd, "&", 0, 0
 	};
 
 	if (PosBuffer + 1 < SizeBufferBasic &&
@@ -164,10 +155,7 @@ LexToken PostLexer::Ampersand() /* & */ {
 // Обработка плюса
 LexToken PostLexer::Plus() /* + */ {
 	LexToken TLexToken = {
-		TTokenID::Plus,
-		"+",
-		0,
-		0
+		TTokenID::Plus, "+", 0, 0
 	};
 
 	if (PosBuffer + 1 < SizeBufferBasic &&
@@ -184,10 +172,7 @@ LexToken PostLexer::Plus() /* + */ {
 // Обработка минуса
 LexToken PostLexer::Minus() /* - */ {
 	LexToken TLexToken = {
-		TTokenID::Minus,
-		"-",
-		0,
-		0
+		TTokenID::Minus, "-", 0, 0
 	};
 
 	if (PosBuffer + 1 < SizeBufferBasic &&
@@ -210,10 +195,7 @@ LexToken PostLexer::Minus() /* - */ {
 // Обработка двоеточие
 LexToken PostLexer::Colon() /* : */ {
 	LexToken TLexToken = {
-		TTokenID::Colon,
-		":",
-		0,
-		0
+		TTokenID::Colon, ":", 0, 0
 	};
 
 	if (PosBuffer + 1 < SizeBufferBasic &&
@@ -230,10 +212,7 @@ LexToken PostLexer::Colon() /* : */ {
 // Обработка символа уменьшения
 LexToken PostLexer::Less() /* < */ {
 	LexToken TLexToken = {
-		TTokenID::Less,
-		"<",
-		0,
-		0
+		TTokenID::Less, "<", 0, 0
 	};
 
 	PosBuffer++;
@@ -274,10 +253,7 @@ LexToken PostLexer::Less() /* < */ {
 // Обработка символа ровно
 LexToken PostLexer::Equals() /* = */ {
 	LexToken TLexToken = {
-		TTokenID::Equals,
-		"=",
-		0,
-		0
+		TTokenID::Equals, "=", 0, 0
 	};
 
 	if (PosBuffer + 1 < SizeBufferBasic &&
@@ -294,10 +270,7 @@ LexToken PostLexer::Equals() /* = */ {
 // Обработка символа больше
 LexToken PostLexer::Greater() /* > */ {
 	LexToken TLexToken = {
-		TTokenID::Greater,
-		">",
-		0,
-		0
+		TTokenID::Greater, ">", 0, 0
 	};
 
 	if (PosBuffer + 1 < SizeBufferBasic &&
@@ -314,20 +287,14 @@ LexToken PostLexer::Greater() /* > */ {
 // Обработка символа ^
 LexToken PostLexer::Caret() /* ^ */ {
 	return LexToken{
-		TTokenID::Xor,
-		"^",
-		0,
-		0
+		TTokenID::Xor, "^", 0, 0
 	};
 }
 
 // Обработка символа прямого слэша
 LexToken PostLexer::Pipe() /* | */ {
 	LexToken TLexToken = {
-		TTokenID::BitOr,
-		"|",
-		0,
-		0
+		TTokenID::BitOr, "|", 0, 0
 	};
 
 	if (PosBuffer + 1 < SizeBufferBasic &&
@@ -344,10 +311,7 @@ LexToken PostLexer::Pipe() /* | */ {
 // Обработка символа астерикса
 LexToken PostLexer::Asterisk() /* * */ {
 	LexToken TLexToken = {
-		TTokenID::Asterisk,
-		"*",
-		0,
-		0
+		TTokenID::Asterisk, "*", 0, 0
 	};
 
 	if (PosBuffer + 1 < SizeBufferBasic &&
@@ -365,10 +329,7 @@ LexToken PostLexer::Asterisk() /* * */ {
 LexToken PostLexer::Apostrophe() /* ' */ {
 	PosBuffer++;
 	LexToken TLexToken = {
-		TTokenID::CharLiteral,
-		"",
-		0,
-		0
+		TTokenID::CharLiteral, "", 0, 0
 	};
 
 	std::string value = "";
