@@ -113,7 +113,9 @@ enum class TTokenID : long long {
     /*************************** Токены пре-лексера ***************************/
 
     IntegerLiteral,      // 123, -456, 0, 1000 (целочисленные значения в десятичной системе)
-    FloatLiteral,        // 3.14, 2.5e10, -0.5f, 1.0e-5 (числа с плавающей точкой, могут содержать экспоненту)
+    FloatLiteral,        // литералы типа float: 3.14f, 2.5e10f, -0.5f, 1.0e-5f (обязательный суффикс f/F)
+    DoubleLiteral,       // литералы типа double: 3.14, 2.5e10, -0.5, 1.0e-5 (по умолчанию или с суффиксом d/D)
+    LongDoubleLiteral,   // литералы типа long double: 3.14l, 2.5e10L, -0.5l (обязательный суффикс l/L)
     CharLiteral,         // 'A', '\n', '#', '9' (одиночные символы в апострофах, включая escape-последовательности)
     WCharLiteral,        // L'A', L'Я', L'字' (wide-символы с префиксом L)
     StringLiteral,       // "text", "Hello World!", "123" (строки в двойных кавычках)
@@ -379,6 +381,8 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(Literal);
     GENERATE_NAME(IntegerLiteral);
     GENERATE_NAME(FloatLiteral);
+    GENERATE_NAME(DoubleLiteral);
+    GENERATE_NAME(LongDoubleLiteral);
     GENERATE_NAME(CharLiteral);
     GENERATE_NAME(WCharLiteral);
     GENERATE_NAME(StringLiteral);
