@@ -393,7 +393,6 @@ LexToken PostLexer::Apostrophe() /* ' */ {
 LexToken PostLexer::Literal() /* Literal */ {
 
 	LexToken TLexToken = LexerTokenBufferBasic[PosBuffer];
-	TLexToken.type = TTokenID::IdentifierLiteral;
 
 	auto itKeywordMap = TokenKeywordMap.find(CppHash(TLexToken.value));
 	if (itKeywordMap != TokenKeywordMap.end()) {
@@ -403,9 +402,12 @@ LexToken PostLexer::Literal() /* Literal */ {
 
 	// ctype.h [isdigit]
 	if (!isdigit(TLexToken.value[0]))
+	{
+		TLexToken.type = TTokenID::IdentifierLiteral;
 		return TLexToken;
+	}
 
-	if (TLexToken.value != "0" && TLexToken.value[0] == '0') {
+	if (TLexToken.value.length() > 1 && TLexToken.value[0] == '0') {
 		switch (TLexToken.value[1])
 		{
 		case 'x':
@@ -417,40 +419,64 @@ LexToken PostLexer::Literal() /* Literal */ {
 			TLexToken.type = TTokenID::BinaryLiteral;
 			break;
 		default:
+			// Восьмеричный литерал или просто 0
+			TLexToken.type = TTokenID::IntegerLiteral;
 			break;
 		}
 	}
 	else
 	{
-		if ((PosBuffer + 1 < SizeBufferBasic) &&
-			LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Dot)
+		TLexToken.type = TTokenID::IntegerLiteral;
+
+		bool IsFind = false;
+
+		switch (TLexToken.value.back())
+		{
+		case 'f':
+		case 'F':
+			TLexToken.type = TTokenID::FloatLiteral;
+			IsFind = true;
+			break;
+		case 'l':
+		case 'L':
+			TLexToken.type = TTokenID::LongDoubleLiteral;
+			IsFind = true;
+			break;
+		default:
+			break;
+		}
+
+		if (IsFind)
+			TLexToken.value.erase(TLexToken.value.end() - 1);
+
+		if ((PosBuffer + 1 < SizeBufferBasic) && LexerTokenBufferBasic[PosBuffer + 1].type == TTokenID::Dot)
 		{
 			PosBuffer++;
-			TLexToken.type = TTokenID::FloatLiteral;
-
-			if (PosBuffer + 1 < SizeBufferBasic &&
-				isdigit(LexerTokenBufferBasic[PosBuffer + 1].value[0]))
-			{
-				PosBuffer++;
-				TLexToken.value += "." + LexerTokenBufferBasic[PosBuffer].value;
-			}
+			TLexToken.type = TTokenID::DoubleLiteral;
+			TLexToken.value += LexerTokenBufferBasic[PosBuffer].value;
 		}
-		else
-		{
-			TLexToken.type = TTokenID::IntegerLiteral;
-		}
-	}
 
-	if (TLexToken.type != TTokenID::IdentifierLiteral)
-	{
-		if (LexerTokenBufferAdvance.back().type == TTokenID::Minus)
+		switch (LexerTokenBufferAdvance.back().type)
 		{
+		case TTokenID::DoubleLiteral:
+		case TTokenID::FloatLiteral:
+		{
+			auto Token = LexerTokenBufferAdvance.back();
 			LexerTokenBufferAdvance.erase(LexerTokenBufferAdvance.end() - 1);
-			TLexToken.value = "-" + TLexToken.value;
+			TLexToken.value = Token.value + TLexToken.value;
+			break;
 		}
-		return TLexToken;
+		default:
+			break;
+		}
 	}
 
+	if (LexerTokenBufferAdvance.back().type == TTokenID::Minus)
+	{
+		auto Token = LexerTokenBufferAdvance.back();
+		LexerTokenBufferAdvance.erase(LexerTokenBufferAdvance.end() - 1);
+		TLexToken.value = Token.value + TLexToken.value;
+	}
 	return TLexToken;
 }
 #endif // POST_LEXER_HPP
