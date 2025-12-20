@@ -22,14 +22,17 @@ private:
 
 	std::unordered_map<TTokenID, LexEnginePtr> map{ {
 	{TTokenID::Using,		 &PreParser::Using},   // Using
-	{TTokenID::Type,		 &PreParser::Resolving},   // Type
-	{TTokenID::Access,		 &PreParser::Resolving},   // Access
-	{TTokenID::Pointer,		 &PreParser::Resolving},   // Pointer
+	{TTokenID::Type,		 &PreParser::ResolvingType},   // Type
+	{TTokenID::Access,		 &PreParser::ResolvingAccess},   // Access
+	{TTokenID::Pointer,		 &PreParser::ResolvingPointer},   // Pointer
 	} };
 
 	std::vector<LexToken> Using();
 	std::vector<LexToken> Resolving();
 
+	std::vector<LexToken> ResolvingType();
+	std::vector<LexToken> ResolvingAccess();
+	std::vector<LexToken> ResolvingPointer();
 	bool neof() {
 		return PosBuffer < SizeBufferBasic;
 	}
@@ -85,6 +88,32 @@ std::vector<LexToken> PreParser::Using() {
 		PosBuffer++; // Пропускаем отступ
 		std::vector<LexToken> cont;
 		while (BufferPostLexerToken[PosBuffer].type != TTokenID::Semicolon) {
+			switch (BufferPostLexerToken[PosBuffer].type)
+			{
+			case TTokenID::Type:
+			{
+				auto Container = ResolvingType();
+				for (const auto& i : Container)
+					cont.push_back(i);
+				break;
+			}
+			case TTokenID::Access:
+			{
+				auto Container = ResolvingAccess();
+				for (const auto& i : Container)
+					cont.push_back(i);
+				break;
+			}
+			case TTokenID::Pointer:
+			{
+				auto Container = ResolvingPointer();
+				for (const auto& i : Container)
+					cont.push_back(i);
+				break;
+			}
+			default:
+				break;
+			}
 			cont.push_back(BufferPostLexerToken[PosBuffer]);
 			PosBuffer++;
 		}
@@ -99,89 +128,33 @@ std::vector<LexToken> PreParser::Using() {
 };
 
 std::vector<LexToken> PreParser::Resolving() {
-
-	switch (BufferPostLexerToken[PosBuffer].type)
-	{
-	case TTokenID::Pointer:
-	case TTokenID::Type:
-	case TTokenID::Access:
-	{
-		TTokenID Save = BufferPostLexerToken[PosBuffer].type;
-
-		PosBuffer++; // Пропускаем текущий символ pointer/type/access
-		PosBuffer++; // Пропускаем символ '['
-		std::string Key = BufferPostLexerToken[PosBuffer].value;
-		PosBuffer++; // Пропускаем текущее имя ключа
-		if (auto its = ResolvedAlias.find(Key); its != ResolvedAlias.end())
-		{
-			switch (Save)
-			{
-			case TTokenID::Type:
-			{
-				std::vector<LexToken> cont;
-				for (const auto& i : its->second)
-					cont.push_back(i);
-				return cont;
-			};
-			case TTokenID::Access:
-			{
-				std::vector<LexToken> cont;
-				PosBuffer++; // Пропускаем символ ']'
-				for (const auto& i : its->second)
-					cont.push_back(i);
-				cont.push_back(LexToken{ TTokenID::ScResOp, "::", 0, 0 });
-				return cont;
-			}
-			case TTokenID::Pointer:
-			{
-				std::vector<LexToken> cont;
-
-				for (size_t i = 0; i < its->second.size(); i++)
-				{
-					switch (its->second[i].type)
-					{
-					case TTokenID::Type:
-					{
-						i++; // Пропускаем текущий символ type
-						i++; // Пропускаем символ '['
-						std::string Key = its->second[i].value;
-						i++; // Пропускаем текущее имя ключа
-						if (auto its1 = ResolvedAlias.find(Key); its1 != ResolvedAlias.end())
-							for (const auto& i : its1->second)
-								cont.push_back(i);
-						break;
-					}
-					case TTokenID::Access:
-					{
-						LexToken TokenSpace = BufferPostLexerToken[PosBuffer];
-						PosBuffer++; // Пропускаем отступ
-						cont.push_back(TokenSpace);
-						LexToken Identifier = BufferPostLexerToken[PosBuffer];
-						for (const auto& i : its->second)
-							cont.push_back(i);
-						cont.push_back(LexToken{ TTokenID::ScResOp, "::", 0, 0 });
-						cont.push_back(Identifier);
-						break;
-					}
-					default:
-						cont.push_back(its->second[i]);
-						break;
-					}
-				}
-				cont.push_back(LexToken{ TTokenID::Asterisk, "*", 0, 0 });
-				return cont;
-			}
-			default:
-				return std::vector<LexToken>();
-			}
-			return std::vector<LexToken>();
-		}
+	PosBuffer++; // Пропускаем текущий символ type/access/pointer/
+	PosBuffer++; // Пропускаем символ '['
+	std::string Key = BufferPostLexerToken[PosBuffer].value;
+	PosBuffer++; // Пропускаем текущее имя ключа
+	PosBuffer++; // Пропускаем символ ']'
+	auto its = ResolvedAlias.find(Key);
+	if (its == ResolvedAlias.end())
 		return std::vector<LexToken>();
-	}
-	default:
-		return std::vector<LexToken>();
-	}
-	return std::vector<LexToken>();
+	std::vector<LexToken> cont;
+	for (const auto& i : its->second)
+		cont.push_back(i);
+	return cont;
 };
 
+std::vector<LexToken> PreParser::ResolvingType() {
+	return Resolving();
+};
+
+std::vector<LexToken> PreParser::ResolvingAccess() {
+	auto cont = Resolving();
+	cont.push_back(LexToken{ TTokenID::ScResOp, "::", 0, 0 });
+	return cont;
+};
+
+std::vector<LexToken> PreParser::ResolvingPointer() {
+	auto cont = Resolving();
+	cont.push_back(LexToken{ TTokenID::Asterisk, "*", 0, 0 });
+	return cont;
+};
 #endif // PRE_PARSER_HPP
