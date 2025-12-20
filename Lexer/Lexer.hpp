@@ -154,12 +154,8 @@ void Lexer::LexerRun() {
             std::string identifier = SourceCode.substr(start, PosBuffer - start);
             PosBuffer--;
 
-            // Проверяем, является ли собранная строка ключевым словом
-            auto itKeywordMap = TokenKeywordMap.find(CppHash(identifier));
-            bool IsKeyword = itKeywordMap != TokenKeywordMap.end();
-
             LexToken LexToken{
-                IsKeyword ? itKeywordMap->second : TTokenID::Literal,
+                TTokenID::Literal,
                 identifier,
                 CurrentLine,
                 CurrentColumn };

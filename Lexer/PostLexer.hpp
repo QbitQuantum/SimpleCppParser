@@ -395,6 +395,12 @@ LexToken PostLexer::Literal() /* Literal */ {
 	LexToken TLexToken = LexerTokenBufferBasic[PosBuffer];
 	TLexToken.type = TTokenID::IdentifierLiteral;
 
+	auto itKeywordMap = TokenKeywordMap.find(CppHash(TLexToken.value));
+	if (itKeywordMap != TokenKeywordMap.end()) {
+		TLexToken.type = itKeywordMap->second;
+		return TLexToken;
+	}
+
 	// ctype.h [isdigit]
 	if (!isdigit(TLexToken.value[0]))
 		return TLexToken;
