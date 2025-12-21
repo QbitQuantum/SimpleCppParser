@@ -11,12 +11,6 @@
 
 class Parser
 {
-	struct VariableDeclaration
-	{
-		std::string Name;
-		std::string Initializer;
-	};
-
 	using ParserEnginePtr = Node * (Parser::*)();
 private:
 	int PosBuffer = 0;
@@ -71,6 +65,12 @@ void Parser::Init() {
 }
 
 Node* Parser::Var() {
+
+	struct VariableDeclaration
+	{
+		std::string Name;
+		std::string Initializer;
+	};
 
 	auto GetToken = [&]() -> LexToken {
 		return ParserEngineBuffer[PosBuffer];
