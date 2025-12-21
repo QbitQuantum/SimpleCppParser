@@ -3,9 +3,9 @@
 using type string = System::UnicodeString;
 using type w_string = System::WideString;
 
-using pointer ERequestError = function[void][__fastcall](TNetHTTPClient*, type[string], LLinkWorkType, type[string]);
-using pointer ERequestEvent = function[void][__fastcall](TNetHTTPClient*, type[string] Link, LLinkWorkType);
-using pointer ERequestObtainData = function[void][__fastcall](TObject*, type[string], int);
+using pointer ERequestError = function[void][__fastcall](var[TNetHTTPClient*], var[type[string]], var[LLinkWorkType], var[type[string]]);
+using pointer ERequestEvent = function[void][__fastcall](var[TNetHTTPClient*], var[type[string]] Link, var[LLinkWorkType]);
+using pointer ERequestObtainData = function[void][__fastcall](var[TObject*], var[type[string]], var[int]);
 
 using access BaseRequest = OctetBaseLink::OctetBaseLinkRequest;
 using access LinkConnection = link::connection;
@@ -27,9 +27,9 @@ private:
         var[bool] __abort = false;
         var[int] __arg = INDEX_INVALID;
 
-        function[void][__fastcall] _eventerror(TObject* const, const type[string]);
-        function[void][__fastcall] _eventcomplete(TObject* const, const _di_IHTTPResponse);
-        function[void][__fastcall] _eventreceive(TObject* const, __int64 AContentLength, __int64 AReadCount, bool& Abort);
+        function[void][__fastcall] _eventerror(var[TObject* const],  var[type[string]]);
+        function[void][__fastcall] _eventcomplete(var[TObject* const], var[const _di_IHTTPResponse]);
+        function[void][__fastcall] _eventreceive(var[TObject* const], var[__int64] AContentLength, var[__int64] AReadCount, var[bool&] Abort);
 
     public:
 
@@ -42,13 +42,13 @@ private:
         function[void][__fastcall] Get();
         function[void][__fastcall] Abort();
 
-        function[void][__fastcall] OctetBaseLinkRequest(OctetBaseLink*, type[string] RequestTag, type[string] Link, ERequestObtainData, int Argument = INDEX_INVALID);
+        function[void][__fastcall] OctetBaseLinkRequest(var[OctetBaseLink*], var[type[string]] RequestTag, var[type[string]] Link, var[ERequestObtainData], var[int] Argument = INDEX_INVALID);
     };
 
 protected:
 
     // internal data
-    function[bool][__fastcall] _start(LLinkWorkType, type[string]);
+    function[bool][__fastcall] _start(var[LLinkWorkType], var[type[string]]);
 
     var[TNetHTTPClient*] __client = nullptr, __asyncclient = nullptr;
     var[LLinkWorkType] __work = lwIdle;
@@ -72,12 +72,12 @@ protected:
     function[void][__fastcall] _setheaders(TNetHTTPClient*, bool State);
 
     // internal events
-    function[void][__fastcall] _eventerror(TObject* const, const type[string]);
-    function[void][__fastcall] _eventcomplete(TObject* const, const _di_IHTTPResponse);
-    function[void][__fastcall] _eventauth(TObject* const, TAuthTargetType Target, const type[string], const type[string], type[string]&, type[string]&, bool&, TAuthPersistenceType&);
+    function[void][__fastcall] _eventerror(var[TObject* const],  var[type[string]]);
+    function[void][__fastcall] _eventcomplete(var[TObject* const], var[const _di_IHTTPResponse]);
+    function[void][__fastcall] _eventauth(var[TObject* const], var[TAuthTargetType] Target, var[type[string]], var[type[string]], var[type[string]]&, var[type[string]], var[bool&], var[TAuthPersistenceType&]);
 
 static:
-    function[void][__fastcall] _eventexecute(TObject* const, const type[string]);
+    function[void][__fastcall] _eventexecute(var[TObject* const],  var[type[string]]);
 
 public:
 
@@ -92,19 +92,19 @@ public:
 
     // base network methods
 
-    function[type[string]][__fastcall] Read(type[string], int Type = access[LinkType] critical);
-    function[void][__fastcall] Read(type[string], ERequestObtainData, type[string] RequestTag, int Argument = INDEX_INVALID);
-    function[void][__fastcall] Cache(type[string] Link, ERequestObtainData Event, type[string] RequestTag, int Argument = INDEX_INVALID);
+    function[type[string]][__fastcall] Read(type[string], var[int] Type = access[LinkType] critical);
+    function[void][__fastcall] Read(type[string], pointer[ERequestObtainData], var[type[string]] RequestTag, var[int] Argument = INDEX_INVALID);
+    function[void][__fastcall] Cache(type[string] Link, pointer[ERequestObtainData] Event, var[type[string]] RequestTag, var[int] Argument = INDEX_INVALID);
     function[type[string]][__fastcall] Cache(type[string] Link);
     function[void][__fastcall] Stop(type[string] RequestTag = "");
-    function[bool][__fastcall] Write(type[string], type[string] Data, TStringStream* Response = NULL);
-    function[void][__fastcall] Write(type[string], type[string], ERequestObtainData Event, type[string] RequestTag, int Argument = INDEX_INVALID);
+    function[bool][__fastcall] Write(type[string], var[type[string]] Data, var[TStringStream*] Response = NULL);
+    function[void][__fastcall] Write(type[string], var[type[string]], pointer[ERequestObtainData] Event, var[type[string]] RequestTag, var[int] Argument = INDEX_INVALID);
     function[bool][__fastcall] Delete(type[string]);
-    function[bool][__fastcall] Auth(type[string], type[string] User, type[string] Pass, TStringStream* Response = NULL);
+    function[bool][__fastcall] Auth(type[string], var[type[string]] User, var[type[string]] Pass, var[TStringStream*] Response = NULL);
     function[type[string]][__fastcall] ResponseCode();
-    function[type[string]][__fastcall] ResponseCode(int, type[string]);
-    function[void][__fastcall] ClearCache(int AgeDays);
-    function[type[string]][__fastcall] ClearCache(bool Download);
+    function[type[string]][__fastcall] ResponseCode(var[int], var[type[string]]);
+    function[void][__fastcall] ClearCache(var[int] AgeDays);
+    function[type[string]][__fastcall] ClearCache(var[bool] Download);
 
     // properties
     __property Client = { __asyncclient };
@@ -117,11 +117,11 @@ public:
     __property ConnectionTask = { nullptr, __host };
 
     function[void][__fastcall] OctetBaseLink(
-        TComponent*, 
-        int ConnectionTimeout = access[LinkConnection] timeout, 
-        int ResponseTimeout = access[LinkResponse] timeout, 
-        int ConnectionTimeoutAsync = access[LinkConnection] timeout_async, 
-        int ResponseTimeoutAsync = access[LinkResponse] timeout_async);
+        var[TComponent*], 
+        var[int] ConnectionTimeout = access[LinkConnection] timeout, 
+        var[int] ResponseTimeout = access[LinkResponse] timeout, 
+        var[int] ConnectionTimeoutAsync = access[LinkConnection] timeout_async, 
+        var[int] ResponseTimeoutAsync = access[LinkResponse] timeout_async);
 };
 
 // function[void][__fastcall] OctetBaseLink::OctetBaseLinkRequest::Abort()  {
