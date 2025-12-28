@@ -170,6 +170,7 @@ enum class TTokenID : long long {
     // ===== Объявление типов =====
     Class, // class
     Namespace, // namespace
+    Enum, // enum
     Override, // ovveride
     Virtual, // virtual
 
@@ -430,6 +431,7 @@ std::string NameTTokenID(TTokenID kind) {
 
     GENERATE_NAME(Class);
     GENERATE_NAME(Namespace);
+    GENERATE_NAME(Enum);
     GENERATE_NAME(Override);
     GENERATE_NAME(Virtual);
 
