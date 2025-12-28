@@ -56,6 +56,7 @@ public:
     ~NodeIdentifier() override {
     };
 };
+
 class NodeDeclaration : public Node
 {
     NodeIdentifier* Identifier = nullptr;
@@ -87,11 +88,10 @@ public:
         if (!TypeQualifier)
             return "!TypeQualifier";
         fprint += TypeQualifier->print() + " ";
-        for (auto& Decl : DeclarationList)
-            if (Decl)
-                fprint += Decl->print() + ", ";
-        fprint.pop_back();
-        fprint.pop_back();
+        int size = DeclarationList.size();
+        for (size_t i = 0; i < size; i++)
+            if (auto Decl = DeclarationList[i]; Decl)
+                fprint += Decl->print() + (i == size - 1 ? "" : ", ");
         return fprint;
     };
     NodeDeclarationList(NodeTypeQualifier*& typeQualifier, const std::vector<NodeDeclaration*>& declarationList) :
@@ -103,6 +103,35 @@ public:
             delete decl;
         }
     };
+};
+
+class NodeUsingType : public Node
+{
+    std::string Name;
+    NodeTypeQualifier* TypeQualifier = nullptr;
+public:
+    NodeUsingType(std::string name, NodeTypeQualifier* typeQualifier) :
+        Name(name), TypeQualifier(typeQualifier) {
+    };
+    std::string print() override {
+        if (!TypeQualifier)
+            return "!TypeQualifier";
+        return "using type " + Name + " = " +
+            (TypeQualifier->Qualifer.IsConst ? std::string("const ") : std::string("")) +
+            TypeQualifier->Type +
+            (TypeQualifier->Qualifer.IsRef ? std::string("*") : std::string(""));
+    };
+    ~NodeUsingType() {
+        if (TypeQualifier) delete TypeQualifier;
+    }
+};
+
+class NodeUsingAcess : public Node
+{
+public:
+    NodeUsingAcess() {};
+    std::string print() override { return ""; };
+    ~NodeUsingAcess() {};
 };
 
 #endif // NODE_HPP

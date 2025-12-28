@@ -22,12 +22,25 @@ private:
 		return PosBuffer < SizeBufferParser;
 	}
 
+	struct StructTypeQualifier {
+		std::string Type = "";
+		NodeTypeQualifier::Qualifers Qualifer;
+	};
+
+
+	std::unordered_map<std::string, StructTypeQualifier> ResolvedAliasType;
+
 	std::unordered_map<TTokenID, ParserEnginePtr> map{{
 	{TTokenID::Var, &Parser::Var},
+	{TTokenID::Using, &Parser::Using},
 	}};
 
-	Node* Var();
+	Node* ResolvingType();
+	Node* ResolvingAccess();
+	Node* ResolvingPointer();
 
+	Node* Var();
+	Node* Using();
 public:
 	std::vector<LexToken> ParserEngineBuffer;
 
@@ -108,7 +121,34 @@ Node* Parser::Var() {
 		case TTokenID::IdentifierLiteral:
 			Type = GetToken().value;
 			break;
+		case TTokenID::Type: 
+		{
+			NextToken();
+			NextToken();
+			std::string search = GetToken().value;
+			NextToken();
+			NextToken();
+			auto it = ResolvedAliasType.find(search);
+			if (it != ResolvedAliasType.end())
+			{
+				auto Data = ResolvedAliasType[search];
+				Type = Data.Type;
+				Qualifer.IsConst = Data.Qualifer.IsConst;
+				Qualifer.IsRef = Data.Qualifer.IsRef;
+			}
+			break;
 		}
+		case TTokenID::Access:
+		{
+			NextToken();
+			NextToken();
+			std::string search = GetToken().value;
+			NextToken();
+			NextToken();
+			break;
+		}
+		}
+
 	}
 
 	bool IsFindEquals = false;
@@ -157,6 +197,111 @@ Node* Parser::Var() {
 	return DeclarationList;
 
 };
+
+Node* Parser::Using() {
+	auto GetToken = [&]() -> LexToken {
+		return ParserEngineBuffer[PosBuffer];
+		};
+
+	auto match = [&](TTokenID ID) -> bool {
+		return GetToken().type == ID;
+		};
+
+	auto NextToken = [&]()-> bool {
+		PosBuffer++;
+		while (match(TTokenID::LineFeed) || match(TTokenID::Space))
+			PosBuffer++;
+		return true;
+		};
+
+	if (!NextToken())
+		return nullptr;
+
+	switch (GetToken().type)
+	{
+	case TTokenID::Type:
+		return ResolvingType();
+	case TTokenID::Access:
+		return ResolvingAccess();
+	case TTokenID::Pointer:
+		return ResolvingPointer();
+	default:
+		return nullptr;
+	}
+	return nullptr;
+};
+
+Node* Parser::ResolvingType() {
+	auto GetToken = [&]() -> LexToken {
+		return ParserEngineBuffer[PosBuffer];
+		};
+
+	auto match = [&](TTokenID ID) -> bool {
+		return GetToken().type == ID;
+		};
+
+	auto NextToken = [&]()-> bool {
+		PosBuffer++;
+		while (match(TTokenID::LineFeed) || match(TTokenID::Space))
+			PosBuffer++;
+		return true;
+		};
+
+	NextToken();
+
+	std::string name = GetToken().value;
+
+	if (NextToken() && !match(TTokenID::Equals))
+		return nullptr;
+
+	StructTypeQualifier structTypeQualifier;
+
+	while (!match(TTokenID::Semicolon) && NextToken())
+	{
+
+		switch (GetToken().type)
+		{
+		case TTokenID::Const: structTypeQualifier.Qualifer.IsConst = true;
+			break;
+		case TTokenID::Asterisk: structTypeQualifier.Qualifer.IsRef = true;
+			break;
+		case TTokenID::IdentifierLiteral:
+			structTypeQualifier.Type = GetToken().value;
+
+			break;
+		case TTokenID::ScResOp:
+			structTypeQualifier.Type = "";
+			break;
+		}
+	}
+	ResolvedAliasType[name] = structTypeQualifier;
+	return new NodeUsingType(name, new NodeTypeQualifier(structTypeQualifier.Type, structTypeQualifier.Qualifer));
+};
+Node* Parser::ResolvingAccess() {
+	
+	auto GetToken = [&]() -> LexToken {
+		return ParserEngineBuffer[PosBuffer];
+		};
+
+	auto match = [&](TTokenID ID) -> bool {
+		return GetToken().type == ID;
+		};
+
+	auto NextToken = [&]()-> bool {
+		PosBuffer++;
+		while (match(TTokenID::LineFeed) || match(TTokenID::Space))
+			PosBuffer++;
+		return true;
+		};
+	
+	while (!match(TTokenID::Semicolon) && NextToken()); { }
+	return new NodeUsingAcess();
+};
+
+Node* Parser::ResolvingPointer() {
+	return nullptr;
+};
+
 
 Parser::~Parser()
 {
