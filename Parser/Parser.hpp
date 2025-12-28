@@ -93,16 +93,8 @@ void Parser::Init() {
 }
 
 Node* Parser::Var() {
-
-	struct VariableDeclaration
-	{
-		std::string Name;
-		std::string Initializer;
-	};
-	
 	std::string Type = "";
 	NodeTypeQualifier::Qualifers Qualifer;
-	std::vector<VariableDeclaration> Declarations;
 
 	if (NextToken() && !match(TTokenID::LeftBracket) && NextToken())
 		return nullptr;
@@ -150,14 +142,12 @@ Node* Parser::Var() {
 
 	}
 
-	bool IsFindEquals = false;
-
 	auto parseQualifiedName = [&]() -> std::string {
 		
 		std::string initializer = GetToken().value;
 		
 		if (!match(TTokenID::IdentifierLiteral))
-			return GetToken().value;
+			return initializer;
 
 		while (!match(TTokenID::Semicolon) && !match(TTokenID::Comma) && NextToken())
 		{
@@ -173,27 +163,24 @@ Node* Parser::Var() {
 		return initializer;
 		};
 
+	std::vector<NodeDeclaration*> ContainerDeclarationList;
+
 	while (!match(TTokenID::Semicolon) && NextToken())
 	{
 		if (!match(TTokenID::IdentifierLiteral))
 			break;
-		VariableDeclaration Decl;
-		Decl.Name = GetToken().value;
+
+		std::string Initializer = "", Name = GetToken().value;
 		if (NextToken() && match(TTokenID::Equals) && NextToken())
-			Decl.Initializer = parseQualifiedName();
-		Declarations.push_back(Decl);
+			Initializer = parseQualifiedName();
+		
+		ContainerDeclarationList.push_back(
+			new NodeDeclaration(new NodeIdentifier(Name),
+				Initializer.empty() ? nullptr :
+				new NodeIdentifier(Initializer)));
 	}
 
-	NodeDeclarationList* DeclarationList = nullptr;
-	NodeTypeQualifier* TypeQualifier = new NodeTypeQualifier(Type, Qualifer);
-	std::vector<NodeDeclaration*> ContainerDeclarationList;
-	for (int i = 0; i < Declarations.size(); i++)
-		ContainerDeclarationList.push_back(
-			new NodeDeclaration(new NodeIdentifier(Declarations[i].Name),
-				Declarations[i].Initializer.empty() ? nullptr :
-				new NodeIdentifier(Declarations[i].Initializer)));
-	DeclarationList = new NodeDeclarationList(TypeQualifier, ContainerDeclarationList);
-	return DeclarationList;
+	return new NodeDeclarationList(new NodeTypeQualifier(Type, Qualifer), ContainerDeclarationList);
 
 };
 
