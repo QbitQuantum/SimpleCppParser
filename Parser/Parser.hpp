@@ -18,10 +18,6 @@ private:
 
 	std::vector<Node*> ast;
 	void Init();
-	bool neof() {
-		return PosBuffer < SizeBufferParser;
-	}
-
 	struct StructTypeQualifier {
 		std::string Type = "";
 		NodeTypeQualifier::Qualifers Qualifer;
@@ -34,6 +30,25 @@ private:
 	{TTokenID::Var, &Parser::Var},
 	{TTokenID::Using, &Parser::Using},
 	}};
+
+	LexToken GetToken () {
+		return ParserEngineBuffer[PosBuffer];
+		};
+
+	bool match(TTokenID ID) {
+		return GetToken().type == ID;
+		};
+
+	bool neof() {
+		return PosBuffer < SizeBufferParser;
+	}
+
+	bool NextToken() {
+		PosBuffer++;
+		while (match(TTokenID::LineFeed) || match(TTokenID::Space))
+			PosBuffer++;
+		return neof();
+		};
 
 	Node* ResolvingType();
 	Node* ResolvingAccess();
@@ -84,22 +99,6 @@ Node* Parser::Var() {
 		std::string Name;
 		std::string Initializer;
 	};
-
-	auto GetToken = [&]() -> LexToken {
-		return ParserEngineBuffer[PosBuffer];
-		};
-
-	auto match = [&](TTokenID ID) -> bool {
-		return GetToken().type == ID;
-		};
-
-	auto NextToken = [&]()-> bool {
-		PosBuffer++;
-		while (match(TTokenID::LineFeed) || match(TTokenID::Space))
-			PosBuffer++;
-		return true;
-		};
-
 	
 	std::string Type = "";
 	NodeTypeQualifier::Qualifers Qualifer;
@@ -199,20 +198,6 @@ Node* Parser::Var() {
 };
 
 Node* Parser::Using() {
-	auto GetToken = [&]() -> LexToken {
-		return ParserEngineBuffer[PosBuffer];
-		};
-
-	auto match = [&](TTokenID ID) -> bool {
-		return GetToken().type == ID;
-		};
-
-	auto NextToken = [&]()-> bool {
-		PosBuffer++;
-		while (match(TTokenID::LineFeed) || match(TTokenID::Space))
-			PosBuffer++;
-		return true;
-		};
 
 	if (!NextToken())
 		return nullptr;
