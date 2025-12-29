@@ -94,7 +94,7 @@ public:
                 fprint += Decl->print() + (i == size - 1 ? "" : ", ");
         return fprint;
     };
-    NodeDeclarationList(NodeTypeQualifier*& typeQualifier, const std::vector<NodeDeclaration*>& declarationList) :
+    NodeDeclarationList(NodeTypeQualifier* typeQualifier, const std::vector<NodeDeclaration*>& declarationList) :
         TypeQualifier(typeQualifier), DeclarationList(declarationList) { };
 
     ~NodeDeclarationList() override {
