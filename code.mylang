@@ -129,11 +129,13 @@ function[void][__fastcall] access[BaseRequest] Abort()  {
     var[const int] number = 1;
 };
 
+/*
 class Base<T, K> : Derive<T> {
     function[T][__fastcall] Stop(K RequestTag);
     var[K] Data;
     var[K*] PointData = nullptr;
 };
+*/
 
 class Base {
 
