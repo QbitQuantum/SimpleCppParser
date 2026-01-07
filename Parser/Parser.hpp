@@ -349,20 +349,6 @@ Node* Parser::Function() {
 };
 
 Node* Parser::ResolvingType() {
-	auto GetToken = [&]() -> LexToken {
-		return ParserEngineBuffer[PosBuffer];
-		};
-
-	auto match = [&](TTokenID ID) -> bool {
-		return GetToken().type == ID;
-		};
-
-	auto NextToken = [&]()-> bool {
-		PosBuffer++;
-		while (match(TTokenID::LineFeed) || match(TTokenID::Space))
-			PosBuffer++;
-		return true;
-		};
 
 	NextToken();
 
@@ -395,22 +381,6 @@ Node* Parser::ResolvingType() {
 	return new NodeUsingType(name, new NodeTypeQualifier(structTypeQualifier.Type, structTypeQualifier.Qualifer));
 };
 Node* Parser::ResolvingAccess() {
-	
-	auto GetToken = [&]() -> LexToken {
-		return ParserEngineBuffer[PosBuffer];
-		};
-
-	auto match = [&](TTokenID ID) -> bool {
-		return GetToken().type == ID;
-		};
-
-	auto NextToken = [&]()-> bool {
-		PosBuffer++;
-		while (match(TTokenID::LineFeed) || match(TTokenID::Space))
-			PosBuffer++;
-		return true;
-		};
-	
 	while (!match(TTokenID::Semicolon) && NextToken()); { }
 	return new NodeUsingAcess();
 };
