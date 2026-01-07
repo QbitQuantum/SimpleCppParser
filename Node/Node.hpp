@@ -85,13 +85,14 @@ class NodeDeclarationList : public Node
 public:
     std::string print() override {
         std::string fprint = "";
-        if (!TypeQualifier)
-            return "!TypeQualifier";
-        fprint += TypeQualifier->print() + " ";
-        int size = DeclarationList.size();
-        for (size_t i = 0; i < size; i++)
-            if (auto Decl = DeclarationList[i]; Decl)
-                fprint += Decl->print() + (i == size - 1 ? "" : ", ");
+        if (TypeQualifier)
+        {
+            int size = DeclarationList.size();
+            fprint += TypeQualifier->print() + (size ? " " : "");
+            for (size_t i = 0; i < size; i++)
+                if (auto Decl = DeclarationList[i]; Decl)
+                    fprint += Decl->print() + (i == size - 1 ? "" : ", ");
+        }
         return fprint;
     };
     NodeDeclarationList(NodeTypeQualifier* typeQualifier, const std::vector<NodeDeclaration*>& declarationList) :
@@ -132,6 +133,40 @@ public:
     NodeUsingAcess() {};
     std::string print() override { return ""; };
     ~NodeUsingAcess() {};
+};
+
+class NodeFunction : public Node
+{
+    std::string Name = "";
+    NodeTypeQualifier* TypeQualifier = nullptr;
+    std::vector<NodeDeclarationList*> ArgumentList;
+
+public:
+    NodeFunction(std::string name, NodeTypeQualifier* typeQualifier, const std::vector<NodeDeclarationList*>& argumentList) :
+        Name(name), TypeQualifier(typeQualifier), ArgumentList(argumentList) { };
+
+    std::string print() override {  
+        std::string fprint = "function ["  +
+        (TypeQualifier->Qualifer.IsConst ? std::string("const ") : std::string("")) +
+        TypeQualifier->Type +
+        (TypeQualifier->Qualifer.IsRef ? std::string("*") : std::string("")) + "][__fastcall] " + Name;
+        
+        fprint += "(";
+        int size = ArgumentList.size();
+        for (size_t i = 0; i < size; i++)
+            if (auto Decl = ArgumentList[i]; Decl)
+                fprint += Decl->print() + (i == size - 1 ? "" : ", ");
+
+        fprint += ")";
+
+        return fprint;
+    };
+
+    ~NodeFunction() {
+        delete TypeQualifier; TypeQualifier = nullptr;
+        for (auto& i : ArgumentList) delete i;
+    
+    };
 };
 
 #endif // NODE_HPP

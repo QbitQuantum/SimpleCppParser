@@ -29,6 +29,7 @@ private:
 	std::unordered_map<TTokenID, ParserEnginePtr> map{{
 	{TTokenID::Var, &Parser::Var},
 	{TTokenID::Using, &Parser::Using},
+	{TTokenID::Function, &Parser::Function},
 	}};
 
 	LexToken GetToken () {
@@ -56,6 +57,9 @@ private:
 
 	Node* Var();
 	Node* Using();
+	Node* Function();
+
+	NodeTypeQualifier* TypeQualifierParse();
 public:
 	std::vector<LexToken> ParserEngineBuffer;
 
@@ -92,7 +96,7 @@ void Parser::Init() {
 
 }
 
-Node* Parser::Var() {
+NodeTypeQualifier* Parser::TypeQualifierParse() {
 	std::string Type = "";
 	NodeTypeQualifier::Qualifers Qualifer;
 
@@ -141,27 +145,12 @@ Node* Parser::Var() {
 		}
 
 	}
+	return new NodeTypeQualifier(Type, Qualifer);
+};
 
-	auto parseQualifiedName = [&]() -> std::string {
-		
-		std::string initializer = GetToken().value;
-		
-		if (!match(TTokenID::IdentifierLiteral))
-			return initializer;
+Node* Parser::Var() {
 
-		while (!match(TTokenID::Semicolon) && !match(TTokenID::Comma) && NextToken())
-		{
-			switch (GetToken().type)
-			{
-			case TTokenID::ScResOp: initializer = "";
-				break;
-			case TTokenID::IdentifierLiteral:
-				initializer = GetToken().value;
-				break;
-			}
-		}
-		return initializer;
-		};
+	auto TypeQualifier = TypeQualifierParse();
 
 	std::vector<NodeDeclaration*> ContainerDeclarationList;
 
@@ -170,9 +159,39 @@ Node* Parser::Var() {
 		if (!match(TTokenID::IdentifierLiteral))
 			break;
 
+		auto ParseInitializer = [&]() -> std::string {
+			if (NextToken() && match(TTokenID::Access))
+			{
+				NextToken();
+				NextToken();
+				std::string search = GetToken().value;
+				NextToken();
+			}
+
+			std::string initializer = "";
+
+			if (NextToken() && match(TTokenID::IdentifierLiteral))
+			{
+				initializer = GetToken().value;
+				while (NextToken() && !match(TTokenID::Semicolon) && !match(TTokenID::Comma))
+				{
+					switch (GetToken().type)
+					{
+					case TTokenID::ScResOp: initializer = "";
+						break;
+					case TTokenID::IdentifierLiteral:
+						initializer = GetToken().value;
+						break;
+					}
+				}
+			}
+
+			return initializer;
+			};
+
 		std::string Initializer = "", Name = GetToken().value;
 		if (NextToken() && match(TTokenID::Equals) && NextToken())
-			Initializer = parseQualifiedName();
+			Initializer = ParseInitializer();
 		
 		ContainerDeclarationList.push_back(
 			new NodeDeclaration(new NodeIdentifier(Name),
@@ -180,7 +199,7 @@ Node* Parser::Var() {
 				new NodeIdentifier(Initializer)));
 	}
 
-	return new NodeDeclarationList(new NodeTypeQualifier(Type, Qualifer), ContainerDeclarationList);
+	return new NodeDeclarationList(TypeQualifier, ContainerDeclarationList);
 
 };
 
@@ -201,6 +220,132 @@ Node* Parser::Using() {
 		return nullptr;
 	}
 	return nullptr;
+};
+
+Node* Parser::Function() {
+
+	if (NextToken() && !match(TTokenID::LeftBracket))
+		return nullptr;
+
+	std::string Type = "";
+	NodeTypeQualifier::Qualifers Qualifer;
+
+	while (NextToken() && !match(TTokenID::RightBracket))
+	{
+		switch (GetToken().type)
+		{
+		case TTokenID::Const: Qualifer.IsConst = true;
+			break;
+		case TTokenID::Asterisk: Qualifer.IsRef = true;
+			break;
+		case TTokenID::ScResOp: Type = "";
+			break;
+		case TTokenID::IdentifierLiteral:
+			Type = GetToken().value;
+			break;
+		case TTokenID::Type:
+		{
+			NextToken();
+			NextToken();
+			std::string search = GetToken().value;
+			NextToken();
+			NextToken();
+			auto it = ResolvedAliasType.find(search);
+			if (it != ResolvedAliasType.end())
+			{
+				auto Data = ResolvedAliasType[search];
+				Type = Data.Type;
+				Qualifer.IsConst = Data.Qualifer.IsConst;
+				Qualifer.IsRef = Data.Qualifer.IsRef;
+			}
+			break;
+		}
+		case TTokenID::Access:
+		{
+			NextToken();
+			NextToken();
+			std::string search = GetToken().value;
+			NextToken();
+			NextToken();
+			break;
+		}
+		}
+	}
+
+	if (NextToken() && !match(TTokenID::LeftBracket))
+		return nullptr;
+
+	while (!match(TTokenID::RightBracket) && NextToken()); // Парсинг квалификаторов
+
+	if (NextToken() && !match(TTokenID::IdentifierLiteral))
+		return nullptr;
+
+	std::string FunctiomName = GetToken().value;
+
+	std::vector<NodeDeclarationList*> ArgumentList;
+	if (NextToken() && !match(TTokenID::LeftParen))
+		return nullptr;
+
+	auto ParseInitializer = [&]() -> std::string {
+
+		if (NextToken() && match(TTokenID::Access))
+		{
+			NextToken();
+			NextToken();
+			std::string search = GetToken().value;
+			NextToken();
+		}
+
+		std::string initializer = "";
+
+		if (NextToken() && match(TTokenID::IdentifierLiteral))
+		{
+			initializer = GetToken().value;
+			while (NextToken() && !match(TTokenID::RightParen) && !match(TTokenID::Comma))
+			{
+				switch (GetToken().type)
+				{
+				case TTokenID::ScResOp: initializer = "";
+					break;
+				case TTokenID::IdentifierLiteral:
+					initializer = GetToken().value;
+					break;
+				}
+			}
+		}
+
+		return initializer;
+		};
+
+	while (NextToken() && !match(TTokenID::RightParen))
+	{
+		if (!match(TTokenID::Var))
+			continue;
+
+		auto TypeQualifier = TypeQualifierParse();
+		std::string Name = "", Initializer = "";
+
+		if (NextToken())
+		{
+			switch (GetToken().type)
+			{
+			case TTokenID::IdentifierLiteral:
+				Name = GetToken().value;
+				break;
+			case TTokenID::Equals:
+				Initializer = ParseInitializer();
+				break;
+			default:
+				break;
+			}
+		}
+		
+		ArgumentList.push_back(new NodeDeclarationList(TypeQualifier, Name.empty() ? std::vector<NodeDeclaration*>{} :
+			std::vector<NodeDeclaration*>{ new NodeDeclaration(new NodeIdentifier(Name),
+				Initializer.empty() ? nullptr :
+				new NodeIdentifier(Initializer)) }));
+	}
+	return new NodeFunction(FunctiomName, new NodeTypeQualifier(Type, Qualifer), ArgumentList);
 };
 
 Node* Parser::ResolvingType() {
