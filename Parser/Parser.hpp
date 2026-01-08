@@ -18,13 +18,8 @@ private:
 
 	std::vector<Node*> ast;
 	void Init();
-	struct StructTypeQualifier {
-		std::string Type = "";
-		NodeTypeQualifier::Qualifers Qualifer;
-	};
 
-
-	std::unordered_map<std::string, StructTypeQualifier> ResolvedAliasType;
+	std::unordered_map<std::string, CType> ResolvedAliasType;
 
 	std::unordered_map<TTokenID, ParserEnginePtr> map{{
 	{TTokenID::Access, &Parser::Access},
@@ -98,7 +93,9 @@ void Parser::Init() {
 
 NodeTypeQualifier* Parser::TypeQualifierParse() {
 	std::string Type = "";
-	NodeTypeQualifier::Qualifers Qualifer;
+	bool IsConst = false;
+	bool IsRef = false;
+	std::string ResolvingAlias = "";
 
 	if (NextToken() && !match(TTokenID::LeftBracket))
 		return nullptr;
@@ -107,9 +104,9 @@ NodeTypeQualifier* Parser::TypeQualifierParse() {
 	{
 		switch (GetToken().type)
 		{
-		case TTokenID::Const: Qualifer.IsConst = true;
+		case TTokenID::Const: IsConst = true;
 			break;
-		case TTokenID::Asterisk: Qualifer.IsRef = true;
+		case TTokenID::Asterisk: IsRef = true;
 			break;
 		case TTokenID::ScResOp: Type = "";
 			break;
@@ -120,30 +117,27 @@ NodeTypeQualifier* Parser::TypeQualifierParse() {
 		{
 			NextToken();
 			NextToken();
-			std::string search = GetToken().value;
+			ResolvingAlias = GetToken().value;
 			NextToken();
-			auto it = ResolvedAliasType.find(search);
-			if (it != ResolvedAliasType.end())
-			{
-				auto Data = ResolvedAliasType[search];
-				Type = Data.Type;
-				Qualifer.IsConst = Data.Qualifer.IsConst;
-				Qualifer.IsRef = Data.Qualifer.IsRef;
-			}
 			break;
 		}
 		case TTokenID::Access:
 		{
 			NextToken();
 			NextToken();
-			std::string search = GetToken().value;
+			std::string Resolving = GetToken().value;
 			NextToken();
 			break;
 		}
 		}
-
 	}
-	return new NodeTypeQualifier(Type, Qualifer);
+
+	CType* cType = nullptr;
+
+	if (auto it = ResolvedAliasType.find(ResolvingAlias); it != ResolvedAliasType.end())
+		cType = new CType(ResolvedAliasType[ResolvingAlias]);
+
+	return new NodeTypeQualifier(cType ? cType : new CType(Type, IsConst, IsRef));
 };
 
 Node* Parser::Var() {
@@ -213,15 +207,17 @@ Node* Parser::Function() {
 		return nullptr;
 
 	std::string Type = "";
-	NodeFunction::Qualifers Qualifer;
+	bool IsConst = false;
+	bool IsRef = false;
+	std::string ResolvingAlias = "";
 
 	while (NextToken() && !match(TTokenID::RightBracket))
 	{
 		switch (GetToken().type)
 		{
-		case TTokenID::Const: Qualifer.IsConst = true;
+		case TTokenID::Const: IsConst = true;
 			break;
-		case TTokenID::Asterisk: Qualifer.IsRef = true;
+		case TTokenID::Asterisk: IsRef = true;
 			break;
 		case TTokenID::ScResOp: Type = "";
 			break;
@@ -232,17 +228,9 @@ Node* Parser::Function() {
 		{
 			NextToken();
 			NextToken();
-			std::string search = GetToken().value;
+			std::string ResolvingAlias = GetToken().value;
 			NextToken();
 			NextToken();
-			auto it = ResolvedAliasType.find(search);
-			if (it != ResolvedAliasType.end())
-			{
-				auto Data = ResolvedAliasType[search];
-				Type = Data.Type;
-				Qualifer.IsConst = Data.Qualifer.IsConst;
-				Qualifer.IsRef = Data.Qualifer.IsRef;
-			}
 			break;
 		}
 		case TTokenID::Access:
@@ -335,7 +323,13 @@ Node* Parser::Function() {
 		if (match(TTokenID::RightParen))
 			break;
 	}
-	return new NodeFunction(Type, Qualifer, FunctiomName, ArgumentList);
+
+	CType* cType = nullptr;
+
+	if (auto it = ResolvedAliasType.find(ResolvingAlias); it != ResolvedAliasType.end())
+		cType = new CType(ResolvedAliasType[ResolvingAlias]);
+
+	return new NodeFunction(cType ? cType : new CType(Type, IsConst, IsRef), FunctiomName, ArgumentList);
 };
 
 Node* Parser::Access() {
@@ -354,15 +348,16 @@ Node* Parser::Alias() {
 		return nullptr;
 
 	std::string Type = "";
-	NodeAlias::Qualifers Qualifer;
+	bool IsConst = false;
+	bool IsRef = false;
 
 	while (NextToken() && !match(TTokenID::Semicolon))
 	{
 		switch (GetToken().type)
 		{
-		case TTokenID::Const: Qualifer.IsConst = true;
+		case TTokenID::Const: IsConst = true;
 			break;
-		case TTokenID::Asterisk: Qualifer.IsRef = true;
+		case TTokenID::Asterisk: IsRef = true;
 			break;
 		case TTokenID::IdentifierLiteral:
 			Type = GetToken().value;
@@ -373,13 +368,9 @@ Node* Parser::Alias() {
 			break;
 		}
 	}
-	StructTypeQualifier structTypeQualifier;
-	structTypeQualifier.Type = Type;
-	structTypeQualifier.Qualifer.IsConst = Qualifer.IsConst;
-	structTypeQualifier.Qualifer.IsRef = Qualifer.IsRef;
 
-	ResolvedAliasType[name] = structTypeQualifier;
-	return new NodeAlias(name, Type, Qualifer);
+	ResolvedAliasType[name] = CType(Type, IsConst, IsRef);
+	return new NodeAlias(name, new CType(Type, IsConst, IsRef));
 };
 
 Node* Parser::Pointer() {

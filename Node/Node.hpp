@@ -15,34 +15,48 @@ public:
     virtual ~Node() = default;
 };
 
+// TODO: Этот класс имеет фукцию print, что по теории моей шизы должен быть частью Node
+class CType {
+    
+public:
+    std::string Type = "";
+    bool IsConst = false;
+    bool IsRef = false;
+    CType(std::string type, bool isConst, bool isRef) :
+        Type(type), IsConst(isConst), IsRef(isRef) {};
+    
+    CType(CType& type) {
+        Type = type.Type;
+        IsConst = type.IsConst;
+        IsRef = type.IsRef;
+    };
+
+    CType() {};
+    ~CType() {};
+    std::string print() {
+        std::string fprint  = (IsConst ? std::string("const ") : std::string("")) +
+            Type +
+            (IsRef ? std::string("*") : std::string(""));
+        return fprint;
+    };
+};
+
 class NodeTypeQualifier : public Node
 {
+    CType * Qualifer = nullptr;
 public:
-    std::string Type;
-
-    struct Qualifers
-    {
-        bool IsConst = false;
-        bool IsRef = false;
-    } Qualifer;
-
     std::string print() override {
-        std::string fprint = "";
-        if (Type.empty())
-            return "Type.empty()";
-        fprint = 
-            "var[" + 
-            (Qualifer.IsConst ? std::string("const ") : std::string("")) +
-            Type + 
-            (Qualifer.IsRef ? std::string("*") : std::string(""))
-            + "]";
+        std::string fprint = 
+            "var[" + Qualifer->print() + "]";
         return fprint;
     };
 
-    NodeTypeQualifier(const std::string type, const Qualifers& qualifer) :
-        Type(type), Qualifer(qualifer) {};
+    NodeTypeQualifier(CType * qualifer) :
+        Qualifer(qualifer) {};
 
-    ~NodeTypeQualifier() override {};
+    ~NodeTypeQualifier() override {
+        delete Qualifer; Qualifer = nullptr;
+    };
 };
 
 class NodeIdentifier : public Node
@@ -109,25 +123,17 @@ public:
 class NodeAlias : public Node
 {
     std::string Name = "";
-    std::string Type = "";
+    CType * Qualifer = nullptr;
 public:
-    struct Qualifers
-    {
-        bool IsConst = false;
-        bool IsRef = false;
-    } Qualifer;
-private:
-public:
-    NodeAlias(std::string name, std::string type, Qualifers qualifer) :
-        Name(name), Type(type), Qualifer(qualifer) {
+    NodeAlias(std::string name, CType* qualifer) :
+        Name(name), Qualifer(qualifer) {
     };
     std::string print() override {
-        return "alias " + Name + " = " +
-            (Qualifer.IsConst ? std::string("const ") : std::string("")) +
-            Type +
-            (Qualifer.IsRef ? std::string("*") : std::string(""));
+        return "alias " + Name + " = " + Qualifer->print();
     };
-    ~NodeAlias() { }
+    ~NodeAlias() {
+        delete Qualifer; Qualifer = nullptr;
+    }
 };
 
 class NodeAccess : public Node
@@ -140,29 +146,16 @@ public:
 
 class NodeFunction : public Node
 {
-    
-    std::string Type = "";
-public:
-    struct Qualifers
-    {
-        bool IsConst = false;
-        bool IsRef = false;
-    } Qualifer;
-private:
+    CType  * Qualifer = nullptr;
     std::string Name = "";
-
     std::vector<NodeDeclarationList*> ArgumentList;
-
 public:
     NodeFunction(
-        std::string type, Qualifers qualifer, std::string name, const std::vector<NodeDeclarationList*>& argumentList) :
-        Type(type), Qualifer(qualifer), Name(name),  ArgumentList(argumentList) { };
+        CType * qualifer, std::string name, const std::vector<NodeDeclarationList*> argumentList) :
+        Qualifer(qualifer), Name(name),  ArgumentList(argumentList) { };
 
     std::string print() override {  
-        std::string fprint = "function ["  +
-        (Qualifer.IsConst ? std::string("const ") : std::string("")) +
-        Type +
-        (Qualifer.IsRef ? std::string("*") : std::string("")) + "][__fastcall] " + Name;
+        std::string fprint = "function ["  + Qualifer->print() + "] [__fastcall] " + Name;
         
         fprint += "(";
         int size = ArgumentList.size();
@@ -176,6 +169,7 @@ public:
     };
 
     ~NodeFunction() {
+        delete Qualifer; Qualifer = nullptr;
         for (auto& i : ArgumentList) delete i;
     
     };
