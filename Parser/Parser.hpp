@@ -232,7 +232,7 @@ Node* Parser::Function() {
 		return nullptr;
 
 	std::string Type = "";
-	NodeTypeQualifier::Qualifers Qualifer;
+	NodeFunction::Qualifers Qualifer;
 
 	while (NextToken() && !match(TTokenID::RightBracket))
 	{
@@ -354,7 +354,7 @@ Node* Parser::Function() {
 		if (match(TTokenID::RightParen))
 			break;
 	}
-	return new NodeFunction(FunctiomName, new NodeTypeQualifier(Type, Qualifer), ArgumentList);
+	return new NodeFunction(Type, Qualifer, FunctiomName, ArgumentList);
 };
 
 Node* Parser::ResolvingType() {

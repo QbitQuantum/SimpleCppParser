@@ -137,19 +137,29 @@ public:
 
 class NodeFunction : public Node
 {
+    
+    std::string Type = "";
+public:
+    struct Qualifers
+    {
+        bool IsConst = false;
+        bool IsRef = false;
+    } Qualifer;
+private:
     std::string Name = "";
-    NodeTypeQualifier* TypeQualifier = nullptr;
+
     std::vector<NodeDeclarationList*> ArgumentList;
 
 public:
-    NodeFunction(std::string name, NodeTypeQualifier* typeQualifier, const std::vector<NodeDeclarationList*>& argumentList) :
-        Name(name), TypeQualifier(typeQualifier), ArgumentList(argumentList) { };
+    NodeFunction(
+        std::string type, Qualifers qualifer, std::string name, const std::vector<NodeDeclarationList*>& argumentList) :
+        Type(type), Qualifer(qualifer), Name(name),  ArgumentList(argumentList) { };
 
     std::string print() override {  
         std::string fprint = "function ["  +
-        (TypeQualifier->Qualifer.IsConst ? std::string("const ") : std::string("")) +
-        TypeQualifier->Type +
-        (TypeQualifier->Qualifer.IsRef ? std::string("*") : std::string("")) + "][__fastcall] " + Name;
+        (Qualifer.IsConst ? std::string("const ") : std::string("")) +
+        Type +
+        (Qualifer.IsRef ? std::string("*") : std::string("")) + "][__fastcall] " + Name;
         
         fprint += "(";
         int size = ArgumentList.size();
@@ -163,7 +173,6 @@ public:
     };
 
     ~NodeFunction() {
-        delete TypeQualifier; TypeQualifier = nullptr;
         for (auto& i : ArgumentList) delete i;
     
     };
