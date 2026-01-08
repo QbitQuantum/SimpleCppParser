@@ -3,10 +3,6 @@
 using type string = System::UnicodeString;
 using type w_string = System::WideString;
 
-// using pointer ERequestError = function[void][__fastcall](var[TNetHTTPClient*], var[type[string]], var[LLinkWorkType], var[type[string]]);
-// using pointer ERequestEvent = function[void][__fastcall](var[TNetHTTPClient*], var[type[string]] Link, var[LLinkWorkType]);
-// using pointer ERequestObtainData = function[void][__fastcall](var[TObject*], var[type[string]], var[int]);
-
 using access BaseRequest = OctetBaseLink::OctetBaseLinkRequest;
 using access LinkConnection = link::connection;
 using access LinkResponse = link::response;
@@ -34,7 +30,6 @@ private:
     public:
 
         var[type[string]] RequestTag;
-        // pointer[ERequestObtainData] OnObtainData = nullptr;
         var[bool] Completed = false;
 
         __property Link = { __link };
@@ -86,19 +81,12 @@ public:
 
     var[bool] LocalLinking = false, InputCache = false, OutputCache = false;
 
-    // events
-    // pointer[ERequestEvent] OnStart = nullptr, OnComplete = nullptr;
-    // pointer[ERequestError] OnError = nullptr;
-
     // base network methods
 
     function[type[string]][__fastcall] Read(var[type[string]], var[int] Type = access[LinkType] critical);
-    // function[void][__fastcall] Read(var[type[string]], pointer[ERequestObtainData], var[type[string]] RequestTag, var[int] Argument = INDEX_INVALID);
-    // function[void][__fastcall] Cache(var[type[string]] Link, pointer[ERequestObtainData] Event, var[type[string]] RequestTag, var[int] Argument = INDEX_INVALID);
     function[type[string]][__fastcall] Cache(type[string] Link);
     function[void][__fastcall] Stop(var[type[string]] RequestTag = "");
     function[bool][__fastcall] Write(var[type[string]], var[type[string]] Data, var[TStringStream*] Response = NULL);
-    // function[void][__fastcall] Write(var[type[string]], var[type[string]], pointer[ERequestObtainData] Event, var[type[string]] RequestTag, var[int] Argument = INDEX_INVALID);
     function[bool][__fastcall] Delete(var[type[string]]);
     function[bool][__fastcall] Auth(var[type[string]], var[type[string]] User, var[type[string]] Pass, var[TStringStream*] Response = NULL);
     function[type[string]][__fastcall] ResponseCode();
@@ -124,18 +112,9 @@ public:
         var[int] ResponseTimeoutAsync = access[LinkResponse] timeout_async);
 };
 
-// function[void][__fastcall] OctetBaseLink::OctetBaseLinkRequest::Abort()  {
 function[void][__fastcall] access[BaseRequest] Abort()  {
     var[const int] number = 1;
 };
-
-/*
-class Base<T, K> : Derive<T> {
-    function[T][__fastcall] Stop(K RequestTag);
-    var[K] Data;
-    var[K*] PointData = nullptr;
-};
-*/
 
 class Base {
 
@@ -182,14 +161,3 @@ function[int][] main () {
     delete un;
     return 0;
 };
-
-/*
-function[int][] main (var[int] argc, var[char*] argv) {
-    return 0;
-};
-
-function[int][] main () {
-    
-    return int(); // Равен хз, ну пускай -1;
-};
-*/
