@@ -106,33 +106,36 @@ public:
     };
 };
 
-class NodeUsingType : public Node
+class NodeAlias : public Node
 {
-    std::string Name;
-    NodeTypeQualifier* TypeQualifier = nullptr;
+    std::string Name = "";
+    std::string Type = "";
 public:
-    NodeUsingType(std::string name, NodeTypeQualifier* typeQualifier) :
-        Name(name), TypeQualifier(typeQualifier) {
+    struct Qualifers
+    {
+        bool IsConst = false;
+        bool IsRef = false;
+    } Qualifer;
+private:
+public:
+    NodeAlias(std::string name, std::string type, Qualifers qualifer) :
+        Name(name), Type(type), Qualifer(qualifer) {
     };
     std::string print() override {
-        if (!TypeQualifier)
-            return "!TypeQualifier";
-        return "using type " + Name + " = " +
-            (TypeQualifier->Qualifer.IsConst ? std::string("const ") : std::string("")) +
-            TypeQualifier->Type +
-            (TypeQualifier->Qualifer.IsRef ? std::string("*") : std::string(""));
+        return "alias " + Name + " = " +
+            (Qualifer.IsConst ? std::string("const ") : std::string("")) +
+            Type +
+            (Qualifer.IsRef ? std::string("*") : std::string(""));
     };
-    ~NodeUsingType() {
-        if (TypeQualifier) delete TypeQualifier;
-    }
+    ~NodeAlias() { }
 };
 
-class NodeUsingAcess : public Node
+class NodeAccess : public Node
 {
 public:
-    NodeUsingAcess() {};
+    NodeAccess() {};
     std::string print() override { return ""; };
-    ~NodeUsingAcess() {};
+    ~NodeAccess() {};
 };
 
 class NodeFunction : public Node

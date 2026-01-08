@@ -27,8 +27,10 @@ private:
 	std::unordered_map<std::string, StructTypeQualifier> ResolvedAliasType;
 
 	std::unordered_map<TTokenID, ParserEnginePtr> map{{
+	{TTokenID::Access, &Parser::Access},
+	{TTokenID::Alias, &Parser::Alias},
+	{TTokenID::Pointer, &Parser::Pointer},
 	{TTokenID::Var, &Parser::Var},
-	{TTokenID::Using, &Parser::Using},
 	{TTokenID::Function, &Parser::Function},
 	}};
 
@@ -51,12 +53,10 @@ private:
 		return neof();
 		};
 
-	Node* ResolvingType();
-	Node* ResolvingAccess();
-	Node* ResolvingPointer();
-
+	Node* Access();
+	Node* Alias();
+	Node* Pointer();
 	Node* Var();
-	Node* Using();
 	Node* Function();
 
 	NodeTypeQualifier* TypeQualifierParse();
@@ -116,7 +116,7 @@ NodeTypeQualifier* Parser::TypeQualifierParse() {
 		case TTokenID::IdentifierLiteral:
 			Type = GetToken().value;
 			break;
-		case TTokenID::Type: 
+		case TTokenID::Alias:
 		{
 			NextToken();
 			NextToken();
@@ -207,25 +207,6 @@ Node* Parser::Var() {
 
 };
 
-Node* Parser::Using() {
-
-	if (!NextToken())
-		return nullptr;
-
-	switch (GetToken().type)
-	{
-	case TTokenID::Type:
-		return ResolvingType();
-	case TTokenID::Access:
-		return ResolvingAccess();
-	case TTokenID::Pointer:
-		return ResolvingPointer();
-	default:
-		return nullptr;
-	}
-	return nullptr;
-};
-
 Node* Parser::Function() {
 
 	if (NextToken() && !match(TTokenID::LeftBracket))
@@ -247,7 +228,7 @@ Node* Parser::Function() {
 		case TTokenID::IdentifierLiteral:
 			Type = GetToken().value;
 			break;
-		case TTokenID::Type:
+		case TTokenID::Alias:
 		{
 			NextToken();
 			NextToken();
@@ -357,44 +338,51 @@ Node* Parser::Function() {
 	return new NodeFunction(Type, Qualifer, FunctiomName, ArgumentList);
 };
 
-Node* Parser::ResolvingType() {
+Node* Parser::Access() {
+	while (NextToken() && !match(TTokenID::Semicolon)); { }
+	return new NodeAccess();
+};
 
-	NextToken();
+Node* Parser::Alias() {
+
+	if (NextToken() && !match(TTokenID::IdentifierLiteral))
+		return nullptr;
 
 	std::string name = GetToken().value;
 
 	if (NextToken() && !match(TTokenID::Equals))
 		return nullptr;
 
-	StructTypeQualifier structTypeQualifier;
+	std::string Type = "";
+	NodeAlias::Qualifers Qualifer;
 
-	while (!match(TTokenID::Semicolon) && NextToken())
+	while (NextToken() && !match(TTokenID::Semicolon))
 	{
-
 		switch (GetToken().type)
 		{
-		case TTokenID::Const: structTypeQualifier.Qualifer.IsConst = true;
+		case TTokenID::Const: Qualifer.IsConst = true;
 			break;
-		case TTokenID::Asterisk: structTypeQualifier.Qualifer.IsRef = true;
+		case TTokenID::Asterisk: Qualifer.IsRef = true;
 			break;
 		case TTokenID::IdentifierLiteral:
-			structTypeQualifier.Type = GetToken().value;
+			Type = GetToken().value;
 
 			break;
 		case TTokenID::ScResOp:
-			structTypeQualifier.Type = "";
+			Type = "";
 			break;
 		}
 	}
+	StructTypeQualifier structTypeQualifier;
+	structTypeQualifier.Type = Type;
+	structTypeQualifier.Qualifer.IsConst = Qualifer.IsConst;
+	structTypeQualifier.Qualifer.IsRef = Qualifer.IsRef;
+
 	ResolvedAliasType[name] = structTypeQualifier;
-	return new NodeUsingType(name, new NodeTypeQualifier(structTypeQualifier.Type, structTypeQualifier.Qualifer));
-};
-Node* Parser::ResolvingAccess() {
-	while (!match(TTokenID::Semicolon) && NextToken()); { }
-	return new NodeUsingAcess();
+	return new NodeAlias(name, Type, Qualifer);
 };
 
-Node* Parser::ResolvingPointer() {
+Node* Parser::Pointer() {
 	return nullptr;
 };
 

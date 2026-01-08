@@ -124,10 +124,9 @@ static const std::unordered_map<uint32_t, TTokenID> TokenKeywordMap = {
     {ConstexprCppHash("var"),          TTokenID::Var },
     {ConstexprCppHash("function"),     TTokenID::Function },
 
-    {ConstexprCppHash("using"),        TTokenID::Using },
     {ConstexprCppHash("access"),       TTokenID::Access },
+    {ConstexprCppHash("alias"),         TTokenID::Alias },
     {ConstexprCppHash("pointer"),      TTokenID::Pointer },
-    {ConstexprCppHash("type"),         TTokenID::Type },
 
 };
 
