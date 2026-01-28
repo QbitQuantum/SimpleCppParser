@@ -1,20 +1,25 @@
 
-
+// Объявение псевднимов для типов
 alias string = System::UnicodeString;
 alias w_string = System::WideString;
 
+// Объявление псевднимов для пространств имён
 access BaseRequest = OctetBaseLink::OctetBaseLinkRequest;
 access LinkConnection = link::connection;
 access LinkResponse = link::response;
 access LinkType = link::type;
 
+// Объявление переменной
 var[const int] INDEX_INVALID = -1;
 // base link class
+
+// Объявление класса с наследованием
 class OctetBaseLink : OctetBaseNode {
 
 private:
 
     // async request class
+    // Объявление внутреннего класса с наследованием
     class OctetBaseLinkRequest : TNetHTTPRequest {
 
     private:
@@ -23,6 +28,7 @@ private:
         var[bool] __abort = false;
         var[int] __arg = INDEX_INVALID;
 
+        // Объявление функций
         function[void][__fastcall] _eventerror(var[TObject* const],  var[string]);
         function[void][__fastcall] _eventcomplete(var[TObject* const], var[const _di_IHTTPResponse]);
         function[void][__fastcall] _eventreceive(var[TObject* const], var[__int64] AContentLength, var[__int64] AReadCount, var[bool&] Abort);
@@ -32,6 +38,7 @@ private:
         var[string] RequestTag;
         var[bool] Completed = false;
 
+        // Объявление геттера/сеттера
         __property Link { __link };
 
         function[void][__fastcall] Get();
@@ -83,16 +90,16 @@ public:
 
     // base network methods
 
-    function[type[string]][__fastcall] Read(var[string], var[int] Type = access[LinkType] critical);
-    function[type[string]][__fastcall] Cache(type[string] Link);
+    function[string][__fastcall] Read(var[string], var[int] Type = access[LinkType] critical);
+    function[string][__fastcall] Cache(var[string] Link);
     function[void][__fastcall] Stop(var[string] RequestTag = "");
     function[bool][__fastcall] Write(var[string], var[string] Data, var[TStringStream*] Response = NULL);
     function[bool][__fastcall] Delete(var[string]);
     function[bool][__fastcall] Auth(var[string], var[string] User, var[string] Pass, var[TStringStream*] Response = NULL);
-    function[type[string]][__fastcall] ResponseCode();
-    function[type[string]][__fastcall] ResponseCode(var[int], var[string]);
+    function[string][__fastcall] ResponseCode();
+    function[string][__fastcall] ResponseCode(var[int], var[string]);
     function[void][__fastcall] ClearCache(var[int] AgeDays);
-    function[type[string]][__fastcall] ClearCache(var[bool] Download);
+    function[string][__fastcall] ClearCache(var[bool] Download);
 
     // properties
     __property Client { __asyncclient };
