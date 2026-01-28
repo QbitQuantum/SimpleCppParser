@@ -18,18 +18,18 @@ private:
     class OctetBaseLinkRequest : TNetHTTPRequest {
 
     private:
-        var[alias[string]] __link;
+        var[string] __link;
         var[OctetBaseLink*] __parent;
         var[bool] __abort = false;
         var[int] __arg = INDEX_INVALID;
 
-        function[void][__fastcall] _eventerror(var[TObject* const],  var[alias[string]]);
+        function[void][__fastcall] _eventerror(var[TObject* const],  var[string]);
         function[void][__fastcall] _eventcomplete(var[TObject* const], var[const _di_IHTTPResponse]);
         function[void][__fastcall] _eventreceive(var[TObject* const], var[__int64] AContentLength, var[__int64] AReadCount, var[bool&] Abort);
 
     public:
 
-        var[alias[string]] RequestTag;
+        var[string] RequestTag;
         var[bool] Completed = false;
 
         __property Link { __link };
@@ -37,18 +37,18 @@ private:
         function[void][__fastcall] Get();
         function[void][__fastcall] Abort();
 
-        function[void][__fastcall] OctetBaseLinkRequest(var[OctetBaseLink*], var[alias[string]] RequestTag, var[alias[string]] Link, var[ERequestObtainData], var[int] Argument = INDEX_INVALID);
+        function[void][__fastcall] OctetBaseLinkRequest(var[OctetBaseLink*], var[string] RequestTag, var[string] Link, var[ERequestObtainData], var[int] Argument = INDEX_INVALID);
     };
 
 protected:
 
     // internal data
-    function[bool][__fastcall] _start(var[LLinkWorkType], var[alias[string]]);
+    function[bool][__fastcall] _start(var[LLinkWorkType], var[string]);
 
     var[TNetHTTPClient*] __client = nullptr, __asyncclient = nullptr;
     var[LLinkWorkType] __work = lwIdle;
 
-    var[alias[string]] __host, __lastresult;
+    var[string] __host, __lastresult;
 
     var[int] 
         __contime = access[LinkConnection] timeout, 
@@ -67,30 +67,30 @@ protected:
     function[void][__fastcall] _setheaders(TNetHTTPClient*, bool State);
 
     // internal events
-    function[void][__fastcall] _eventerror(var[TObject* const],  var[alias[string]]);
+    function[void][__fastcall] _eventerror(var[TObject* const],  var[string]);
     function[void][__fastcall] _eventcomplete(var[TObject* const], var[const _di_IHTTPResponse]);
-    function[void][__fastcall] _eventauth(var[TObject* const], var[TAuthTargetType] Target, var[alias[string]], var[alias[string]], var[alias[string]]&, var[alias[string]], var[bool&], var[TAuthPersistenceType&]);
+    function[void][__fastcall] _eventauth(var[TObject* const], var[TAuthTargetType] Target, var[string], var[string], var[string]&, var[string], var[bool&], var[TAuthPersistenceType&]);
 
 static:
-    function[void][__fastcall] _eventexecute(var[TObject* const],  var[alias[string]]);
+    function[void][__fastcall] _eventexecute(var[TObject* const],  var[string]);
 
 public:
 
     // variables
-    var[alias[string]] DefaultLink, UpdateLink, UserIdent, MachineIdent;
+    var[string] DefaultLink, UpdateLink, UserIdent, MachineIdent;
 
     var[bool] LocalLinking = false, InputCache = false, OutputCache = false;
 
     // base network methods
 
-    function[type[string]][__fastcall] Read(var[alias[string]], var[int] Type = access[LinkType] critical);
+    function[type[string]][__fastcall] Read(var[string], var[int] Type = access[LinkType] critical);
     function[type[string]][__fastcall] Cache(type[string] Link);
-    function[void][__fastcall] Stop(var[alias[string]] RequestTag = "");
-    function[bool][__fastcall] Write(var[alias[string]], var[alias[string]] Data, var[TStringStream*] Response = NULL);
-    function[bool][__fastcall] Delete(var[alias[string]]);
-    function[bool][__fastcall] Auth(var[alias[string]], var[alias[string]] User, var[alias[string]] Pass, var[TStringStream*] Response = NULL);
+    function[void][__fastcall] Stop(var[string] RequestTag = "");
+    function[bool][__fastcall] Write(var[string], var[string] Data, var[TStringStream*] Response = NULL);
+    function[bool][__fastcall] Delete(var[string]);
+    function[bool][__fastcall] Auth(var[string], var[string] User, var[string] Pass, var[TStringStream*] Response = NULL);
     function[type[string]][__fastcall] ResponseCode();
-    function[type[string]][__fastcall] ResponseCode(var[int], var[alias[string]]);
+    function[type[string]][__fastcall] ResponseCode(var[int], var[string]);
     function[void][__fastcall] ClearCache(var[int] AgeDays);
     function[type[string]][__fastcall] ClearCache(var[bool] Download);
 
