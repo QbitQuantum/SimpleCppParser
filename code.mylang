@@ -32,7 +32,7 @@ private:
         var[alias[string]] RequestTag;
         var[bool] Completed = false;
 
-        __property Link = { __link };
+        __property Link { __link };
 
         function[void][__fastcall] Get();
         function[void][__fastcall] Abort();
@@ -95,14 +95,14 @@ public:
     function[type[string]][__fastcall] ClearCache(var[bool] Download);
 
     // properties
-    __property Client = { __asyncclient };
-    __property ConnectionTimeout = { __contime };
-    __property ResponseTimeout = { __restime };
-    __property ConnectionTimeoutAsync = { __contimeasync };
-    __property ResponseTimeoutAsync = { __restimeasync };
-    __property LastResponseCode = { __lastcode, __lastcode };
-    __property ConnectionHost = { __host };
-    __property ConnectionTask = { nullptr, __host };
+    __property Client { __asyncclient };
+    __property ConnectionTimeout { __contime };
+    __property ResponseTimeout { __restime };
+    __property ConnectionTimeoutAsync { __contimeasync };
+    __property ResponseTimeoutAsync { __restimeasync };
+    __property LastResponseCode { __lastcode, __lastcode };
+    __property ConnectionHost { __host };
+    __property ConnectionTask { nullptr, __host };
 
     function[void][__fastcall] OctetBaseLink(
         var[TComponent*], 
