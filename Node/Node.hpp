@@ -129,7 +129,7 @@ public:
         Name(name), Qualifer(qualifer) {
     };
     std::string print() override {
-        return "alias " + Name + " = " + Qualifer->print();
+        return "using " + Name + " = " + Qualifer->print();
     };
     ~NodeAlias() {
         delete Qualifer; Qualifer = nullptr;

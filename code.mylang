@@ -1,7 +1,7 @@
 
 // Объявение псевднимов для типов
-alias string = System::UnicodeString;
-alias w_string = System::WideString;
+using string = System::UnicodeString;
+using w_string = System::WideString;
 
 // Объявление псевднимов для пространств имён
 access BaseRequest = OctetBaseLink::OctetBaseLinkRequest;

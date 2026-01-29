@@ -192,7 +192,7 @@ enum class TTokenID : long long {
     Function, // function
 
     Access, // access
-    Alias, // alias
+    Using, // using
     Pointer, // pointer
     // ===== Комментарии =====
     LineComment,    // //
@@ -448,7 +448,7 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(Function);
 
     GENERATE_NAME(Access);
-    GENERATE_NAME(Alias);
+    GENERATE_NAME(Using);
     GENERATE_NAME(Pointer);
 
     GENERATE_NAME(LineComment);
