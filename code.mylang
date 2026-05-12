@@ -58,14 +58,14 @@ protected:
     var[string] __host, __lastresult;
 
     var[int] 
-        __contime = access[LinkConnection] timeout, 
-        __restime = access[LinkResponse] timeout;
+        __contime = LinkConnection::timeout, 
+        __restime = LinkResponse::timeout;
 
     var[int] 
-        __contimeasync = access[LinkConnection] timeout_async, 
-        __restimeasync = access[LinkResponse] timeout_async;
+        __contimeasync = LinkConnection::timeout_async, 
+        __restimeasync = LinkResponse::timeout_async;
     var[int] 
-        __lastcode = access[LinkResponse] timeout;
+        __lastcode = LinkResponse::timeout;
 
     // class init
     function[void][__fastcall] _init();
@@ -90,7 +90,7 @@ public:
 
     // base network methods
 
-    function[string][__fastcall] Read(var[string], var[int] Type = access[LinkType] critical);
+    function[string][__fastcall] Read(var[string], var[int] Type = LinkType::critical);
     function[string][__fastcall] Cache(var[string] Link);
     function[void][__fastcall] Stop(var[string] RequestTag = "");
     function[bool][__fastcall] Write(var[string], var[string] Data, var[TStringStream*] Response = NULL);
@@ -113,13 +113,13 @@ public:
 
     function[void][__fastcall] OctetBaseLink(
         var[TComponent*], 
-        var[int] ConnectionTimeout = access[LinkConnection] timeout, 
-        var[int] ResponseTimeout = access[LinkResponse] timeout, 
-        var[int] ConnectionTimeoutAsync = access[LinkConnection] timeout_async, 
-        var[int] ResponseTimeoutAsync = access[LinkResponse] timeout_async);
+        var[int] ConnectionTimeout = LinkConnection::timeout, 
+        var[int] ResponseTimeout = LinkResponse::timeout, 
+        var[int] ConnectionTimeoutAsync = LinkConnection::timeout_async, 
+        var[int] ResponseTimeoutAsync = LinkResponse::timeout_async);
 };
 
-function[void][__fastcall] access[BaseRequest] Abort()  {
+function[void][__fastcall] BaseRequest::Abort()  {
     var[const int] number = 1;
 };
 
