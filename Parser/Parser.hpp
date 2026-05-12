@@ -9,64 +9,103 @@
 #include <vector>
 #include <unordered_map>
 
+class TokenStream {
+
+public:
+	std::vector<LexToken> Buffer;
+	TokenStream() = default;
+	
+	size_t Pos = 0;
+
+	void skipTrivia() {
+		while (!eof() && (peek().type == TTokenID::Space || peek().type == TTokenID::LineFeed)) {
+			++Pos;
+		}
+	}
+	
+	explicit TokenStream(const std::vector<LexToken>& buf) : Buffer(buf), Pos(0) {
+		skipTrivia();
+	}
+
+	const LexToken& peek(size_t offset = 0) const {
+		static LexToken eofToken{ TTokenID::neof, "", 0, 0 };
+		size_t idx = Pos + offset;
+		if (idx >= Buffer.size()) return eofToken;
+		return Buffer[idx];
+	}
+
+	bool eof() const {
+		return Pos >= Buffer.size();
+	}
+
+	bool match(TTokenID id) {
+		if (peek().type == id) {
+			++Pos;
+			skipTrivia();
+			return true;
+		}
+		return false;
+	}
+
+	const LexToken& consume(TTokenID id) {
+		const LexToken& tok = peek();
+		if (tok.type == id) {
+			++Pos;
+			skipTrivia();
+			return tok;
+		}
+		// simple error recovery: return current token without advancing
+		return tok;
+	}
+};
+
 class Parser
 {
-	using ParserEnginePtr = Node * (Parser::*)();
 private:
-	int PosBuffer = 0;
-	int SizeBufferParser = 0;
-
+	TokenStream stream;
 	std::vector<Node*> ast;
-	void Init();
 
 	std::unordered_map<std::string, CType> ResolvedAliasType;
 
-	std::unordered_map<TTokenID, ParserEnginePtr> map{{
-	{TTokenID::Access, &Parser::Access},
-	{TTokenID::Alias, &Parser::Alias},
-	{TTokenID::Pointer, &Parser::Pointer},
-	{TTokenID::Var, &Parser::Var},
-	{TTokenID::Function, &Parser::Function},
-	}};
-
-	LexToken GetToken () {
-		return ParserEngineBuffer[PosBuffer];
-		};
-
-	bool match(TTokenID ID) {
-		return GetToken().type == ID;
-		};
-
-	bool neof() {
-		return PosBuffer < SizeBufferParser;
-	}
-
-	bool NextToken() {
-		PosBuffer++;
-		while (match(TTokenID::LineFeed) || match(TTokenID::Space))
-			PosBuffer++;
-		return neof();
-		};
-
-	Node* Access();
-	Node* Alias();
-	Node* Pointer();
-	Node* Var();
-	Node* Function();
+	Node* parseTopLevel();
+	Node* parseAccess();
+	Node* parsePointer();
+	Node* parseVar();
+	Node* parseFunction();
+	Node* parseClass();
+	NodeBlock* parseBlock();
 
 	NodeTypeQualifier* TypeQualifierParse();
 public:
 	std::vector<LexToken> ParserEngineBuffer;
 
-	Parser(const PostLexer& advance) : 
-		ParserEngineBuffer(advance.GetBufferPostLexerToken()) {
-		Init();
-	};
+	Parser(const PostLexer& advance) :
+		ParserEngineBuffer(advance.GetBufferPostLexerToken()),
+		stream(ParserEngineBuffer) {
+	}
 
-	Parser(const std::vector<LexToken>& Buffer) : 
-		ParserEngineBuffer(Buffer) {
-		Init();
-	};
+	Parser(const std::vector<LexToken>& Buffer) :
+		ParserEngineBuffer(Buffer),
+		stream(Buffer) {
+		
+	}
+
+	void Parse() {
+		
+		while (!stream.eof()) {
+			if (Node* node = parseTopLevel()) {
+				ast.push_back(node);
+			}
+			else {
+				// basic recovery: advance one token
+				stream.consume(stream.peek().type);
+			}
+		}
+	}
+
+	const std::vector<Node*>& GetAst() const {
+		return ast;
+	}
 
 	~Parser();
 
@@ -74,21 +113,16 @@ private:
 
 };
 
-void Parser::Init() {
-	SizeBufferParser = ParserEngineBuffer.size();
-	
-	while (neof()) {
-		if (auto it = map.find(ParserEngineBuffer[PosBuffer].type); 
-		it != map.end()) ast.push_back((this->*it->second)());
-		PosBuffer++;
+Node* Parser::parseTopLevel() {
+	switch (stream.peek().type) {
+	case TTokenID::Access:   return parseAccess();
+	case TTokenID::Pointer:  return parsePointer();
+	case TTokenID::Var:      return parseVar();
+	case TTokenID::Function: return parseFunction();
+	case TTokenID::Class:    return parseClass();
+	default:
+		return nullptr;
 	}
-
-#ifdef _IOSTREAM_
-	if (false)
-		for (auto& i : ast)
-			if (i) std::cout << i->print() << "\n";
-#endif // _IOSTREAM_
-
 }
 
 NodeTypeQualifier* Parser::TypeQualifierParse() {
@@ -97,38 +131,25 @@ NodeTypeQualifier* Parser::TypeQualifierParse() {
 	bool IsRef = false;
 	std::string ResolvingAlias = "";
 
-	if (NextToken() && !match(TTokenID::LeftBracket))
+	if (!stream.match(TTokenID::LeftBracket))
 		return nullptr;
 	
-	while (NextToken() && !match(TTokenID::RightBracket))
+	while (!stream.match(TTokenID::RightBracket))
 	{
-		switch (GetToken().type)
+		switch (stream.peek().type)
 		{
-		case TTokenID::Const: IsConst = true;
+		case TTokenID::Const: IsConst = true; stream.consume(TTokenID::Const);
 			break;
-		case TTokenID::Asterisk: IsRef = true;
+		case TTokenID::Asterisk: IsRef = true; stream.consume(TTokenID::Asterisk);
 			break;
-		case TTokenID::ScResOp: Type = "";
+		case TTokenID::ScResOp: Type = ""; stream.consume(TTokenID::ScResOp);
 			break;
 		case TTokenID::IdentifierLiteral:
-			Type = GetToken().value;
+			Type = stream.consume(TTokenID::IdentifierLiteral).value;
 			break;
-		case TTokenID::Alias:
-		{
-			NextToken();
-			NextToken();
-			ResolvingAlias = GetToken().value;
-			NextToken();
+		default:
+			stream.consume(stream.peek().type);
 			break;
-		}
-		case TTokenID::Access:
-		{
-			NextToken();
-			NextToken();
-			std::string Resolving = GetToken().value;
-			NextToken();
-			break;
-		}
 		}
 	}
 
@@ -140,248 +161,234 @@ NodeTypeQualifier* Parser::TypeQualifierParse() {
 	return new NodeTypeQualifier(cType ? cType : new CType(Type, IsConst, IsRef));
 };
 
-Node* Parser::Var() {
+Node* Parser::parseVar() {
+	
+	stream.consume(TTokenID::Var);
+
+	size_t savedPos = stream.Pos;
 
 	auto TypeQualifier = TypeQualifierParse();
+	if (!TypeQualifier) {
+		stream.Pos = savedPos;
+		return nullptr;
+	}
 
 	std::vector<NodeDeclaration*> ContainerDeclarationList;
 
-	auto ParseInitializer = [&]() -> std::string {
-		
-		std::string initializer = "";
-
-		while (NextToken() && !match(TTokenID::Semicolon) && !match(TTokenID::Comma))
-		{
-			switch (GetToken().type)
-			{
-			case TTokenID::Access:
-			{
-				NextToken();
-				NextToken();
-				std::string search = GetToken().value;
-				NextToken();
-				break;
-			}
-			case TTokenID::IdentifierLiteral:
-			{
-				initializer = GetToken().value;
-				break;
-			}
-			case TTokenID::ScResOp:
-			{
-				initializer = "";
-				break;
-			}
-			default:
-				initializer = GetToken().value;
-				break;
-			}
+	auto ParseInitializer = [&]() -> Node* {
+		// Парсим инициализатор (может быть выражением, но для простоты - идентификатор или число)
+		if (stream.peek().type == TTokenID::IdentifierLiteral) {
+			std::string id = stream.consume(TTokenID::IdentifierLiteral).value;
+			return new NodeIdentifier(id);
 		}
-		return initializer;
+		else if (stream.peek().type == TTokenID::IntegerLiteral) {
+			std::string num = stream.consume(TTokenID::IntegerLiteral).value;
+			return new NumberNode(std::stod(num));
+		}
+		else if (stream.peek().type == TTokenID::StringLiteral) {
+			stream.consume(TTokenID::StringLiteral);
+		}
+		return nullptr;
 		};
 
-	while (NextToken() && !match(TTokenID::Semicolon))
-	{
-		if (!match(TTokenID::IdentifierLiteral))
+	// Парсим список объявлений: name1, name2 = init, name3
+	do {
+		// Ожидаем идентификатор
+		if (stream.peek().type != TTokenID::IdentifierLiteral) {
 			break;
+		}
 
-		std::string Initializer = "", Name = GetToken().value;
-		if (NextToken() && match(TTokenID::Equals))
+		std::string Name = stream.consume(TTokenID::IdentifierLiteral).value;
+		Node* Initializer = nullptr;
+
+		if (stream.match(TTokenID::Equals)) {
 			Initializer = ParseInitializer();
-		
+		}
+
 		ContainerDeclarationList.push_back(
-			new NodeDeclaration(new NodeIdentifier(Name),
-				Initializer.empty() ? nullptr :
-				new NodeIdentifier(Initializer)));
+			new NodeDeclaration(new NodeIdentifier(Name), Initializer)
+		);
 
-		if (match(TTokenID::Semicolon))
-			break;
+	} while (stream.match(TTokenID::Comma));
+
+	// Ожидаем точку с запятой
+	if (!stream.match(TTokenID::Semicolon)) {
+		// Ошибка: ожидалась ';'
+		for (auto* decl : ContainerDeclarationList) delete decl;
+		delete TypeQualifier;
+		return nullptr;
 	}
+
 	return new NodeDeclarationList(TypeQualifier, ContainerDeclarationList);
+}
 
-};
+Node* Parser::parseFunction() {
+	
+	stream.consume(TTokenID::Function);
+	
+	size_t savedPos = stream.Pos;
 
-Node* Parser::Function() {
+	auto TypeQualifier = TypeQualifierParse();
 
-	if (NextToken() && !match(TTokenID::LeftBracket))
+	if (!TypeQualifier)
 		return nullptr;
 
-	std::string Type = "";
-	bool IsConst = false;
-	bool IsRef = false;
-	std::string ResolvingAlias = "";
-
-	while (NextToken() && !match(TTokenID::RightBracket))
-	{
-		switch (GetToken().type)
-		{
-		case TTokenID::Const: IsConst = true;
-			break;
-		case TTokenID::Asterisk: IsRef = true;
-			break;
-		case TTokenID::ScResOp: Type = "";
-			break;
-		case TTokenID::IdentifierLiteral:
-			Type = GetToken().value;
-			break;
-		case TTokenID::Alias:
-		{
-			NextToken();
-			NextToken();
-			std::string ResolvingAlias = GetToken().value;
-			NextToken();
-			NextToken();
-			break;
-		}
-		case TTokenID::Access:
-		{
-			NextToken();
-			NextToken();
-			std::string search = GetToken().value;
-			NextToken();
-			NextToken();
-			break;
-		}
+	if (!stream.match(TTokenID::LeftBracket)) {
+		// Необязательный — если нет, пропускаем
+	}
+	else {
+		while (!stream.match(TTokenID::RightBracket)) {
+			stream.consume(stream.peek().type);
 		}
 	}
-
-	if (NextToken() && !match(TTokenID::LeftBracket))
+	
+	// Имя функции
+	if (stream.peek().type != TTokenID::IdentifierLiteral) {
+		stream.Pos = savedPos;
 		return nullptr;
+	}
+	std::string FunctionName = stream.consume(TTokenID::IdentifierLiteral).value;
 
-	while (!match(TTokenID::RightBracket) && NextToken()); // РџР°СЂСЃРёРЅРі РєРІР°Р»РёС„РёРєР°С‚РѕСЂРѕРІ
-
-	if (NextToken() && !match(TTokenID::IdentifierLiteral))
+	// Аргументы в скобках
+	if (!stream.match(TTokenID::LeftParen)) {
+		stream.Pos = savedPos;
 		return nullptr;
-
-	std::string FunctiomName = GetToken().value;
+	}
 
 	std::vector<NodeDeclarationList*> ArgumentList;
-	if (NextToken() && !match(TTokenID::LeftParen))
-		return nullptr;
 
-	auto ParseInitializer = [&]() -> std::string {
-
-		std::string initializer = "";
-
-		while (NextToken() && !match(TTokenID::RightParen) && !match(TTokenID::Comma))
-		{
-			switch (GetToken().type)
-			{
-			case TTokenID::Access:
-			{
-				NextToken();
-				NextToken();
-				std::string search = GetToken().value;
-				NextToken();
-				break;
-			}
-			case TTokenID::IdentifierLiteral:
-			{
-				initializer = GetToken().value;
-				break;
-			}
-			case TTokenID::ScResOp:
-			{
-				initializer = "";
-				break;
-			}
-			default:
-				initializer = GetToken().value;
-				break;
-			}
+	auto ParseInitializer = [&]() -> Node* {
+		if (stream.peek().type == TTokenID::IdentifierLiteral) {
+			std::string val = stream.consume(TTokenID::IdentifierLiteral).value;
+			return new NodeIdentifier(val);
 		}
-
-		return initializer;
+		else if (stream.peek().type == TTokenID::IntegerLiteral) {
+			std::string val = stream.consume(TTokenID::IntegerLiteral).value;
+			return new NumberNode(std::stod(val));
+		}
+		return nullptr;
 		};
 
-	while (NextToken() && !match(TTokenID::RightParen))
-	{
-		if (!match(TTokenID::Var))
-			continue;
+	// Парсим аргументы: var[const int] name = default
+	while (!stream.match(TTokenID::RightParen)) {
 
-		auto TypeQualifier = TypeQualifierParse();
-
-		std::string Name = "", Initializer = "";
-		if (NextToken())
-		{
-
-			if (match(TTokenID::IdentifierLiteral))
-			{
-				Name = GetToken().value;
-				if (NextToken() && match(TTokenID::Equals))
-					Initializer = ParseInitializer();
-			}
-			if (match(TTokenID::Equals))
-				Initializer = ParseInitializer();
-		}
-		
-		ArgumentList.push_back(new NodeDeclarationList(TypeQualifier, Name.empty() ? std::vector<NodeDeclaration*>{} :
-			std::vector<NodeDeclaration*>{ new NodeDeclaration(new NodeIdentifier(Name),
-				Initializer.empty() ? nullptr :
-				new NodeIdentifier(Initializer)) }));
-
-		if (match(TTokenID::RightParen))
+		if (stream.peek().type != TTokenID::Var) {
 			break;
+		}
+		stream.consume(TTokenID::Var);
+
+		NodeTypeQualifier* ArgQualifier = TypeQualifierParse();
+		if (!ArgQualifier) {
+			break;
+		}
+
+		std::string ArgName = "";
+		Node* DefaultValue = nullptr;
+
+		if (stream.peek().type == TTokenID::IdentifierLiteral) {
+			ArgName = stream.consume(TTokenID::IdentifierLiteral).value;
+		}
+
+		if (stream.match(TTokenID::Equals)) {
+			DefaultValue = ParseInitializer();
+		}
+
+		std::vector<NodeDeclaration*> Decls;
+		if (!ArgName.empty()) {
+			Decls.push_back(new NodeDeclaration(new NodeIdentifier(ArgName), DefaultValue));
+		}
+
+		ArgumentList.push_back(new NodeDeclarationList(ArgQualifier, Decls));
+
+		if (stream.peek().type != TTokenID::Comma)
+			break;
+		stream.consume(TTokenID::Comma);
 	}
 
-	CType* cType = nullptr;
+	// То ли костыль, то ли что
+	stream.consume(TTokenID::RightParen);
 
-	if (auto it = ResolvedAliasType.find(ResolvingAlias); it != ResolvedAliasType.end())
-		cType = new CType(ResolvedAliasType[ResolvingAlias]);
+	// Тело функции или ';'
+	Node* body = nullptr;
 
-	return new NodeFunction(cType ? cType : new CType(Type, IsConst, IsRef), FunctiomName, ArgumentList);
-};
+	if (stream.match(TTokenID::LeftBrace)) {
+		body = parseBlock();
+	}
+	else if (stream.match(TTokenID::Semicolon)) {
+		// Прототип функции
+	}
+	else {
+		// Ошибка: ожидалось тело или ;
+		for (auto* arg : ArgumentList) delete arg;
+		return nullptr;
+	}
+	return new NodeFunction(TypeQualifier, FunctionName, ArgumentList, body);
+}
 
-Node* Parser::Access() {
-	while (NextToken() && !match(TTokenID::Semicolon)); { }
+Node* Parser::parseAccess() {
+	while (!stream.match(TTokenID::Semicolon)) {
+		stream.consume(stream.peek().type);
+	}
+	// Temporary stub
 	return new NodeAccess();
 };
 
-Node* Parser::Alias() {
-
-	if (NextToken() && !match(TTokenID::IdentifierLiteral))
-		return nullptr;
-
-	std::string name = GetToken().value;
-
-	if (NextToken() && !match(TTokenID::Equals))
-		return nullptr;
-
-	std::string Type = "";
-	bool IsConst = false;
-	bool IsRef = false;
-
-	while (NextToken() && !match(TTokenID::Semicolon))
-	{
-		switch (GetToken().type)
-		{
-		case TTokenID::Const: IsConst = true;
-			break;
-		case TTokenID::Asterisk: IsRef = true;
-			break;
-		case TTokenID::IdentifierLiteral:
-			Type = GetToken().value;
-
-			break;
-		case TTokenID::ScResOp:
-			Type = "";
-			break;
-		}
-	}
-
-	ResolvedAliasType[name] = CType(Type, IsConst, IsRef);
-	return new NodeAlias(name, new CType(Type, IsConst, IsRef));
-};
-
-Node* Parser::Pointer() {
+Node* Parser::parsePointer() {
 	return nullptr;
 };
-
 
 Parser::~Parser()
 {
 	for (auto& i : ast)
 		if (i) delete i;
+}
+
+NodeBlock* Parser::parseBlock() {
+	if (!stream.match(TTokenID::LeftBrace))
+		return nullptr;
+
+	auto* block = new NodeBlock();
+
+	while (!stream.eof() && stream.peek().type != TTokenID::RightBrace) {
+		Node* stmt = nullptr;
+		switch (stream.peek().type) {
+		case TTokenID::Var:      stmt = parseVar(); break;
+		case TTokenID::Function: stmt = parseFunction(); break;
+		case TTokenID::Class:    stmt = parseClass(); break;
+		default:
+			stream.consume(stream.peek().type);
+			break;
+		}
+		if (stmt) block->add(stmt);
+	}
+
+	if (stream.peek().type == TTokenID::RightBrace)
+		stream.consume(TTokenID::RightBrace);
+
+	return block;
+}
+
+Node* Parser::parseClass() {
+	// assume current token is Class
+	stream.consume(TTokenID::Class);
+
+	std::string name;
+	if (stream.match(TTokenID::LeftBracket)) {
+		if (stream.peek().type == TTokenID::IdentifierLiteral) {
+			name = stream.consume(TTokenID::IdentifierLiteral).value;
+		}
+		stream.match(TTokenID::RightBracket);
+	}
+	else if (stream.peek().type == TTokenID::IdentifierLiteral) {
+		name = stream.consume(TTokenID::IdentifierLiteral).value;
+	}
+
+	NodeBlock* body = nullptr;
+	if (stream.peek().type == TTokenID::LeftBrace) {
+		body = parseBlock();
+	}
+
+	return new NodeClass(name, body);
 }
 
 #endif // PARSER_HPP

@@ -43,8 +43,9 @@ public:
 
 class NodeTypeQualifier : public Node
 {
-    CType * Qualifer = nullptr;
 public:
+    // TODO: Вернуть обратно
+    CType* Qualifer = nullptr;
     std::string print() override {
         std::string fprint = 
             "var[" + Qualifer->print() + "]";
@@ -146,16 +147,17 @@ public:
 
 class NodeFunction : public Node
 {
-    CType  * Qualifer = nullptr;
+    NodeTypeQualifier* TypeQualifier = nullptr;
     std::string Name = "";
     std::vector<NodeDeclarationList*> ArgumentList;
+    Node* Body = nullptr;
 public:
     NodeFunction(
-        CType * qualifer, std::string name, const std::vector<NodeDeclarationList*> argumentList) :
-        Qualifer(qualifer), Name(name),  ArgumentList(argumentList) { };
+        NodeTypeQualifier* typequalifer, std::string name, const std::vector<NodeDeclarationList*> argumentList, Node* body = nullptr) :
+        TypeQualifier(typequalifer), Name(name),  ArgumentList(argumentList), Body(body) { };
 
     std::string print() override {  
-        std::string fprint = "function ["  + Qualifer->print() + "] [__fastcall] " + Name;
+        std::string fprint = "function ["  + TypeQualifier->Qualifer->print() + "] [__fastcall] " + Name;
         
         fprint += "(";
         int size = ArgumentList.size();
@@ -165,14 +167,120 @@ public:
 
         fprint += ")";
 
+        if (Body) {
+            fprint += " " + Body->print();
+        }
+
         return fprint;
     };
 
     ~NodeFunction() {
-        delete Qualifer; Qualifer = nullptr;
+        delete TypeQualifier; TypeQualifier = nullptr;
         for (auto& i : ArgumentList) delete i;
-    
+        delete Body; Body = nullptr;
     };
 };
+
+
+class NodeBlock : public Node
+{
+    std::vector<Node*> Statements;
+public:
+    NodeBlock() = default;
+
+    void add(Node* stmt) {
+        if (stmt) Statements.push_back(stmt);
+    }
+
+    std::string print() override {
+        std::string fprint = "{ ";
+        int size = static_cast<int>(Statements.size());
+        for (int i = 0; i < size; ++i) {
+            if (auto stmt = Statements[i]) {
+                fprint += stmt->print();
+                if (i != size - 1)
+                    fprint += "; ";
+            }
+        }
+        fprint += " }";
+        return fprint;
+    }
+
+    ~NodeBlock() override {
+        for (auto* stmt : Statements) {
+            delete stmt;
+        }
+    }
+};
+
+class NodeClass : public Node
+{
+    std::string Name;
+    NodeBlock* Body = nullptr;
+public:
+    NodeClass(const std::string& name, NodeBlock* body) :
+        Name(name), Body(body) {}
+
+    std::string print() override {
+        std::string fprint = "class " + Name;
+        if (Body) {
+            fprint += " " + Body->print();
+        }
+        return fprint;
+    }
+
+    ~NodeClass() override {
+        delete Body; Body = nullptr;
+    }
+};
+
+struct NumberNode : Node {
+    double value;
+    NumberNode(double v) : value(v) {}
+
+    std::string print() override {
+        return "";
+    }
+};
+
+struct IdentifierNode : Node {
+    std::string name;
+    IdentifierNode(const std::string& n) : name(n) {}
+
+    std::string print() override {
+        return "";
+    }
+};
+
+struct BinaryOpNode : Node {
+    std::string op;
+    std::unique_ptr<Node> left;
+    std::unique_ptr<Node> right;
+
+    BinaryOpNode(const std::string& o, std::unique_ptr<Node> l,
+        std::unique_ptr<Node> r)
+        : op(o), left(std::move(l)), right(std::move(r)) {
+    }
+
+    std::string print() override {
+        return "";
+    }
+};
+
+struct CallNode : Node {
+    std::string funcName;
+    std::vector<std::unique_ptr<Node>> args;
+
+    CallNode(const std::string& name) : funcName(name) {}
+
+    void addArg(std::unique_ptr<Node> arg) {
+        args.push_back(std::move(arg));
+    }
+
+    std::string print() override {
+        return "";
+    }
+};
+
 
 #endif // NODE_HPP

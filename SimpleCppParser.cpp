@@ -33,13 +33,12 @@ int main()
     PostLexer postLexer(lexerbuffer);
     auto postlexerbuffer = postLexer.GetBufferPostLexerToken();
 
-    PreParser preParser(postlexerbuffer);
-    auto preParserbuffer = preParser.GetBufferPreParserToken();
-
-    if (false)
-    {
-        for (auto& Tok : postlexerbuffer)
-            if (Tok.type != TTokenID::Space && Tok.type != TTokenID::LineFeed)
-                std::cout << NameTTokenID(Tok.type) << " |" << Tok.value << "|\n";
+    Parser parser(postlexerbuffer);
+    parser.Parse();
+    std::cout << "node->print()" << "\n";
+    const auto& ast = parser.GetAst();
+    for (auto* node : ast) {
+        if (node)
+            std::cout << node->print() << "\n";
     }
 }
