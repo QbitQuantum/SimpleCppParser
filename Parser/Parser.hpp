@@ -176,7 +176,7 @@ Node* Parser::parseVar() {
 	std::vector<NodeDeclaration*> ContainerDeclarationList;
 
 	auto ParseInitializer = [&]() -> Node* {
-		// Парсим инициализатор (может быть выражением, но для простоты - идентификатор или число)
+		// РџР°СЂСЃРёРј РёРЅРёС†РёР°Р»РёР·Р°С‚РѕСЂ (РјРѕР¶РµС‚ Р±С‹С‚СЊ РІС‹СЂР°Р¶РµРЅРёРµРј, РЅРѕ РґР»СЏ РїСЂРѕСЃС‚РѕС‚С‹ - РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР»Рё С‡РёСЃР»Рѕ)
 		if (stream.peek().type == TTokenID::IdentifierLiteral) {
 			std::string id = stream.consume(TTokenID::IdentifierLiteral).value;
 			return new NodeIdentifier(id);
@@ -191,9 +191,9 @@ Node* Parser::parseVar() {
 		return nullptr;
 		};
 
-	// Парсим список объявлений: name1, name2 = init, name3
+	// РџР°СЂСЃРёРј СЃРїРёСЃРѕРє РѕР±СЉСЏРІР»РµРЅРёР№: name1, name2 = init, name3
 	do {
-		// Ожидаем идентификатор
+		// РћР¶РёРґР°РµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
 		if (stream.peek().type != TTokenID::IdentifierLiteral) {
 			break;
 		}
@@ -211,9 +211,9 @@ Node* Parser::parseVar() {
 
 	} while (stream.match(TTokenID::Comma));
 
-	// Ожидаем точку с запятой
+	// РћР¶РёРґР°РµРј С‚РѕС‡РєСѓ СЃ Р·Р°РїСЏС‚РѕР№
 	if (!stream.match(TTokenID::Semicolon)) {
-		// Ошибка: ожидалась ';'
+		// РћС€РёР±РєР°: РѕР¶РёРґР°Р»Р°СЃСЊ ';'
 		for (auto* decl : ContainerDeclarationList) delete decl;
 		delete TypeQualifier;
 		return nullptr;
@@ -234,7 +234,7 @@ Node* Parser::parseFunction() {
 		return nullptr;
 
 	if (!stream.match(TTokenID::LeftBracket)) {
-		// Необязательный — если нет, пропускаем
+		// РќРµРѕР±СЏР·Р°С‚РµР»СЊРЅС‹Р№ вЂ” РµСЃР»Рё РЅРµС‚, РїСЂРѕРїСѓСЃРєР°РµРј
 	}
 	else {
 		while (!stream.match(TTokenID::RightBracket)) {
@@ -242,14 +242,14 @@ Node* Parser::parseFunction() {
 		}
 	}
 	
-	// Имя функции
+	// РРјСЏ С„СѓРЅРєС†РёРё
 	if (stream.peek().type != TTokenID::IdentifierLiteral) {
 		stream.Pos = savedPos;
 		return nullptr;
 	}
 	std::string FunctionName = stream.consume(TTokenID::IdentifierLiteral).value;
 
-	// Аргументы в скобках
+	// РђСЂРіСѓРјРµРЅС‚С‹ РІ СЃРєРѕР±РєР°С…
 	if (!stream.match(TTokenID::LeftParen)) {
 		stream.Pos = savedPos;
 		return nullptr;
@@ -269,7 +269,7 @@ Node* Parser::parseFunction() {
 		return nullptr;
 		};
 
-	// Парсим аргументы: var[const int] name = default
+	// РџР°СЂСЃРёРј Р°СЂРіСѓРјРµРЅС‚С‹: var[const int] name = default
 	while (!stream.match(TTokenID::RightParen)) {
 
 		if (stream.peek().type != TTokenID::Var) {
@@ -305,20 +305,20 @@ Node* Parser::parseFunction() {
 		stream.consume(TTokenID::Comma);
 	}
 
-	// То ли костыль, то ли что
+	// РўРѕ Р»Рё РєРѕСЃС‚С‹Р»СЊ, С‚Рѕ Р»Рё С‡С‚Рѕ
 	stream.consume(TTokenID::RightParen);
 
-	// Тело функции или ';'
+	// РўРµР»Рѕ С„СѓРЅРєС†РёРё РёР»Рё ';'
 	Node* body = nullptr;
 
 	if (stream.match(TTokenID::LeftBrace)) {
 		body = parseBlock();
 	}
 	else if (stream.match(TTokenID::Semicolon)) {
-		// Прототип функции
+		// РџСЂРѕС‚РѕС‚РёРї С„СѓРЅРєС†РёРё
 	}
 	else {
-		// Ошибка: ожидалось тело или ;
+		// РћС€РёР±РєР°: РѕР¶РёРґР°Р»РѕСЃСЊ С‚РµР»Рѕ РёР»Рё ;
 		for (auto* arg : ArgumentList) delete arg;
 		return nullptr;
 	}
@@ -386,7 +386,7 @@ Node* Parser::parseClass() {
 		name = stream.consume(TTokenID::IdentifierLiteral).value;
 	}
 
-	// Провераяем наличие базового класса
+	// РџСЂРѕРІРµСЂР°СЏРµРј РЅР°Р»РёС‡РёРµ Р±Р°Р·РѕРІРѕРіРѕ РєР»Р°СЃСЃР°
 	if (stream.match(TTokenID::Colon)) {
 		if (stream.peek().type == TTokenID::IdentifierLiteral) {
 			baseClass = stream.consume(TTokenID::IdentifierLiteral).value;
