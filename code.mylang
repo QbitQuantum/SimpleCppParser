@@ -71,12 +71,12 @@ protected:
     function[void][__fastcall] _init();
 
     // header methods
-    function[void][__fastcall] _setheaders(TNetHTTPClient*, bool State);
+    function[void][__fastcall] _setheaders(var[TNetHTTPClient*], var[bool] State);
 
     // internal events
     function[void][__fastcall] _eventerror(var[TObject* const],  var[string]);
     function[void][__fastcall] _eventcomplete(var[TObject* const], var[const _di_IHTTPResponse]);
-    function[void][__fastcall] _eventauth(var[TObject* const], var[TAuthTargetType] Target, var[string], var[string], var[string]&, var[string], var[bool&], var[TAuthPersistenceType&]);
+    function[void][__fastcall] _eventauth(var[TObject* const], var[TAuthTargetType] Target, var[string], var[string], var[string&], var[string], var[bool&], var[TAuthPersistenceType&]);
 
 static:
     function[void][__fastcall] _eventexecute(var[TObject* const],  var[string]);
