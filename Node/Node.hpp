@@ -216,13 +216,18 @@ public:
 class NodeClass : public Node
 {
     std::string Name;
+    std::string BaseClass;
     NodeBlock* Body = nullptr;
 public:
-    NodeClass(const std::string& name, NodeBlock* body) :
-        Name(name), Body(body) {}
+    NodeClass(const std::string& name, const std::string& baseClass, NodeBlock* body) :
+        Name(name), BaseClass(baseClass), Body(body) {
+    }
 
     std::string print() override {
         std::string fprint = "class " + Name;
+        if (!BaseClass.empty()) {
+            fprint += " : " + BaseClass;
+        }
         if (Body) {
             fprint += " " + Body->print();
         }

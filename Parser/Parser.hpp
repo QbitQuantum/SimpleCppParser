@@ -373,6 +373,9 @@ Node* Parser::parseClass() {
 	stream.consume(TTokenID::Class);
 
 	std::string name;
+	std::string baseClass;
+
+	// Parse class name
 	if (stream.match(TTokenID::LeftBracket)) {
 		if (stream.peek().type == TTokenID::IdentifierLiteral) {
 			name = stream.consume(TTokenID::IdentifierLiteral).value;
@@ -383,12 +386,19 @@ Node* Parser::parseClass() {
 		name = stream.consume(TTokenID::IdentifierLiteral).value;
 	}
 
+	// Провераяем наличие базового класса
+	if (stream.match(TTokenID::Colon)) {
+		if (stream.peek().type == TTokenID::IdentifierLiteral) {
+			baseClass = stream.consume(TTokenID::IdentifierLiteral).value;
+		}
+	}
+
 	NodeBlock* body = nullptr;
 	if (stream.peek().type == TTokenID::LeftBrace) {
 		body = parseBlock();
 	}
 
-	return new NodeClass(name, body);
+	return new NodeClass(name, baseClass, body);
 }
 
 #endif // PARSER_HPP
