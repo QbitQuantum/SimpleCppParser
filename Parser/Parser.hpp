@@ -8,6 +8,8 @@
 
 #include <vector>
 #include <unordered_map>
+#include <iostream>
+#include <stdexcept>
 
 class TokenStream {
 
@@ -273,13 +275,13 @@ Node* Parser::parseFunction() {
 	while (!stream.match(TTokenID::RightParen)) {
 
 		if (stream.peek().type != TTokenID::Var) {
-			break;
+			throw std::runtime_error("stream.peek().type != TTokenID::Var");
 		}
 		stream.consume(TTokenID::Var);
 
 		NodeTypeQualifier* ArgQualifier = TypeQualifierParse();
 		if (!ArgQualifier) {
-			break;
+			throw std::runtime_error("!ArgQualifier");
 		}
 
 		std::string ArgName = "";
@@ -300,8 +302,9 @@ Node* Parser::parseFunction() {
 
 		ArgumentList.push_back(new NodeDeclarationList(ArgQualifier, Decls));
 
-		if (stream.peek().type != TTokenID::Comma)
-			break;
+		if (stream.peek().type != TTokenID::Comma && stream.peek().type != TTokenID::RightParen)
+			throw std::runtime_error("stream.peek().type != TTokenID::Comma");
+		
 		stream.consume(TTokenID::Comma);
 	}
 
