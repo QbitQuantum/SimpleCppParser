@@ -188,6 +188,9 @@ enum class TTokenID : long long {
     // ===== Прочее =====
     Property, // __property
     FastCall, // __fastcall
+    Read,     // read
+    Write,     // write
+    Delegate,     // delegate
     Var, // var
     Function, // function
 
@@ -444,6 +447,9 @@ std::string NameTTokenID(TTokenID kind) {
 
     GENERATE_NAME(Property);
     GENERATE_NAME(FastCall);
+    GENERATE_NAME(Read);
+    GENERATE_NAME(Write);
+    GENERATE_NAME(Delegate);
     GENERATE_NAME(Var);
     GENERATE_NAME(Function);
 

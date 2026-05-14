@@ -39,7 +39,7 @@ private:
         var[bool] Completed = false;
 
         // Объявление геттера/сеттера
-        __property Link { __link };
+        __property Link { write = __link };
 
         function[void][__fastcall] Get();
         function[void][__fastcall] Abort();
@@ -102,14 +102,14 @@ public:
     function[string][__fastcall] ClearCache(var[bool] Download);
 
     // properties
-    __property Client { __asyncclient };
-    __property ConnectionTimeout { __contime };
-    __property ResponseTimeout { __restime };
-    __property ConnectionTimeoutAsync { __contimeasync };
-    __property ResponseTimeoutAsync { __restimeasync };
-    __property LastResponseCode { __lastcode, __lastcode };
-    __property ConnectionHost { __host };
-    __property ConnectionTask { nullptr, __host };
+    __property Client { delegate = __asyncclient };
+    __property ConnectionTimeout { delegate = __contime };
+    __property ResponseTimeout { delegate = __restime };
+    __property ConnectionTimeoutAsync { delegate = __contimeasync };
+    __property ResponseTimeoutAsync { delegate = __restimeasync };
+    __property LastResponseCode { write = __lastcode };
+    __property ConnectionHost { read = __host };
+    __property ConnectionTask { read = __host };
 
     function[void][__fastcall] OctetBaseLink(
         var[TComponent*], 
