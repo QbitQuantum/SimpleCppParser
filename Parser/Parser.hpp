@@ -7,7 +7,6 @@
 #include "Node.hpp"
 
 #include <vector>
-#include <unordered_map>
 #include <iostream>
 #include <stdexcept>
 
@@ -66,8 +65,6 @@ class Parser
 private:
 	TokenStream stream;
 	std::vector<Node*> ast;
-
-	std::unordered_map<std::string, CType> ResolvedAliasType;
 
 	Node* parseTopLevel();
 	Node* parseAccess();
@@ -131,7 +128,6 @@ NodeTypeQualifier* Parser::TypeQualifierParse() {
 	std::string Type = "";
 	bool IsConst = false;
 	bool IsRef = false;
-	std::string ResolvingAlias = "";
 
 	if (!stream.match(TTokenID::LeftBracket))
 		return nullptr;
@@ -155,12 +151,7 @@ NodeTypeQualifier* Parser::TypeQualifierParse() {
 		}
 	}
 
-	CType* cType = nullptr;
-
-	if (auto it = ResolvedAliasType.find(ResolvingAlias); it != ResolvedAliasType.end())
-		cType = new CType(ResolvedAliasType[ResolvingAlias]);
-
-	return new NodeTypeQualifier(cType ? cType : new CType(Type, IsConst, IsRef));
+	return new NodeTypeQualifier(new CType(Type, IsConst, IsRef));
 };
 
 Node* Parser::parseVar() {
