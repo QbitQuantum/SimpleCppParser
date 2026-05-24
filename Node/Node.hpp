@@ -249,14 +249,7 @@ struct NumberNode : Node {
     }
 };
 
-struct IdentifierNode : Node {
-    std::string name;
-    IdentifierNode(const std::string& n) : name(n) {}
 
-    std::string print() override {
-        return "";
-    }
-};
 
 struct BinaryOpNode : Node {
     std::string op;
