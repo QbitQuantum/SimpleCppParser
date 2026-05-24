@@ -337,16 +337,17 @@ Node* Parser::parseFunction() {
 	// Тело функции или ';'
 	Node* body = nullptr;
 
-	if (stream.match(TTokenID::LeftBrace)) {
+	switch (stream.peek().type) {
+	case TTokenID::LeftBrace:
+		stream.consume(TTokenID::LeftBrace);
 		body = parseBlock();
-	}
-	else if (stream.match(TTokenID::Semicolon)) {
+		break;
+	case TTokenID::Semicolon:
+		stream.consume(TTokenID::Semicolon);
 		// Прототип функции
-	}
-	else {
-		// Ошибка: ожидалось тело или ;
-		for (auto* arg : ArgumentList) delete arg;
-		return nullptr;
+		break;
+	default:
+		throw std::runtime_error("not expected Semicolon or LeftBrace");
 	}
 	return new NodeFunction(TypeQualifier, FunctionName, ArgumentList, body);
 }
