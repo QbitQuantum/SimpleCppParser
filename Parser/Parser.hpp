@@ -251,9 +251,7 @@ Node* Parser::parseFunction() {
 	std::vector<NodeDeclarationList*> ArgumentList;
 
 	auto ParseInitializer = [&]() -> void {
-		Node* Ref = nullptr;
 		NodeTypeQualifier* ArgQualifier = nullptr;
-		Node* DefaultValue = nullptr;
 		std::string Identifier;
 		std::string ArgName;
 		bool NewToken = true;
