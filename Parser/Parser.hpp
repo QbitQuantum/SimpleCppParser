@@ -322,13 +322,12 @@ Node* Parser::parseFunction() {
 			{
 				auto TokenType = stream.consume(stream.peek().type).type;
 				std::vector<NodeDeclaration*> Decls;
-				if (!ArgName.empty()) {
+				if (!NewToken) {
 
 					NodeIdentifier* nodeIdentifier = Identifier.empty() ? nullptr : new NodeIdentifier(Identifier);
-
 					Decls.push_back(new NodeDeclaration(new NodeIdentifier(ArgName), nodeIdentifier));
+					ArgumentList.push_back(new NodeDeclarationList(ArgQualifier, Decls));
 				}
-				ArgumentList.push_back(new NodeDeclarationList(ArgQualifier, Decls));
 				ArgName = "";
 
 				switch (TokenType)

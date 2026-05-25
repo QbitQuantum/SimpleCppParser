@@ -18,11 +18,10 @@ public:
 
 // TODO: Этот класс имеет фукцию print, что по теории моей шизы должен быть частью Node
 class CType {
-    
-public:
     std::string Type = "";
     bool IsConst = false;
     bool IsRef = false;
+public:
     CType(std::string type, bool isConst, bool isRef) :
         Type(type), IsConst(isConst), IsRef(isRef) {};
     
@@ -44,12 +43,11 @@ public:
 
 class NodeTypeQualifier : public Node
 {
-public:
-    // TODO: Вернуть обратно
     CType* Qualifer = nullptr;
+public:
     std::string print() override {
-        std::string fprint = 
-            "var[" + Qualifer->print() + "]";
+        std::string fprint = Qualifer ? 
+            "[" + Qualifer->print() + "]" : "";
         return fprint;
     };
 
@@ -100,7 +98,7 @@ class NodeDeclarationList : public Node
     std::vector<NodeDeclaration*> DeclarationList;
 public:
     std::string print() override {
-        std::string fprint = "";
+        std::string fprint = "var";
         if (TypeQualifier)
         {
             int size = DeclarationList.size();
@@ -158,7 +156,7 @@ public:
         TypeQualifier(typequalifer), Name(name),  ArgumentList(argumentList), Body(body) { };
 
     std::string print() override {  
-        std::string fprint = "function ["  + TypeQualifier->Qualifer->print() + "] " + Name;
+        std::string fprint = "function "  + TypeQualifier->print() + " " + Name;
         
         fprint += "(";
         int size = ArgumentList.size();
