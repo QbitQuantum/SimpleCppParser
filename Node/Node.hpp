@@ -102,10 +102,14 @@ public:
         if (TypeQualifier)
         {
             int size = DeclarationList.size();
-            fprint += TypeQualifier->print() + (size ? " " : "");
+            fprint += TypeQualifier->print();
             for (size_t i = 0; i < size; i++)
                 if (auto Decl = DeclarationList[i]; Decl)
-                    fprint += Decl->print() + (i == size - 1 ? "" : ", ");
+                {
+                    std::string DeclName = Decl->print();
+                    std::string separator = (i == size - 1 ? "" : ", ");
+                    fprint += (DeclName.empty() ? "" : " ") + DeclName + separator;
+                }
         }
         return fprint;
     };
