@@ -68,7 +68,6 @@ private:
 
 	Node* parseTopLevel();
 	Node* parseAccess();
-	Node* parsePointer();
 	Node* parseVar();
 	Node* parseFunction();
 	Node* parseClass();
@@ -115,7 +114,6 @@ private:
 Node* Parser::parseTopLevel() {
 	switch (stream.peek().type) {
 	case TTokenID::Access:   return parseAccess();
-	case TTokenID::Pointer:  return parsePointer();
 	case TTokenID::Var:      return parseVar();
 	case TTokenID::Function: return parseFunction();
 	case TTokenID::Class:    return parseClass();
@@ -376,10 +374,6 @@ Node* Parser::parseAccess() {
 	}
 	// Temporary stub
 	return new NodeAccess();
-};
-
-Node* Parser::parsePointer() {
-	return nullptr;
 };
 
 Parser::~Parser()
