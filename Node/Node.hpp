@@ -158,7 +158,7 @@ public:
         TypeQualifier(typequalifer), Name(name),  ArgumentList(argumentList), Body(body) { };
 
     std::string print() override {  
-        std::string fprint = "function ["  + TypeQualifier->Qualifer->print() + "] [__fastcall] " + Name;
+        std::string fprint = "function ["  + TypeQualifier->Qualifer->print() + "] " + Name;
         
         fprint += "(";
         int size = ArgumentList.size();
