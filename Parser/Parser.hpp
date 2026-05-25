@@ -158,59 +158,80 @@ Node* Parser::parseVar() {
 	
 	stream.consume(TTokenID::Var);
 
-	size_t savedPos = stream.Pos;
-
 	auto TypeQualifier = TypeQualifierParse();
-	if (!TypeQualifier) {
-		stream.Pos = savedPos;
+
+	if (!TypeQualifier)
 		return nullptr;
-	}
 
 	std::vector<NodeDeclaration*> ContainerDeclarationList;
 
-	auto ParseInitializer = [&]() -> Node* {
-		// Парсим инициализатор (может быть выражением, но для простоты - идентификатор или число)
-		if (stream.peek().type == TTokenID::IdentifierLiteral) {
-			std::string id = stream.consume(TTokenID::IdentifierLiteral).value;
-			return new NodeIdentifier(id);
+	auto ParseInitializer = [&]() -> void {
+		std::string Identifier;
+		std::string Name;
+		bool IsNamespaceToken = false;
+		bool findEquals = false;
+
+		// Парсим аргументы: var[const int] name = default
+		while (true) {
+
+			switch (stream.peek().type)
+			{
+			case TTokenID::Equals:
+				stream.consume(TTokenID::Equals);
+				findEquals = true;
+				break;
+			case TTokenID::ScResOp:
+				stream.consume(TTokenID::ScResOp);
+				Identifier = "";
+				IsNamespaceToken = true;
+				break;
+			case TTokenID::IdentifierLiteral:
+			{
+				std::string TokenStr = stream.consume(TTokenID::IdentifierLiteral).value;
+				if (!findEquals)
+				{
+					if (!Name.empty())
+						throw std::runtime_error("not correct token Name");
+					Name = TokenStr;
+				}
+				else
+				{
+					Identifier = TokenStr;
+				}
+				break;
+			}
+			case TTokenID::Comma:
+			case TTokenID::Semicolon:
+			{
+				auto TokenType = stream.consume(stream.peek().type).type;
+				NodeIdentifier* Initializer = Identifier.empty() ? nullptr : new NodeIdentifier(Identifier);
+
+				ContainerDeclarationList.push_back(
+					new NodeDeclaration(new NodeIdentifier(Name), Initializer)
+				);
+
+				Name = "";
+
+				switch (TokenType)
+				{
+				case TTokenID::Comma:
+					findEquals = false;
+					break;
+				case TTokenID::Semicolon:
+					return;
+				}
+				break;
+			}
+			default:
+				if (IsNamespaceToken)
+					throw std::runtime_error("not correct token default");
+				Identifier = stream.consume(stream.peek().type).value;
+				break;
+			}
 		}
-		else if (stream.peek().type == TTokenID::IntegerLiteral) {
-			std::string num = stream.consume(TTokenID::IntegerLiteral).value;
-			return new NumberNode(std::stod(num));
-		}
-		else if (stream.peek().type == TTokenID::StringLiteral) {
-			stream.consume(TTokenID::StringLiteral);
-		}
-		return nullptr;
 		};
 
-	// Парсим список объявлений: name1, name2 = init, name3
-	do {
-		// Ожидаем идентификатор
-		if (stream.peek().type != TTokenID::IdentifierLiteral) {
-			break;
-		}
-
-		std::string Name = stream.consume(TTokenID::IdentifierLiteral).value;
-		Node* Initializer = nullptr;
-
-		if (stream.match(TTokenID::Equals)) {
-			Initializer = ParseInitializer();
-		}
-
-		ContainerDeclarationList.push_back(
-			new NodeDeclaration(new NodeIdentifier(Name), Initializer)
-		);
-
-	} while (stream.match(TTokenID::Comma));
-
-	// Ожидаем точку с запятой
-	if (!stream.match(TTokenID::Semicolon)) {
-		// Ошибка: ожидалась ';'
-		for (auto* decl : ContainerDeclarationList) delete decl;
-		delete TypeQualifier;
-		return nullptr;
-	}
+	ParseInitializer();
 
 	return new NodeDeclarationList(TypeQualifier, ContainerDeclarationList);
 }
