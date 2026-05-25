@@ -29,9 +29,9 @@ private:
         var[int] __arg = INDEX_INVALID;
 
         // Объявление функций
-        function[void][__fastcall] _eventerror(var[TObject* const],  var[string]);
-        function[void][__fastcall] _eventcomplete(var[TObject* const], var[const _di_IHTTPResponse]);
-        function[void][__fastcall] _eventreceive(var[TObject* const], var[__int64] AContentLength, var[__int64] AReadCount, var[bool&] Abort);
+        function[void] _eventerror(var[TObject* const],  var[string]);
+        function[void] _eventcomplete(var[TObject* const], var[const _di_IHTTPResponse]);
+        function[void] _eventreceive(var[TObject* const], var[__int64] AContentLength, var[__int64] AReadCount, var[bool&] Abort);
 
     public:
 
@@ -41,16 +41,16 @@ private:
         // Объявление геттера/сеттера
         __property Link { write = __link };
 
-        function[void][__fastcall] Get();
-        function[void][__fastcall] Abort();
+        function[void] Get();
+        function[void] Abort();
 
-        function[void][__fastcall] OctetBaseLinkRequest(var[OctetBaseLink*], var[string] RequestTag, var[string] Link, var[ERequestObtainData], var[int] Argument = INDEX_INVALID);
+        function[void] OctetBaseLinkRequest(var[OctetBaseLink*], var[string] RequestTag, var[string] Link, var[ERequestObtainData], var[int] Argument = INDEX_INVALID);
     };
 
 protected:
 
     // internal data
-    function[bool][__fastcall] _start(var[LLinkWorkType], var[string]);
+    function[bool] _start(var[LLinkWorkType], var[string]);
 
     var[TNetHTTPClient*] __client = nullptr, __asyncclient = nullptr;
     var[LLinkWorkType] __work = lwIdle;
@@ -68,18 +68,18 @@ protected:
         __lastcode = LinkResponse::timeout;
 
     // class init
-    function[void][__fastcall] _init();
+    function[void] _init();
 
     // header methods
-    function[void][__fastcall] _setheaders(var[TNetHTTPClient*], var[bool] State);
+    function[void] _setheaders(var[TNetHTTPClient*], var[bool] State);
 
     // internal events
-    function[void][__fastcall] _eventerror(var[TObject* const],  var[string]);
-    function[void][__fastcall] _eventcomplete(var[TObject* const], var[const _di_IHTTPResponse]);
-    function[void][__fastcall] _eventauth(var[TObject* const], var[TAuthTargetType] Target, var[string], var[string], var[string&], var[string], var[bool&], var[TAuthPersistenceType&]);
+    function[void] _eventerror(var[TObject* const],  var[string]);
+    function[void] _eventcomplete(var[TObject* const], var[const _di_IHTTPResponse]);
+    function[void] _eventauth(var[TObject* const], var[TAuthTargetType] Target, var[string], var[string], var[string&], var[string], var[bool&], var[TAuthPersistenceType&]);
 
 static:
-    function[void][__fastcall] _eventexecute(var[TObject* const],  var[string]);
+    function[void] _eventexecute(var[TObject* const],  var[string]);
 
 public:
 
@@ -90,16 +90,16 @@ public:
 
     // base network methods
 
-    function[string][__fastcall] Read(var[string], var[int] Type = LinkType::critical);
-    function[string][__fastcall] Cache(var[string] Link);
-    function[void][__fastcall] Stop(var[string] RequestTag = "");
-    function[bool][__fastcall] Write(var[string], var[string] Data, var[TStringStream*] Response = NULL);
-    function[bool][__fastcall] Delete(var[string]);
-    function[bool][__fastcall] Auth(var[string], var[string] User, var[string] Pass, var[TStringStream*] Response = NULL);
-    function[string][__fastcall] ResponseCode();
-    function[string][__fastcall] ResponseCode(var[int], var[string]);
-    function[void][__fastcall] ClearCache(var[int] AgeDays);
-    function[string][__fastcall] ClearCache(var[bool] Download);
+    function[string] Read(var[string], var[int] Type = LinkType::critical);
+    function[string] Cache(var[string] Link);
+    function[void] Stop(var[string] RequestTag = "");
+    function[bool] Write(var[string], var[string] Data, var[TStringStream*] Response = NULL);
+    function[bool] Delete(var[string]);
+    function[bool] Auth(var[string], var[string] User, var[string] Pass, var[TStringStream*] Response = NULL);
+    function[string] ResponseCode();
+    function[string] ResponseCode(var[int], var[string]);
+    function[void] ClearCache(var[int] AgeDays);
+    function[string] ClearCache(var[bool] Download);
 
     // properties
     __property Client { delegate = __asyncclient };
@@ -111,7 +111,7 @@ public:
     __property ConnectionHost { read = __host };
     __property ConnectionTask { read = __host };
 
-    function[void][__fastcall] OctetBaseLink(
+    function[void] OctetBaseLink(
         var[TComponent*], 
         var[int] ConnectionTimeout = LinkConnection::timeout, 
         var[int] ResponseTimeout = LinkResponse::timeout, 
@@ -119,7 +119,7 @@ public:
         var[int] ResponseTimeoutAsync = LinkResponse::timeout_async);
 };
 
-function[void][__fastcall] BaseRequest::Abort()  {
+function[void] BaseRequest::Abort()  {
     var[const int] number = 1;
 };
 
@@ -128,33 +128,33 @@ class Base {
 public:
     var[int] PublicBaseData;
     function[void] [virtual] PublicMethodBase();
-    function[void] [] Base();
+    function[void]  Base();
 static:
     var[int] StaticBaseData;
-    function[void][] StaticMethodBase();
+    function[void] StaticMethodBase();
 }
 
 class Derived : Base {
 
 public:
     function[void] [override] PublicMethodBase();
-    function[void] [] Derived();
+    function[void]  Derived();
     class Math {
     static:
-        function[void] [] PublicMethodBase();
+        function[void]  PublicMethodBase();
     }
 static:
     var[int] StaticData = 1;
-    function[void][] StaticMethodBase();
+    function[void] StaticMethodBase();
 
 private:
     var[int] m_pivate = 1;
 
 }
 
-function[void] [] PublicMethodBase() { };
+function[void]  PublicMethodBase() { };
 
-function[int][] main () {
+function[int] main () {
     
     var[Derived*] un = new Derived();
 
