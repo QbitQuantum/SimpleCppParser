@@ -216,7 +216,7 @@ Node* Parser::parseVar() {
 				Name = "";
 				break;
 			case TTokenID::Semicolon:
-				stream.consume(TTokenID::Comma);
+				stream.consume(TTokenID::Semicolon);
 				Name = "";
 				return;
 			default:
