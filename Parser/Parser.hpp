@@ -185,7 +185,6 @@ Node* Parser::parseVar() {
 	auto ParseInitializer = [&]() -> void {
 		std::string Identifier;
 		std::string Name;
-		bool IsNamespaceToken = false;
 
 		// Парсим аргументы: var[const int] name = default
 		while (true) {
@@ -220,8 +219,6 @@ Node* Parser::parseVar() {
 				Name = "";
 				return;
 			default:
-				if (IsNamespaceToken)
-					throw std::runtime_error("not correct token default");
 				Identifier = stream.consume(stream.peek().type).value;
 				break;
 			}
