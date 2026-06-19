@@ -74,6 +74,7 @@ private:
 	Node* parseBlock();
 
 	NodeTypeQualifier* TypeQualifierParse();
+	std::string parse_namespace();
 public:
 	std::vector<LexToken> ParserEngineBuffer;
 
@@ -122,6 +123,25 @@ Node* Parser::parseTopLevel() {
 	}
 }
 
+std::string Parser::parse_namespace() {
+	std::string Identifier = "";
+	while (true) {
+		switch (stream.peek().type) {
+		case TTokenID::IdentifierLiteral:
+			Identifier = stream.consume(TTokenID::IdentifierLiteral).value;
+			break;
+		case TTokenID::ScResOp:
+			stream.consume(TTokenID::ScResOp);
+			if (stream.peek().type != TTokenID::IdentifierLiteral)
+				throw std::runtime_error("Expected identifier after '::'");
+			Identifier = "";
+			break;
+		default:
+			return Identifier;
+		}
+	}
+}
+
 NodeTypeQualifier* Parser::TypeQualifierParse() {
 	std::string Type = "";
 	bool IsConst = false;
@@ -138,10 +158,8 @@ NodeTypeQualifier* Parser::TypeQualifierParse() {
 			break;
 		case TTokenID::Asterisk: IsRef = true; stream.consume(TTokenID::Asterisk);
 			break;
-		case TTokenID::ScResOp: Type = ""; stream.consume(TTokenID::ScResOp);
-			break;
 		case TTokenID::IdentifierLiteral:
-			Type = stream.consume(TTokenID::IdentifierLiteral).value;
+			Type = parse_namespace();
 			break;
 		default:
 			stream.consume(stream.peek().type);
