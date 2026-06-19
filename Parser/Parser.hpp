@@ -72,6 +72,7 @@ private:
 	Node* parseFunction();
 	Node* parseClass();
 	Node* parseBlock();
+	Node* parseExpression();
 
 	NodeTypeQualifier* TypeQualifierParse();
 	std::string parse_namespace();
@@ -185,7 +186,6 @@ Node* Parser::parseVar() {
 		std::string Identifier;
 		std::string Name;
 		bool IsNamespaceToken = false;
-		bool findEquals = false;
 
 		// Парсим аргументы: var[const int] name = default
 		while (true) {
@@ -194,62 +194,48 @@ Node* Parser::parseVar() {
 			{
 			case TTokenID::Equals:
 				stream.consume(TTokenID::Equals);
-				findEquals = true;
+				ContainerDeclarationList.push_back(
+					new NodeDeclaration(new NodeIdentifier(Name), parseExpression())
+				);
 				break;
 			case TTokenID::ScResOp:
 				stream.consume(TTokenID::ScResOp);
-				Identifier = "";
-				IsNamespaceToken = true;
+				Name = "";
+				// Типо можно пропустить и ладно. Но это ошибка епта
+				throw std::runtime_error("not correct token ScResOp");
 				break;
 			case TTokenID::IdentifierLiteral:
 			{
-				std::string TokenStr = stream.consume(TTokenID::IdentifierLiteral).value;
-				if (!findEquals)
-				{
-					if (!Name.empty())
-						throw std::runtime_error("not correct token Name");
-					Name = TokenStr;
-				}
-				else
-				{
-					Identifier = TokenStr;
-				}
+				if (!Name.empty())
+					throw std::runtime_error("not correct token Name");
+				Name = stream.consume(TTokenID::IdentifierLiteral).value;
 				break;
 			}
 			case TTokenID::Comma:
-			case TTokenID::Semicolon:
-			{
-				auto TokenType = stream.consume(stream.peek().type).type;
-				NodeIdentifier* Initializer = Identifier.empty() ? nullptr : new NodeIdentifier(Identifier);
-
-				ContainerDeclarationList.push_back(
-					new NodeDeclaration(new NodeIdentifier(Name), Initializer)
-				);
-
+				stream.consume(TTokenID::Comma);
 				Name = "";
-
-				switch (TokenType)
-				{
-				case TTokenID::Comma:
-					findEquals = false;
-					break;
-				case TTokenID::Semicolon:
-					return;
-				}
 				break;
-			}
+			case TTokenID::Semicolon:
+				stream.consume(TTokenID::Comma);
+				Name = "";
+				return;
 			default:
 				if (IsNamespaceToken)
 					throw std::runtime_error("not correct token default");
 				Identifier = stream.consume(stream.peek().type).value;
 				break;
 			}
-		}
+			}
 		};
 
 	ParseInitializer();
 
 	return new NodeDeclarationList(TypeQualifier, ContainerDeclarationList);
+}
+
+Node* Parser::parseExpression() {
+	std::string Identifier = parse_namespace();
+	return new NodeIdentifier(Identifier);
 }
 
 Node* Parser::parseFunction() {
