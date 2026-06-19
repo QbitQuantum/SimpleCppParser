@@ -220,9 +220,9 @@ class NodeClass : public Node
 {
     std::string Name;
     std::string BaseClass;
-    NodeBlock* Body = nullptr;
+    Node* Body = nullptr;
 public:
-    NodeClass(const std::string& name, const std::string& baseClass, NodeBlock* body) :
+    NodeClass(const std::string& name, const std::string& baseClass, Node* body) :
         Name(name), BaseClass(baseClass), Body(body) {
     }
 

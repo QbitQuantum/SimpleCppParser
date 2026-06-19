@@ -71,7 +71,7 @@ private:
 	Node* parseVar();
 	Node* parseFunction();
 	Node* parseClass();
-	NodeBlock* parseBlock();
+	Node* parseBlock();
 
 	NodeTypeQualifier* TypeQualifierParse();
 public:
@@ -382,11 +382,11 @@ Parser::~Parser()
 		if (i) delete i;
 }
 
-NodeBlock* Parser::parseBlock() {
+Node* Parser::parseBlock() {
 	if (!stream.match(TTokenID::LeftBrace))
 		return nullptr;
 
-	auto* block = new NodeBlock();
+	NodeBlock* block = new NodeBlock();
 
 	while (!stream.eof() && stream.peek().type != TTokenID::RightBrace) {
 		Node* stmt = nullptr;
@@ -432,7 +432,7 @@ Node* Parser::parseClass() {
 		}
 	}
 
-	NodeBlock* body = nullptr;
+	Node* body = nullptr;
 	if (stream.peek().type == TTokenID::LeftBrace) {
 		body = parseBlock();
 	}
