@@ -39,7 +39,7 @@ private:
         var[bool] Completed = false;
 
         // Объявление геттера/сеттера
-        __property Link { write = __link };
+        __property[string] Link { write = __link };
 
         function[void] Get();
         function[void] Abort();
