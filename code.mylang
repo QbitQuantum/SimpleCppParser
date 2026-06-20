@@ -102,14 +102,14 @@ public:
     function[string] ClearCache(var[bool] Download);
 
     // properties
-    __property Client { delegate = __asyncclient };
-    __property ConnectionTimeout { delegate = __contime };
-    __property ResponseTimeout { delegate = __restime };
-    __property ConnectionTimeoutAsync { delegate = __contimeasync };
-    __property ResponseTimeoutAsync { delegate = __restimeasync };
-    __property LastResponseCode { write = __lastcode };
-    __property ConnectionHost { read = __host };
-    __property ConnectionTask { read = __host };
+    __property[TNetHTTPClient*] Client { write = __asyncclient };
+    __property[int] ConnectionTimeout { write = __contime };
+    __property[int] ResponseTimeout { write = __restime };
+    __property[int] ConnectionTimeoutAsync { read = __contimeasync };
+    __property[int] ResponseTimeoutAsync { read = __restimeasync };
+    __property[int] LastResponseCode { write = __lastcode };
+    __property[string] ConnectionHost { read = __host };
+    __property[string] ConnectionTask { read = __host };
 
     function[void] OctetBaseLink(
         var[TComponent*], 
