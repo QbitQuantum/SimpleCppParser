@@ -107,6 +107,7 @@ static const std::unordered_map<uint32_t, TTokenID> TokenKeywordMap = {
     {ConstexprCppHash("override"),     TTokenID::Override},
     {ConstexprCppHash("virtual"),      TTokenID::Virtual},
     {ConstexprCppHash("final"),        TTokenID::Final},
+    {ConstexprCppHash("auto"),         TTokenID::Auto},
 
     // ===== квалификаторы =====
     {ConstexprCppHash("const"),        TTokenID::Const},
