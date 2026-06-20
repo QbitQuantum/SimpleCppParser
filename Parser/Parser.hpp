@@ -466,19 +466,24 @@ Node* Parser::parseClass() {
 		switch (stream.peek().type)
 		{
 		case TTokenID::Public:
-			stream.consume(TTokenID::Public);
-			InheritanceType = NodeClass::INHERITANCE_TYPE::PUBLIC;
 		case TTokenID::Private:
-			stream.consume(TTokenID::Private);
-			InheritanceType = NodeClass::INHERITANCE_TYPE::PRIVATE;
-		case TTokenID::IdentifierLiteral:
-			stream.consume(TTokenID::IdentifierLiteral);
-			baseClass = stream.consume(TTokenID::IdentifierLiteral).value;
+			InheritanceType = stream.peek().type == TTokenID::Public ?
+				NodeClass::INHERITANCE_TYPE::PUBLIC : NodeClass::INHERITANCE_TYPE::PRIVATE;
+			stream.consume(stream.peek().type);
+			break;
 		default:
 			break;
 		}
-		if (baseClass.empty())
+
+		if (stream.peek().type == TTokenID::IdentifierLiteral)
+		{
+			baseClass = stream.consume(TTokenID::IdentifierLiteral).value;
+		}
+		else
+		{
 			throw std::runtime_error("Expected name baseClass");
+		}
+			
 	}
 
 	Node* body = nullptr;
