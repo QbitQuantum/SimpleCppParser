@@ -457,11 +457,28 @@ Node* Parser::parseClass() {
 		name = stream.consume(TTokenID::IdentifierLiteral).value;
 	}
 
+	NodeClass::INHERITANCE_TYPE InheritanceType = 
+		NodeClass::INHERITANCE_TYPE::PRIVATE;
+
 	// Провераяем наличие базового класса
 	if (stream.match(TTokenID::Colon)) {
-		if (stream.peek().type == TTokenID::IdentifierLiteral) {
+
+		switch (stream.peek().type)
+		{
+		case TTokenID::Public:
+			stream.consume(TTokenID::Public);
+			InheritanceType = NodeClass::INHERITANCE_TYPE::PUBLIC;
+		case TTokenID::Private:
+			stream.consume(TTokenID::Private);
+			InheritanceType = NodeClass::INHERITANCE_TYPE::PRIVATE;
+		case TTokenID::IdentifierLiteral:
+			stream.consume(TTokenID::IdentifierLiteral);
 			baseClass = stream.consume(TTokenID::IdentifierLiteral).value;
+		default:
+			break;
 		}
+		if (baseClass.empty())
+			throw std::runtime_error("Expected name baseClass");
 	}
 
 	Node* body = nullptr;
@@ -469,7 +486,7 @@ Node* Parser::parseClass() {
 		body = parseBlock();
 	}
 
-	return new NodeClass(name, baseClass, body);
+	return new NodeClass(name, baseClass, InheritanceType, body);
 }
 
 #endif // PARSER_HPP

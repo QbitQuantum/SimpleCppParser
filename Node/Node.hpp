@@ -218,18 +218,27 @@ public:
 
 class NodeClass : public Node
 {
+public:
+    enum class INHERITANCE_TYPE
+    {
+        PUBLIC,
+        PRIVATE
+    };
+private:
     std::string Name;
     std::string BaseClass;
+    INHERITANCE_TYPE Type = INHERITANCE_TYPE::PRIVATE;
     Node* Body = nullptr;
 public:
-    NodeClass(const std::string& name, const std::string& baseClass, Node* body) :
-        Name(name), BaseClass(baseClass), Body(body) {
+    NodeClass(const std::string& name, const std::string& baseClass, INHERITANCE_TYPE type, Node* body) :
+        Name(name), BaseClass(baseClass), Type(type), Body(body) {
     }
 
     std::string print() override {
         std::string fprint = "class " + Name;
         if (!BaseClass.empty()) {
-            fprint += " : " + BaseClass;
+            std::string type = Type == INHERITANCE_TYPE::PRIVATE ? "" : "public";
+            fprint += " : " + type + " " + BaseClass;
         }
         if (Body) {
             fprint += " " + Body->print();
