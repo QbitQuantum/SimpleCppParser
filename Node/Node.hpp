@@ -95,7 +95,7 @@ public:
 class NodeDeclarationList : public Node
 {
     NodeTypeQualifier* TypeQualifier = nullptr;
-    std::vector<NodeDeclaration*> DeclarationList;
+    std::vector<Node*> DeclarationList;
 public:
     std::string print() override {
         std::string fprint = "var";
@@ -113,7 +113,7 @@ public:
         }
         return fprint;
     };
-    NodeDeclarationList(NodeTypeQualifier* typeQualifier, const std::vector<NodeDeclaration*>& declarationList) :
+    NodeDeclarationList(NodeTypeQualifier* typeQualifier, const std::vector<Node*>& declarationList) :
         TypeQualifier(typeQualifier), DeclarationList(declarationList) { };
 
     ~NodeDeclarationList() override {

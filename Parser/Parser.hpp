@@ -73,9 +73,10 @@ private:
 	Node* parseClass();
 	Node* parseBlock();
 	Node* parseExpression();
+	Node* parseDeclaration();
 
 	NodeTypeQualifier* TypeQualifierParse();
-	std::string parse_namespace();
+	std::string parse_namespace(bool Admissibility = true);
 public:
 	std::vector<LexToken> ParserEngineBuffer;
 
@@ -124,7 +125,7 @@ Node* Parser::parseTopLevel() {
 	}
 }
 
-std::string Parser::parse_namespace() {
+std::string Parser::parse_namespace(bool Admissibility) {
 	std::string Identifier = "";
 	while (true) {
 		switch (stream.peek().type) {
@@ -132,6 +133,8 @@ std::string Parser::parse_namespace() {
 			Identifier = stream.consume(TTokenID::IdentifierLiteral).value;
 			break;
 		case TTokenID::ScResOp:
+			if (!Admissibility)
+				throw std::runtime_error("Not admissibility token '::'");
 			stream.consume(TTokenID::ScResOp);
 			if (stream.peek().type != TTokenID::IdentifierLiteral)
 				throw std::runtime_error("Expected identifier after '::'");
@@ -180,54 +183,46 @@ Node* Parser::parseVar() {
 	if (!TypeQualifier)
 		return nullptr;
 
-	std::vector<NodeDeclaration*> ContainerDeclarationList;
+	std::vector<Node*> ContainerDeclarationList;
 
-	auto ParseInitializer = [&]() -> void {
-		std::string Identifier;
-		std::string Name;
+	ContainerDeclarationList.push_back(parseDeclaration());
 
-		// Парсим аргументы: var[const int] name = default
-		while (true) {
+	// Парсим аргументы: name = default
+	while (stream.peek().type == TTokenID::Comma) {
+		stream.consume(TTokenID::Comma);
+		ContainerDeclarationList.push_back(parseDeclaration());
+	}
 
-			switch (stream.peek().type)
-			{
-			case TTokenID::Equals:
-				stream.consume(TTokenID::Equals);
-				ContainerDeclarationList.push_back(
-					new NodeDeclaration(new NodeIdentifier(Name), parseExpression())
-				);
-				break;
-			case TTokenID::ScResOp:
-				stream.consume(TTokenID::ScResOp);
-				Name = "";
-				// Типо можно пропустить и ладно. Но это ошибка епта
-				throw std::runtime_error("not correct token ScResOp");
-				break;
-			case TTokenID::IdentifierLiteral:
-			{
-				if (!Name.empty())
-					throw std::runtime_error("not correct token Name");
-				Name = stream.consume(TTokenID::IdentifierLiteral).value;
-				break;
-			}
-			case TTokenID::Comma:
-				stream.consume(TTokenID::Comma);
-				Name = "";
-				break;
-			case TTokenID::Semicolon:
-				stream.consume(TTokenID::Semicolon);
-				Name = "";
-				return;
-			default:
-				Identifier = stream.consume(stream.peek().type).value;
-				break;
-			}
-			}
-		};
+	if (stream.peek().type != TTokenID::Semicolon)
+		throw std::runtime_error("Expected token Semicolon");
 
-	ParseInitializer();
+	stream.consume(TTokenID::Semicolon);
 
 	return new NodeDeclarationList(TypeQualifier, ContainerDeclarationList);
+}
+
+Node* Parser::parseDeclaration() {
+
+	NodeIdentifier* Identifier = nullptr;
+	Node* Exptression = nullptr;
+
+	// Имя может быть пустое. По хорошему исключить такую фигню
+	if (stream.peek().type == TTokenID::IdentifierLiteral)
+		// То что может быть Namespace::Name в имене идентикатора - работа семантера
+		Identifier = new NodeIdentifier(parse_namespace(false));
+	
+	if (stream.peek().type == TTokenID::Equals)
+	{
+		if (!Identifier)
+			throw std::runtime_error("Expected identifier");
+		stream.consume(TTokenID::Equals);
+		Exptression = parseExpression();
+	}
+	// Пустое выражение "Expression, ,Expression"
+	if (!Identifier && !Exptression)
+		throw std::runtime_error("Expected identifier and Exptression");
+
+	return new NodeDeclaration(Identifier, Exptression);
 }
 
 Node* Parser::parseExpression() {
@@ -320,7 +315,7 @@ Node* Parser::parseFunction() {
 			case TTokenID::RightParen:
 			{
 				auto TokenType = stream.consume(stream.peek().type).type;
-				std::vector<NodeDeclaration*> Decls;
+				std::vector<Node*> Decls;
 				if (!NewToken) {
 
 					NodeIdentifier* nodeIdentifier = Identifier.empty() ? nullptr : new NodeIdentifier(Identifier);
