@@ -120,6 +120,7 @@ public:
 };
 
 function[void] BaseRequest::Abort()  {
+    __abort = default; // false
     var[const int] number = 1;
 };
 

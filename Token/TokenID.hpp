@@ -193,6 +193,7 @@ enum class TTokenID : long long {
     Delegate,     // delegate
     Var, // var
     Function, // function
+    Default,  // default
 
     Access, // access
     Using, // using
