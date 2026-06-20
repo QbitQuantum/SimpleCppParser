@@ -74,6 +74,7 @@ private:
 	Node* parseBlock();
 	Node* parseExpression();
 	Node* parseDeclaration();
+	Node* parseProperty();
 
 	NodeTypeQualifier* TypeQualifierParse();
 	std::string parse_namespace(bool Admissibility = true);
@@ -120,9 +121,44 @@ Node* Parser::parseTopLevel() {
 	case TTokenID::Var:      return parseVar();
 	case TTokenID::Function: return parseFunction();
 	case TTokenID::Class:    return parseClass();
+	case TTokenID::Property: return parseProperty();
 	default:
 		return nullptr;
 	}
+}
+
+Node* Parser::parseProperty() {
+	stream.consume(TTokenID::Property); // __property
+	
+	// тип (int)
+	NodeTypeQualifier* typeQualifier = TypeQualifierParse();
+	if (!typeQualifier) throw std::runtime_error("Expected type in __property");
+
+	// имя (Value)
+	std::string name = stream.consume(TTokenID::IdentifierLiteral).value;
+
+	// {
+	if (!stream.match(TTokenID::LeftBrace))
+		throw std::runtime_error("Expected '{' in __property");
+
+	std::string getter, setter;
+	while (!stream.match(TTokenID::RightBrace)) {
+		if (stream.match(TTokenID::Read)) {
+			if (!stream.match(TTokenID::Equals))
+				throw std::runtime_error("Expected '=' after 'read'");
+			getter = parse_namespace(false); // __getValue
+		}
+		else if (stream.match(TTokenID::Write)) {
+			if (!stream.match(TTokenID::Equals))
+				throw std::runtime_error("Expected '=' after 'write'");
+			setter = parse_namespace(false); // __setValue
+		}
+		else {
+			stream.consume(stream.peek().type);
+		}
+	}
+
+	return new NodeProperty(name, typeQualifier, getter, setter);
 }
 
 std::string Parser::parse_namespace(bool Admissibility) {

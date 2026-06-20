@@ -251,8 +251,6 @@ struct NumberNode : Node {
     }
 };
 
-
-
 struct BinaryOpNode : Node {
     std::string op;
     std::unique_ptr<Node> left;
@@ -283,5 +281,27 @@ struct CallNode : Node {
     }
 };
 
+struct NodeProperty : Node {
+    std::string Name, Getter, Setter;
+    NodeTypeQualifier* TypeQualifier = nullptr;
+
+    NodeProperty(
+        const std::string& name,
+        NodeTypeQualifier* typeQualifier,
+        const std::string& getter,
+        const std::string& setter) :
+        Name(name), TypeQualifier(typeQualifier), Getter(getter), Setter(setter) {}
+
+    std::string print() override {
+        return "__property" + 
+            TypeQualifier->print() + " " + Name + " " + "{\n" +
+            (Getter.empty() ? "" : "write = " + Getter + "\,") +
+            (Setter.empty() ? "" : "read = " + Setter) +
+            "\n}";
+    }
+    ~NodeProperty() {
+        delete TypeQualifier;
+    }
+};
 
 #endif // NODE_HPP
