@@ -163,7 +163,6 @@ enum class TTokenID : long long {
     Break,       // break
     Continue,    // continue
     Switch,      // switch
-    Default,     // default
     New,         // new
     Delete_,      // delete
 
