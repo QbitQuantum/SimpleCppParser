@@ -380,7 +380,7 @@ struct NodeProperty : Node {
     std::string print() override {
         return "__property" + 
             TypeQualifier->print() + " " + Name + " " + "{\n" +
-            (Getter.empty() ? "" : "write = " + Getter + "\,") +
+            (Getter.empty() ? "" : "write = " + Getter + ",") +
             (Setter.empty() ? "" : "read = " + Setter) +
             "\n}";
     }
