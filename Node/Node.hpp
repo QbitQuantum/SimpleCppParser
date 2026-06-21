@@ -321,6 +321,7 @@ public:
     }
 
     ~NodeClass() override {
+        delete GenericConcretic;
         delete GenericParams;
         delete Body;
     }
