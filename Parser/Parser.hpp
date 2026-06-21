@@ -70,6 +70,8 @@ private:
 	Node* parseAccess();
 	Node* parseVar();
 	Node* parseFunction();
+	Node* parseGenericParametrs();
+	Node* parseGenericParametrsConcretic();
 	Node* parseClass();
 	Node* parseBlock();
 	Node* parseExpression();
@@ -436,21 +438,9 @@ Node* Parser::parseBlock() {
 	return block;
 }
 
-Node* Parser::parseClass() {
-	// assume current token is Class
-	stream.consume(TTokenID::Class);
+Node* Parser::parseGenericParametrs() {
 
-	std::string name;
-	if (stream.peek().type == TTokenID::IdentifierLiteral)
-		name = stream.consume(TTokenID::IdentifierLiteral).value;
-	else
-		throw std::runtime_error("Expected class name");
-
-	// Generic-параметры: [T, K = int]
 	NodeGenericParams* genericParams = nullptr;
-
-	// Поддержка generic-конкретизации: [int, std::string]
-	NodeGenericParamsConcretic* genericParamsConcretic = nullptr;
 
 	if (stream.match(TTokenID::LeftBracket)) {
 		genericParams = new NodeGenericParams();
@@ -492,6 +482,51 @@ Node* Parser::parseClass() {
 		}
 	}
 
+	return genericParams;
+}
+
+Node* Parser::parseGenericParametrsConcretic() {
+	
+	NodeGenericParamsConcretic* genericParamsConcretic = nullptr;
+	
+	if (stream.match(TTokenID::LeftBracket)) {
+		genericParamsConcretic = new NodeGenericParamsConcretic();
+		while (true) {
+			std::string arg;
+			// Парсим аргумент: int, 5, std::string (namespace)
+			if (stream.peek().type == TTokenID::IdentifierLiteral)
+			{
+				genericParamsConcretic->add(new NodeIdentifier(parse_namespace()));
+			}
+			else
+			{
+				// Не заморачиваемся с выражениями
+				genericParamsConcretic->add(new NodeIdentifier(stream.consume(stream.peek().type).value));
+			}
+			if (stream.match(TTokenID::RightBracket)) {
+				break;
+			}
+			if (!stream.match(TTokenID::Comma))
+				throw std::runtime_error("Expected ',' or ']' in generic arguments");
+		}
+	}
+	return genericParamsConcretic;
+}
+
+Node* Parser::parseClass() {
+	// assume current token is Class
+	stream.consume(TTokenID::Class);
+
+	std::string name;
+	if (stream.peek().type == TTokenID::IdentifierLiteral)
+		name = stream.consume(TTokenID::IdentifierLiteral).value;
+	else
+		throw std::runtime_error("Expected class name");
+
+	// Generic-параметры: [T, K = int]
+	Node* genericParams = parseGenericParametrs();
+	// Поддержка generic-конкретизации: [int, std::string]
+	Node* genericParamsConcretic = nullptr;
 	std::string baseClass;
 	NodeClass::INHERITANCE_TYPE inheritanceType = NodeClass::INHERITANCE_TYPE::PRIVATE;
 
@@ -513,28 +548,7 @@ Node* Parser::parseClass() {
 		else {
 			throw std::runtime_error("Expected base class name");
 		}
-		
-		if (stream.match(TTokenID::LeftBracket)) {
-			genericParamsConcretic = new NodeGenericParamsConcretic();
-			while (true) {
-				std::string arg;
-				// Парсим аргумент: int, 5, std::string (namespace)
-				if (stream.peek().type == TTokenID::IdentifierLiteral)
-				{
-					genericParamsConcretic->add(new NodeIdentifier(parse_namespace()));
-				}
-				else
-				{
-					// Не заморачиваемся с выражениями
-					genericParamsConcretic->add(new NodeIdentifier(stream.consume(stream.peek().type).value));
-				}
-				if (stream.match(TTokenID::RightBracket)) {
-					break;
-				}
-				if (!stream.match(TTokenID::Comma))
-					throw std::runtime_error("Expected ',' or ']' in generic arguments");
-			}
-		}
+		genericParamsConcretic = parseGenericParametrsConcretic();
 	}
 
 	Node* body = nullptr;

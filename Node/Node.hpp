@@ -289,16 +289,16 @@ public:
 
 private:
     std::string Name;
-    NodeGenericParams* GenericParams = nullptr;
-    NodeGenericParamsConcretic* GenericConcretic = nullptr;
+    Node* GenericParams = nullptr;
+    Node* GenericConcretic = nullptr;
     std::string BaseClass;
     INHERITANCE_TYPE Type = INHERITANCE_TYPE::PRIVATE;
     Node* Body = nullptr;
 public:
     NodeClass(
         const std::string& name,
-        NodeGenericParams* generics = nullptr,
-        NodeGenericParamsConcretic* genericsConcretic = nullptr,
+        Node* generics = nullptr,
+        Node* genericsConcretic = nullptr,
         const std::string& baseClass = "",
         INHERITANCE_TYPE type = INHERITANCE_TYPE::PRIVATE,
         Node* body = nullptr
