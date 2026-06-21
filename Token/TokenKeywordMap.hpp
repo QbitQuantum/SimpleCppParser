@@ -79,8 +79,8 @@ static const std::unordered_map<uint32_t, TTokenID> TokenKeywordMap = {
     {ConstexprCppHash("mod"),          TTokenID::Mod},
 
     // ===== Встроенные значение типов =====
-    {ConstexprCppHash("true"),         TTokenID::BooleanLiteral},
-    {ConstexprCppHash("false"),        TTokenID::BooleanLiteral},
+    {ConstexprCppHash("true"),         TTokenID::TrueLiteral},
+    {ConstexprCppHash("false"),        TTokenID::FalseLiteral},
     {ConstexprCppHash("nullptr"),      TTokenID::NullptrLiteral},
 
     // ===== Управляющие конструкции =====

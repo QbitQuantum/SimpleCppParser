@@ -123,7 +123,8 @@ enum class TTokenID : long long {
     IdentifierLiteral,   // name, age, counter, myVariable (имена переменных, функций, классов)
     HexLiteral,          // 0xFF, 0x1A3, 0xDEADBEEF (шестнадцатеричные числа с префиксом 0x)
     BinaryLiteral,       // 0b1010, 0b11001100, 0b1 (двоичные числа с префиксом 0b, C++14 и выше)
-    BooleanLiteral,      // true, false (логические значения)
+    TrueLiteral,
+    FalseLiteral,
     NullptrLiteral,      // nullptr (нулевой указатель, C++11 и выше)
 
     // Присваивания
@@ -393,7 +394,8 @@ std::string NameTTokenID(TTokenID kind) {
     GENERATE_NAME(IdentifierLiteral);
     GENERATE_NAME(HexLiteral);
     GENERATE_NAME(BinaryLiteral);
-    GENERATE_NAME(BooleanLiteral);
+    GENERATE_NAME(TrueLiteral);
+    GENERATE_NAME(FalseLiteral);
     GENERATE_NAME(NullptrLiteral);
 
     GENERATE_NAME(Assign);
