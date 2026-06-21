@@ -124,10 +124,21 @@ function[void] BaseRequest::Abort()  {
     var[const int] number = 1;
 };
 
-class Base {
+// Это шаблоны из C++
+// [T /* По умолчанию имя типа */, K = int /* Имя типа по умолчанию */, W = int() /* значение, на это намекает () */]
+class Base [T, K = int, W = int()] {
 
 public:
-    var[int] PublicBaseData;
+    // Без всяких если. Есть параметрах используется этот шаблон
+    // То используем его
+    // Надо подумать об экранирование что-ли
+    // Добавлять ключевое слово typename/template многословно
+    // Можно использовать ^ - но я нарушаю принцип наименьшего использования символов
+    // Но ^ уже использутся, но мы знаем что мы наъодится внутри var, следовательно не будет проблем.
+    // В C++ используется std::pair<std::string, std::vector<st::string>>
+    // ^T::value янво лучше чем typename T::value
+    // var[typename T::value] PublicBaseData; vs var[^T::value] PublicBaseData; vs var[template T::value] PublicBaseData;
+    var[T] PublicBaseData;
     function[void] [virtual] PublicMethodBase();
     function[void]  Base();
 static:
@@ -135,7 +146,7 @@ static:
     function[void] StaticMethodBase();
 }
 
-class Derived : Base {
+class Derived : public Base [int, std::string, 5] {
 
 public:
     function[void] [override] PublicMethodBase();

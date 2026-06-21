@@ -216,38 +216,113 @@ public:
     }
 };
 
-class NodeClass : public Node
-{
+// Generic parameter: T, K = int
+class NodeGenericParam : public Node {
+    std::string Name;
+    bool Contruct = false;
+    Node* Default; // может быть nullptr
 public:
-    enum class INHERITANCE_TYPE
-    {
-        PUBLIC,
-        PRIVATE
-    };
+    NodeGenericParam(const std::string& name, bool construct, Node* def = nullptr)
+        : Name(name), Contruct(construct), Default(def) {
+    }
+
+    std::string print() override {
+        std::string res = Name;
+        if (Default) res += " = " + Default->print() + (Contruct ? "()" : "");
+        return res;
+    }
+
+    ~NodeGenericParam() override {
+        delete Default;
+    }
+};
+
+// Generic parameter list: [T, K = int, W]
+class NodeGenericParams : public Node {
+    std::vector<NodeGenericParam*> Params;
+public:
+    void add(NodeGenericParam* p) { if (p) Params.push_back(p); }
+
+    std::string print() override {
+        std::string res = "[";
+        for (size_t i = 0; i < Params.size(); ++i) {
+            res += Params[i]->print();
+            if (i + 1 < Params.size()) res += ", ";
+        }
+        res += "]";
+        return res;
+    }
+
+    const std::vector<NodeGenericParam*>& getParams() const { return Params; }
+
+    ~NodeGenericParams() override {
+        for (auto* p : Params) delete p;
+    }
+};
+
+// Generic parameter list concretic: [int, 5, std::string]
+class NodeGenericParamsConcretic : public Node {
+    std::vector<Node*> Params;
+public:
+    void add(Node* p) { if (p) Params.push_back(p); }
+
+    const std::vector<Node*>& getParams() const { return Params; }
+
+    std::string print() override {
+        std::string res = "[";
+        for (size_t i = 0; i < Params.size(); ++i) {
+            res += Params[i]->print();
+            if (i + 1 < Params.size()) res += ", ";
+        }
+        res += "]";
+        return res;
+    }
+
+    ~NodeGenericParamsConcretic() override {
+        for (auto* p : Params) delete p;
+    }
+};
+
+class NodeClass : public Node {
+public:
+    enum class INHERITANCE_TYPE { PUBLIC, PRIVATE };
+
 private:
     std::string Name;
+    NodeGenericParams* GenericParams = nullptr;
+    NodeGenericParamsConcretic* GenericConcretic = nullptr;
     std::string BaseClass;
     INHERITANCE_TYPE Type = INHERITANCE_TYPE::PRIVATE;
     Node* Body = nullptr;
 public:
-    NodeClass(const std::string& name, const std::string& baseClass, INHERITANCE_TYPE type, Node* body) :
-        Name(name), BaseClass(baseClass), Type(type), Body(body) {
+    NodeClass(
+        const std::string& name,
+        NodeGenericParams* generics = nullptr,
+        NodeGenericParamsConcretic* genericsConcretic = nullptr,
+        const std::string& baseClass = "",
+        INHERITANCE_TYPE type = INHERITANCE_TYPE::PRIVATE,
+        Node* body = nullptr
+    )
+        : Name(name), GenericParams(generics), GenericConcretic(genericsConcretic), BaseClass(baseClass), Type(type), Body(body) {
     }
 
     std::string print() override {
         std::string fprint = "class " + Name;
+        if (GenericParams) fprint += GenericParams->print();
+
         if (!BaseClass.empty()) {
-            std::string type = Type == INHERITANCE_TYPE::PRIVATE ? "" : "public";
-            fprint += " : " + type + " " + BaseClass;
+            std::string type = (Type == INHERITANCE_TYPE::PRIVATE ? "" : "public ");
+            fprint += " : " + type + BaseClass;
+            if (GenericConcretic) fprint += GenericConcretic->print();
         }
-        if (Body) {
-            fprint += " " + Body->print();
-        }
+        if (Body) fprint += " " + Body->print();
+
         return fprint;
     }
 
     ~NodeClass() override {
-        delete Body; Body = nullptr;
+        delete GenericParams;
+        delete Body;
     }
 };
 
