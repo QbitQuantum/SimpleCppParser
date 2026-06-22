@@ -136,6 +136,18 @@
   <ItemGroup>
     <None Include="code.mylang" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Lexer\Lexer.hpp" />
+    <ClInclude Include="Lexer\LexerError.hh" />
+    <ClInclude Include="Lexer\PostLexer.hpp" />
+    <ClInclude Include="Node\Node.hpp" />
+    <ClInclude Include="Parser\ParseExpr.hpp" />
+    <ClInclude Include="Parser\Parser.hpp" />
+    <ClInclude Include="Parser\PreParser.hpp" />
+    <ClInclude Include="Token\TokenDirectiveMap.hpp" />
+    <ClInclude Include="Token\TokenID.hpp" />
+    <ClInclude Include="Token\TokenKeywordMap.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
