@@ -145,7 +145,7 @@
     <ClInclude Include="Parser\Parser.hpp" />
     <ClInclude Include="Parser\PreParser.hpp" />
     <ClInclude Include="Token\TokenDirectiveMap.hpp" />
-    <ClInclude Include="Token\TokenID.hpp" />
+    <ClInclude Include="Token\TokenKinds.h" />
     <ClInclude Include="Token\TokenKeywordMap.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

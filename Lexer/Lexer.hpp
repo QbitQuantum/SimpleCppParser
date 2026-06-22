@@ -3,7 +3,7 @@
 #define LEXER_HPP
 #pragma once
 
-#include "TokenID.hpp"
+#include "TokenKinds.h"
 #include "TokenKeywordMap.hpp"
 
 #include "LexerError.hh"
@@ -17,7 +17,7 @@ Callback LexError;
 
 #define DEF_GENERATION_BASE(X) \
 push_back_token_storage(); \
-LexToken LexToken{ TTokenID::##X, std::string(1, constexprToChar(TTokenID::##X)), CurrentLine, CurrentColumn }; \
+LexToken LexToken{ TokenKind::##X, std::string(1, constexprToChar(TokenKind::##X)), CurrentLine, CurrentColumn }; \
 BufferToken.push_back(LexToken); \
 
 class Lexer {
@@ -107,9 +107,9 @@ private:
 
     // Обновляем проверку идентификаторов:
     bool is_unicode_identifier_start(char32_t c) {
-        if (((c >= constexprToChar(TTokenID::A) && c <= constexprToChar(TTokenID::Z)) ||
-            (c >= constexprToChar(TTokenID::a) && c <= constexprToChar(TTokenID::z)) ||
-            c == constexprToChar(TTokenID::Underscore)))
+        if (((c >= constexprToChar(TokenKind::A) && c <= constexprToChar(TokenKind::Z)) ||
+            (c >= constexprToChar(TokenKind::a) && c <= constexprToChar(TokenKind::z)) ||
+            c == constexprToChar(TokenKind::Underscore)))
             return true;
         return (c >= 0xC0); // Все символы выше ASCII
     }
@@ -155,7 +155,7 @@ void Lexer::LexerRun() {
             PosBuffer--;
 
             LexToken LexToken{
-                TTokenID::Literal,
+                TokenKind::Literal,
                 identifier,
                 CurrentLine,
                 CurrentColumn };
@@ -175,7 +175,7 @@ const char Lexer::GetChar() {
 
 void Lexer::push_back_token_storage() {
     if (!storage_value.empty()) {
-        LexToken LexToken{ TTokenID::Literal, storage_value, CurrentLine, CurrentColumn };
+        LexToken LexToken{ TokenKind::Literal, storage_value, CurrentLine, CurrentColumn };
         BufferToken.push_back(LexToken);
         storage_value = "";
     }

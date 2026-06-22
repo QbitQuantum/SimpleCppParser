@@ -2,7 +2,7 @@
 #define PRE_PARSER_HPP
 #pragma once
 
-#include "TokenID.hpp"
+#include "TokenKinds.h"
 
 #include <vector>
 

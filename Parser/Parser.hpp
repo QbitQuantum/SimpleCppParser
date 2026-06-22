@@ -19,7 +19,7 @@ public:
 	size_t Pos = 0;
 
 	void skipTrivia() {
-		while (!eof() && (peek().type == TTokenID::Space || peek().type == TTokenID::LineFeed)) {
+		while (!eof() && (peek().type == TokenKind::Space || peek().type == TokenKind::LineFeed)) {
 			++Pos;
 		}
 	}
@@ -29,7 +29,7 @@ public:
 	}
 
 	const LexToken& peek(size_t offset = 0) const {
-		static LexToken eofToken{ TTokenID::neof, "", 0, 0 };
+		static LexToken eofToken{ TokenKind::neof, "", 0, 0 };
 		size_t idx = Pos + offset;
 		if (idx >= Buffer.size()) return eofToken;
 		return Buffer[idx];
@@ -39,7 +39,7 @@ public:
 		return Pos >= Buffer.size();
 	}
 
-	bool match(TTokenID id) {
+	bool match(TokenKind id) {
 		if (peek().type == id) {
 			++Pos;
 			skipTrivia();
@@ -48,7 +48,7 @@ public:
 		return false;
 	}
 
-	const LexToken& consume(TTokenID id) {
+	const LexToken& consume(TokenKind id) {
 		const LexToken& tok = peek();
 		if (tok.type == id) {
 			++Pos;
@@ -119,39 +119,39 @@ private:
 
 Node* Parser::parseTopLevel() {
 	switch (stream.peek().type) {
-	case TTokenID::Access:   return parseAccess();
-	case TTokenID::Var:      return parseVar();
-	case TTokenID::Function: return parseFunction();
-	case TTokenID::Class:    return parseClass();
-	case TTokenID::Property: return parseProperty();
+	case TokenKind::Access:   return parseAccess();
+	case TokenKind::Var:      return parseVar();
+	case TokenKind::Function: return parseFunction();
+	case TokenKind::Class:    return parseClass();
+	case TokenKind::Property: return parseProperty();
 	default:
 		return nullptr;
 	}
 }
 
 Node* Parser::parseProperty() {
-	stream.consume(TTokenID::Property); // __property
+	stream.consume(TokenKind::Property); // __property
 	
 	// тип (int)
 	NodeTypeQualifier* typeQualifier = TypeQualifierParse();
 	if (!typeQualifier) throw std::runtime_error("Expected type in __property");
 
 	// имя (Value)
-	std::string name = stream.consume(TTokenID::IdentifierLiteral).value;
+	std::string name = stream.consume(TokenKind::IdentifierLiteral).value;
 
 	// {
-	if (!stream.match(TTokenID::LeftBrace))
+	if (!stream.match(TokenKind::LeftBrace))
 		throw std::runtime_error("Expected '{' in __property");
 
 	std::string getter, setter;
-	while (!stream.match(TTokenID::RightBrace)) {
-		if (stream.match(TTokenID::Read)) {
-			if (!stream.match(TTokenID::Equals))
+	while (!stream.match(TokenKind::RightBrace)) {
+		if (stream.match(TokenKind::Read)) {
+			if (!stream.match(TokenKind::Equals))
 				throw std::runtime_error("Expected '=' after 'read'");
 			getter = parse_namespace(false); // __getValue
 		}
-		else if (stream.match(TTokenID::Write)) {
-			if (!stream.match(TTokenID::Equals))
+		else if (stream.match(TokenKind::Write)) {
+			if (!stream.match(TokenKind::Equals))
 				throw std::runtime_error("Expected '=' after 'write'");
 			setter = parse_namespace(false); // __setValue
 		}
@@ -167,14 +167,14 @@ std::string Parser::parse_namespace(bool Admissibility) {
 	std::string Identifier = "";
 	while (true) {
 		switch (stream.peek().type) {
-		case TTokenID::IdentifierLiteral:
-			Identifier = stream.consume(TTokenID::IdentifierLiteral).value;
+		case TokenKind::IdentifierLiteral:
+			Identifier = stream.consume(TokenKind::IdentifierLiteral).value;
 			break;
-		case TTokenID::ScResOp:
+		case TokenKind::ScResOp:
 			if (!Admissibility)
 				throw std::runtime_error("Not admissibility token '::'");
-			stream.consume(TTokenID::ScResOp);
-			if (stream.peek().type != TTokenID::IdentifierLiteral)
+			stream.consume(TokenKind::ScResOp);
+			if (stream.peek().type != TokenKind::IdentifierLiteral)
 				throw std::runtime_error("Expected identifier after '::'");
 			Identifier = "";
 			break;
@@ -189,18 +189,18 @@ NodeTypeQualifier* Parser::TypeQualifierParse() {
 	bool IsConst = false;
 	bool IsRef = false;
 
-	if (!stream.match(TTokenID::LeftBracket))
+	if (!stream.match(TokenKind::LeftBracket))
 		return nullptr;
 	
-	while (!stream.match(TTokenID::RightBracket))
+	while (!stream.match(TokenKind::RightBracket))
 	{
 		switch (stream.peek().type)
 		{
-		case TTokenID::Const: IsConst = true; stream.consume(TTokenID::Const);
+		case TokenKind::Const: IsConst = true; stream.consume(TokenKind::Const);
 			break;
-		case TTokenID::Asterisk: IsRef = true; stream.consume(TTokenID::Asterisk);
+		case TokenKind::Asterisk: IsRef = true; stream.consume(TokenKind::Asterisk);
 			break;
-		case TTokenID::IdentifierLiteral:
+		case TokenKind::IdentifierLiteral:
 			Type = parse_namespace();
 			break;
 		default:
@@ -214,7 +214,7 @@ NodeTypeQualifier* Parser::TypeQualifierParse() {
 
 Node* Parser::parseVar() {
 	
-	stream.consume(TTokenID::Var);
+	stream.consume(TokenKind::Var);
 
 	auto TypeQualifier = TypeQualifierParse();
 
@@ -226,12 +226,12 @@ Node* Parser::parseVar() {
 	ContainerDeclarationList.push_back(parseDeclaration());
 
 	// Парсим аргументы: name = default
-	while (stream.peek().type == TTokenID::Comma) {
-		stream.consume(TTokenID::Comma);
+	while (stream.peek().type == TokenKind::Comma) {
+		stream.consume(TokenKind::Comma);
 		ContainerDeclarationList.push_back(parseDeclaration());
 	}
 
-	stream.consume(TTokenID::Semicolon);
+	stream.consume(TokenKind::Semicolon);
 
 	return new NodeDeclarationList(TypeQualifier, ContainerDeclarationList);
 }
@@ -242,15 +242,15 @@ Node* Parser::parseDeclaration() {
 	Node* Exptression = nullptr;
 
 	// Имя может быть пустое. По хорошему исключить такую фигню
-	if (stream.peek().type == TTokenID::IdentifierLiteral)
+	if (stream.peek().type == TokenKind::IdentifierLiteral)
 		// То что может быть Namespace::Name в имене идентикатора - работа семантера
 		Identifier = new NodeIdentifier(parse_namespace(false));
 	
-	if (stream.peek().type == TTokenID::Equals)
+	if (stream.peek().type == TokenKind::Equals)
 	{
 		if (!Identifier)
 			throw std::runtime_error("Expected identifier");
-		stream.consume(TTokenID::Equals);
+		stream.consume(TokenKind::Equals);
 		Exptression = parseExpression();
 	}
 	// Пустое выражение "Expression, ,Expression"
@@ -267,7 +267,7 @@ Node* Parser::parseExpression() {
 
 Node* Parser::parseFunction() {
 	
-	stream.consume(TTokenID::Function);
+	stream.consume(TokenKind::Function);
 	
 	size_t savedPos = stream.Pos;
 
@@ -276,24 +276,24 @@ Node* Parser::parseFunction() {
 	if (!TypeQualifier)
 		return nullptr;
 
-	if (!stream.match(TTokenID::LeftBracket)) {
+	if (!stream.match(TokenKind::LeftBracket)) {
 		// Необязательный — если нет, пропускаем
 	}
 	else {
-		while (!stream.match(TTokenID::RightBracket)) {
+		while (!stream.match(TokenKind::RightBracket)) {
 			stream.consume(stream.peek().type);
 		}
 	}
 	
 	// Имя функции
-	if (stream.peek().type != TTokenID::IdentifierLiteral) {
+	if (stream.peek().type != TokenKind::IdentifierLiteral) {
 		stream.Pos = savedPos;
 		return nullptr;
 	}
-	std::string FunctionName = stream.consume(TTokenID::IdentifierLiteral).value;
+	std::string FunctionName = stream.consume(TokenKind::IdentifierLiteral).value;
 
 	// Аргументы в скобках
-	if (!stream.match(TTokenID::LeftParen)) {
+	if (!stream.match(TokenKind::LeftParen)) {
 		stream.Pos = savedPos;
 		return nullptr;
 	}
@@ -313,27 +313,27 @@ Node* Parser::parseFunction() {
 			
 			switch (stream.peek().type)
 			{
-			case TTokenID::Var:
+			case TokenKind::Var:
 			{
-				stream.consume(TTokenID::Var);
+				stream.consume(TokenKind::Var);
 				if (!NewToken)
-					throw std::runtime_error("stream.peek().type != TTokenID::Var");
+					throw std::runtime_error("stream.peek().type != TokenKind::Var");
 				NewToken = false;
 				ArgQualifier = TypeQualifierParse();
 				break;
 			}
-			case TTokenID::Equals:
-				stream.consume(TTokenID::Equals);
+			case TokenKind::Equals:
+				stream.consume(TokenKind::Equals);
 				findEquals = true;
 				break;
-			case TTokenID::ScResOp:
-				stream.consume(TTokenID::ScResOp);
+			case TokenKind::ScResOp:
+				stream.consume(TokenKind::ScResOp);
 				Identifier = "";
 				IsNamespaceToken = true;
 				break;
-			case TTokenID::IdentifierLiteral:
+			case TokenKind::IdentifierLiteral:
 			{
-				std::string TokenStr = stream.consume(TTokenID::IdentifierLiteral).value;
+				std::string TokenStr = stream.consume(TokenKind::IdentifierLiteral).value;
 				if (!findEquals)
 				{
 					if (!ArgName.empty())
@@ -346,8 +346,8 @@ Node* Parser::parseFunction() {
 				}
 				break;
 			}
-			case TTokenID::Comma:
-			case TTokenID::RightParen:
+			case TokenKind::Comma:
+			case TokenKind::RightParen:
 			{
 				auto TokenType = stream.consume(stream.peek().type).type;
 				std::vector<Node*> Decls;
@@ -361,11 +361,11 @@ Node* Parser::parseFunction() {
 
 				switch (TokenType)
 				{
-				case TTokenID::Comma:
+				case TokenKind::Comma:
 					NewToken = true;
 					findEquals = false;
 					break;
-				case TTokenID::RightParen:
+				case TokenKind::RightParen:
 					return;
 				}
 				break;
@@ -385,12 +385,12 @@ Node* Parser::parseFunction() {
 	Node* body = nullptr;
 
 	switch (stream.peek().type) {
-	case TTokenID::LeftBrace:
-		stream.consume(TTokenID::LeftBrace);
+	case TokenKind::LeftBrace:
+		stream.consume(TokenKind::LeftBrace);
 		body = parseBlock();
 		break;
-	case TTokenID::Semicolon:
-		stream.consume(TTokenID::Semicolon);
+	case TokenKind::Semicolon:
+		stream.consume(TokenKind::Semicolon);
 		// Прототип функции
 		break;
 	default:
@@ -400,7 +400,7 @@ Node* Parser::parseFunction() {
 }
 
 Node* Parser::parseAccess() {
-	while (!stream.match(TTokenID::Semicolon)) {
+	while (!stream.match(TokenKind::Semicolon)) {
 		stream.consume(stream.peek().type);
 	}
 	// Temporary stub
@@ -414,17 +414,17 @@ Parser::~Parser()
 }
 
 Node* Parser::parseBlock() {
-	if (!stream.match(TTokenID::LeftBrace))
+	if (!stream.match(TokenKind::LeftBrace))
 		return nullptr;
 
 	NodeBlock* block = new NodeBlock();
 
-	while (!stream.eof() && stream.peek().type != TTokenID::RightBrace) {
+	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
 		Node* stmt = nullptr;
 		switch (stream.peek().type) {
-		case TTokenID::Var:      stmt = parseVar(); break;
-		case TTokenID::Function: stmt = parseFunction(); break;
-		case TTokenID::Class:    stmt = parseClass(); break;
+		case TokenKind::Var:      stmt = parseVar(); break;
+		case TokenKind::Function: stmt = parseFunction(); break;
+		case TokenKind::Class:    stmt = parseClass(); break;
 		default:
 			stream.consume(stream.peek().type);
 			break;
@@ -432,8 +432,8 @@ Node* Parser::parseBlock() {
 		if (stmt) block->add(stmt);
 	}
 
-	if (stream.peek().type == TTokenID::RightBrace)
-		stream.consume(TTokenID::RightBrace);
+	if (stream.peek().type == TokenKind::RightBrace)
+		stream.consume(TokenKind::RightBrace);
 
 	return block;
 }
@@ -442,19 +442,19 @@ Node* Parser::parseGenericParametrs() {
 
 	NodeGenericParams* genericParams = nullptr;
 
-	if (stream.match(TTokenID::LeftBracket)) {
+	if (stream.match(TokenKind::LeftBracket)) {
 		genericParams = new NodeGenericParams();
 
 		while (true) {
 			// Имя параметра
-			if (stream.peek().type != TTokenID::IdentifierLiteral)
+			if (stream.peek().type != TokenKind::IdentifierLiteral)
 				throw std::runtime_error("Expected generic parameter name");
-			std::string paramName = stream.consume(TTokenID::IdentifierLiteral).value;
+			std::string paramName = stream.consume(TokenKind::IdentifierLiteral).value;
 
 			// Default value (опционально)
 			Node* defaultExpr = nullptr;
-			if (stream.match(TTokenID::Equals)) {
-				if (stream.peek().type == TTokenID::IdentifierLiteral)
+			if (stream.match(TokenKind::Equals)) {
+				if (stream.peek().type == TokenKind::IdentifierLiteral)
 				{
 					// Значение может быть: int, std::string — т.е. namespace/identifier
 					defaultExpr = parseExpression();
@@ -462,22 +462,22 @@ Node* Parser::parseGenericParametrs() {
 			}
 
 			bool construct = false;
-			if (stream.match(TTokenID::LeftParen))
+			if (stream.match(TokenKind::LeftParen))
 			{
 				// Временно поддерживаем только () чтобы не усложнять парсинг
 				// Хотя по хорошему необходимо вызывать парсинг аргументов функции
-				stream.match(TTokenID::LeftParen);
-				if (!stream.match(TTokenID::RightParen))
+				stream.match(TokenKind::LeftParen);
+				if (!stream.match(TokenKind::RightParen))
 					throw std::runtime_error("Expected RightParen token");
-				stream.match(TTokenID::LeftParen);
+				stream.match(TokenKind::LeftParen);
 				construct = true;
 			}
 
 			genericParams->add(new NodeGenericParam(paramName, construct, defaultExpr));
 			
-			if (stream.match(TTokenID::RightBracket))
+			if (stream.match(TokenKind::RightBracket))
 				break;
-			if (!stream.match(TTokenID::Comma))
+			if (!stream.match(TokenKind::Comma))
 				throw std::runtime_error("Expected ',' or ']' in generic parameters");
 		}
 	}
@@ -489,12 +489,12 @@ Node* Parser::parseGenericParametrsConcretic() {
 	
 	NodeGenericParamsConcretic* genericParamsConcretic = nullptr;
 	
-	if (stream.match(TTokenID::LeftBracket)) {
+	if (stream.match(TokenKind::LeftBracket)) {
 		genericParamsConcretic = new NodeGenericParamsConcretic();
 		while (true) {
 			std::string arg;
 			// Парсим аргумент: int, 5, std::string (namespace)
-			if (stream.peek().type == TTokenID::IdentifierLiteral)
+			if (stream.peek().type == TokenKind::IdentifierLiteral)
 			{
 				genericParamsConcretic->add(new NodeIdentifier(parse_namespace()));
 			}
@@ -503,10 +503,10 @@ Node* Parser::parseGenericParametrsConcretic() {
 				// Не заморачиваемся с выражениями
 				genericParamsConcretic->add(new NodeIdentifier(stream.consume(stream.peek().type).value));
 			}
-			if (stream.match(TTokenID::RightBracket)) {
+			if (stream.match(TokenKind::RightBracket)) {
 				break;
 			}
-			if (!stream.match(TTokenID::Comma))
+			if (!stream.match(TokenKind::Comma))
 				throw std::runtime_error("Expected ',' or ']' in generic arguments");
 		}
 	}
@@ -515,11 +515,11 @@ Node* Parser::parseGenericParametrsConcretic() {
 
 Node* Parser::parseClass() {
 	// assume current token is Class
-	stream.consume(TTokenID::Class);
+	stream.consume(TokenKind::Class);
 
 	std::string name;
-	if (stream.peek().type == TTokenID::IdentifierLiteral)
-		name = stream.consume(TTokenID::IdentifierLiteral).value;
+	if (stream.peek().type == TokenKind::IdentifierLiteral)
+		name = stream.consume(TokenKind::IdentifierLiteral).value;
 	else
 		throw std::runtime_error("Expected class name");
 
@@ -530,20 +530,20 @@ Node* Parser::parseClass() {
 	std::string baseClass;
 	NodeClass::INHERITANCE_TYPE inheritanceType = NodeClass::INHERITANCE_TYPE::PRIVATE;
 
-	if (stream.match(TTokenID::Colon)) {
+	if (stream.match(TokenKind::Colon)) {
 		// Проверяем public/private
-		if (stream.peek().type == TTokenID::Public) {
+		if (stream.peek().type == TokenKind::Public) {
 			inheritanceType = NodeClass::INHERITANCE_TYPE::PUBLIC;
-			stream.consume(TTokenID::Public);
+			stream.consume(TokenKind::Public);
 		}
-		else if (stream.peek().type == TTokenID::Private) {
+		else if (stream.peek().type == TokenKind::Private) {
 			inheritanceType = NodeClass::INHERITANCE_TYPE::PRIVATE;
-			stream.consume(TTokenID::Private);
+			stream.consume(TokenKind::Private);
 		}
 
 		// Имя базового класса
-		if (stream.peek().type == TTokenID::IdentifierLiteral) {
-			baseClass = stream.consume(TTokenID::IdentifierLiteral).value;
+		if (stream.peek().type == TokenKind::IdentifierLiteral) {
+			baseClass = stream.consume(TokenKind::IdentifierLiteral).value;
 		}
 		else {
 			throw std::runtime_error("Expected base class name");
@@ -552,7 +552,7 @@ Node* Parser::parseClass() {
 	}
 
 	Node* body = nullptr;
-	if (stream.match(TTokenID::LeftBrace)) {
+	if (stream.match(TokenKind::LeftBrace)) {
 		body = parseBlock();
 	}
 	else {

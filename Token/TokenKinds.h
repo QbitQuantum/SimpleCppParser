@@ -5,7 +5,7 @@
 
 #include <string>
 
-enum class TTokenID : long long {
+enum class TokenKind : unsigned short {
     
     /*************************** Токены по умолчанию:: ***************************/
 
@@ -230,19 +230,19 @@ enum class TTokenID : long long {
 };
 
 // Вспомогательная функция для преобразования enum в char
-constexpr char constexprToChar(TTokenID s) {
+constexpr char constexprToChar(TokenKind s) {
     return static_cast<char>(s);
 }
 
 // Вспомогательная функция для преобразования char в enum
-constexpr TTokenID constexprToTTokenID(char s) {
-    return static_cast<TTokenID>(s);
+constexpr TokenKind constexprToTTokenID(char s) {
+    return static_cast<TokenKind>(s);
 }
 
 #define GENERATE_NAME(name) \
-case TTokenID::name: return #name; \
+case TokenKind::name: return #name; \
 
-std::string NameTTokenID(TTokenID kind) {
+std::string NameTTokenID(TokenKind kind) {
 
     switch (kind)
     {
@@ -491,7 +491,7 @@ std::string NameTTokenID(TTokenID kind) {
 }
 
 struct LexToken {
-    TTokenID type;
+    TokenKind type;
     std::string value;
     size_t line = 0;
     size_t column = 0;
