@@ -242,7 +242,7 @@ constexpr TokenKind constexprToTTokenID(char s) {
 #define GENERATE_NAME(name) \
 case TokenKind::name: return #name; \
 
-std::string NameTTokenID(TokenKind kind) {
+std::string getTokenName(TokenKind kind) {
 
     switch (kind)
     {
