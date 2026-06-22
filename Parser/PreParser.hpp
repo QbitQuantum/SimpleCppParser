@@ -8,13 +8,13 @@
 
 class PreParser {
 private:
-	using LexEnginePtr = std::vector<LexToken>(PreParser::*)();
+	using LexEnginePtr = std::vector<Token>(PreParser::*)();
 	int PosBuffer = 0;
 	int SizeBufferBasic = 0;
 	
 private:
-	std::vector<LexToken> BufferPreParserToken;
-	std::vector<LexToken> BufferPostLexerToken;
+	std::vector<Token> BufferPreParserToken;
+	std::vector<Token> BufferPostLexerToken;
 	void Init();
 
 	bool neof() {
@@ -22,7 +22,7 @@ private:
 	}
 
 public:
-	PreParser(const std::vector<LexToken>& lexbuffer) {
+	PreParser(const std::vector<Token>& lexbuffer) {
 		SizeBufferBasic = lexbuffer.size();
 		BufferPreParserToken.reserve(SizeBufferBasic);
 		BufferPostLexerToken.reserve(SizeBufferBasic);
@@ -30,7 +30,7 @@ public:
 		Init();
 	}
 
-	const std::vector<LexToken>& GetBufferPreParserToken() const {
+	const std::vector<Token>& GetBufferPreParserToken() const {
 		return BufferPreParserToken;
 	}
 };

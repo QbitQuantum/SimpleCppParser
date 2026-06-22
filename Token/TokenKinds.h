@@ -490,13 +490,13 @@ std::string getTokenName(TokenKind kind) {
     }
 }
 
-struct LexToken {
+struct Token {
     TokenKind type;
     std::string value;
     size_t line = 0;
     size_t column = 0;
 
-    bool operator == (const LexToken& other) const {
+    bool operator == (const Token& other) const {
         return type == other.type;
     };
 };

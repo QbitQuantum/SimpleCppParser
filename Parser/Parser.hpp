@@ -13,7 +13,7 @@
 class TokenStream {
 
 public:
-	std::vector<LexToken> Buffer;
+	std::vector<Token> Buffer;
 	TokenStream() = default;
 	
 	size_t Pos = 0;
@@ -24,12 +24,12 @@ public:
 		}
 	}
 	
-	explicit TokenStream(const std::vector<LexToken>& buf) : Buffer(buf), Pos(0) {
+	explicit TokenStream(const std::vector<Token>& buf) : Buffer(buf), Pos(0) {
 		skipTrivia();
 	}
 
-	const LexToken& peek(size_t offset = 0) const {
-		static LexToken eofToken{ TokenKind::neof, "", 0, 0 };
+	const Token& peek(size_t offset = 0) const {
+		static Token eofToken{ TokenKind::neof, "", 0, 0 };
 		size_t idx = Pos + offset;
 		if (idx >= Buffer.size()) return eofToken;
 		return Buffer[idx];
@@ -48,8 +48,8 @@ public:
 		return false;
 	}
 
-	const LexToken& consume(TokenKind id) {
-		const LexToken& tok = peek();
+	const Token& consume(TokenKind id) {
+		const Token& tok = peek();
 		if (tok.type == id) {
 			++Pos;
 			skipTrivia();
@@ -81,14 +81,14 @@ private:
 	NodeTypeQualifier* TypeQualifierParse();
 	std::string parse_namespace(bool Admissibility = true);
 public:
-	std::vector<LexToken> ParserEngineBuffer;
+	std::vector<Token> ParserEngineBuffer;
 
 	Parser(const PostLexer& advance) :
 		ParserEngineBuffer(advance.GetBufferPostLexerToken()),
 		stream(ParserEngineBuffer) {
 	}
 
-	Parser(const std::vector<LexToken>& Buffer) :
+	Parser(const std::vector<Token>& Buffer) :
 		ParserEngineBuffer(Buffer),
 		stream(Buffer) {
 		

@@ -17,8 +17,8 @@ Callback LexError;
 
 #define DEF_GENERATION_BASE(X) \
 push_back_token_storage(); \
-LexToken LexToken{ TokenKind::##X, std::string(1, constexprToChar(TokenKind::##X)), CurrentLine, CurrentColumn }; \
-BufferToken.push_back(LexToken); \
+Token Token{ TokenKind::##X, std::string(1, constexprToChar(TokenKind::##X)), CurrentLine, CurrentColumn }; \
+BufferToken.push_back(Token); \
 
 class Lexer {
 private:
@@ -125,14 +125,14 @@ private:
     void LexerRun();
 
     std::string SourceCode = "";
-    std::vector<LexToken> BufferToken;
+    std::vector<Token> BufferToken;
 public:
      Lexer(const std::string source) {
         SourceCode = source;
         LexerRun();
     };
 
-    std::vector<LexToken> GetBufferLexerToken () {
+    std::vector<Token> GetBufferLexerToken () {
         return BufferToken;
     }
 };
@@ -154,12 +154,12 @@ void Lexer::LexerRun() {
             std::string identifier = SourceCode.substr(start, PosBuffer - start);
             PosBuffer--;
 
-            LexToken LexToken{
+            Token Token{
                 TokenKind::Literal,
                 identifier,
                 CurrentLine,
                 CurrentColumn };
-            BufferToken.push_back(LexToken);
+            BufferToken.push_back(Token);
 
             CurrentLine += identifier.size();
         }
@@ -175,8 +175,8 @@ const char Lexer::GetChar() {
 
 void Lexer::push_back_token_storage() {
     if (!storage_value.empty()) {
-        LexToken LexToken{ TokenKind::Literal, storage_value, CurrentLine, CurrentColumn };
-        BufferToken.push_back(LexToken);
+        Token Token{ TokenKind::Literal, storage_value, CurrentLine, CurrentColumn };
+        BufferToken.push_back(Token);
         storage_value = "";
     }
 }
