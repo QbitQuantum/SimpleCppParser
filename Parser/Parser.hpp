@@ -10,13 +10,19 @@
 #include <iostream>
 #include <stdexcept>
 
-class TokenStream {
+class TokenStream 
+{
+
+	std::vector<Token> Buffer;
+	size_t Pos = 0;
 
 public:
-	std::vector<Token> Buffer;
+
 	TokenStream() = default;
-	
-	size_t Pos = 0;
+
+	explicit TokenStream(const std::vector<Token>& buf) : Buffer(buf), Pos(0) {
+		skipTrivia();
+	}
 
 	void skipTrivia() {
 		while (!eof() && (peek().type == TokenKind::Space || peek().type == TokenKind::LineFeed)) {
@@ -24,10 +30,6 @@ public:
 		}
 	}
 	
-	explicit TokenStream(const std::vector<Token>& buf) : Buffer(buf), Pos(0) {
-		skipTrivia();
-	}
-
 	const Token& peek(size_t offset = 0) const {
 		static Token eofToken{ TokenKind::neof, "", 0, 0 };
 		size_t idx = Pos + offset;
@@ -269,8 +271,6 @@ Node* Parser::parseFunction() {
 	
 	stream.consume(TokenKind::Function);
 	
-	size_t savedPos = stream.Pos;
-
 	auto TypeQualifier = TypeQualifierParse();
 
 	if (!TypeQualifier)
@@ -287,14 +287,12 @@ Node* Parser::parseFunction() {
 	
 	// Имя функции
 	if (stream.peek().type != TokenKind::IdentifierLiteral) {
-		stream.Pos = savedPos;
 		return nullptr;
 	}
 	std::string FunctionName = stream.consume(TokenKind::IdentifierLiteral).value;
 
 	// Аргументы в скобках
 	if (!stream.match(TokenKind::LeftParen)) {
-		stream.Pos = savedPos;
 		return nullptr;
 	}
 
