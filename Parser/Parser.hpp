@@ -71,6 +71,7 @@ private:
 	Node* parseTopLevel();
 	Node* parseAccess();
 	Node* parseVar();
+	Node* parseIdentifier();
 	Node* parseFunction();
 	Node* parseGenericParametrs();
 	Node* parseGenericParametrsConcretic();
@@ -79,7 +80,12 @@ private:
 	Node* parseExpression();
 	Node* parseDeclaration();
 	Node* parseProperty();
+	Node* parseNew();
+	Node* parseDelete();
+	Node* parseNullptr();
+	Node* parseNodeCall(std::string Func);
 
+	std::vector<Node*> parseArgumentList();
 	NodeTypeQualifier* TypeQualifierParse();
 	std::string parse_namespace(bool Admissibility = true);
 public:
@@ -126,6 +132,7 @@ Node* Parser::parseTopLevel() {
 	case TokenKind::Function: return parseFunction();
 	case TokenKind::Class:    return parseClass();
 	case TokenKind::Property: return parseProperty();
+	case TokenKind::IdentifierLiteral: return parseIdentifier();
 	default:
 		return nullptr;
 	}
@@ -263,8 +270,88 @@ Node* Parser::parseDeclaration() {
 }
 
 Node* Parser::parseExpression() {
+	switch (stream.peek().type)
+	{
+	case TokenKind::New:
+		return parseNew();
+	case TokenKind::Delete_:
+		return parseDelete();
+	case TokenKind::NullptrLiteral:
+		return parseNullptr();
+	case TokenKind::IdentifierLiteral:
+		return parseIdentifier();
+	}
+	return nullptr;
+}
+
+Node* Parser::parseIdentifier() {
+
 	std::string Identifier = parse_namespace();
-	return new NodeIdentifier(Identifier);
+
+	switch (stream.peek().type)
+	{
+	case TokenKind::LeftParen:
+		return parseNodeCall(Identifier);
+	case TokenKind::Equals:
+		stream.consume(stream.peek().type);
+		return new NodeDeclaration(new NodeIdentifier(Identifier), parseExpression());
+	}
+
+	return Identifier.empty() ? nullptr : new NodeIdentifier(Identifier);
+}
+
+Node* Parser::parseNew() {
+
+	stream.consume(TokenKind::New);
+	return new NodeNew(parseIdentifier());
+}
+
+Node* Parser::parseDelete() {
+	stream.consume(TokenKind::Delete_);
+
+	if (stream.peek().type != TokenKind::Semicolon)
+		throw std::runtime_error("Expected Semicolon token");
+	stream.consume(TokenKind::Semicolon);
+
+	return new NodeDelete();
+}
+
+Node* Parser::parseNullptr() {
+	stream.consume(TokenKind::NullptrLiteral);
+
+	if (stream.peek().type != TokenKind::Semicolon)
+		throw std::runtime_error("Expected Semicolon token");
+	stream.consume(TokenKind::Semicolon);
+
+	return new NodeNullptr();
+}
+
+std::vector<Node*> Parser::parseArgumentList() {
+
+	std::vector<Node*> ArgumentList;
+	ArgumentList.push_back(parseExpression());
+	while (stream.peek().type == TokenKind::Comma) {
+		stream.consume(TokenKind::Comma);
+		ArgumentList.push_back(parseExpression());
+	}
+	return ArgumentList;
+
+}
+
+Node* Parser::parseNodeCall(std::string Func) {
+
+	if (stream.peek().type != TokenKind::LeftParen)
+		throw std::runtime_error("Expected LeftParen token");
+	stream.consume(TokenKind::LeftParen);
+
+	std::vector<Node*> ArgumentList = parseArgumentList();
+
+	if (stream.peek().type != TokenKind::RightParen)
+		throw std::runtime_error("Expected RightParen token");
+	stream.consume(TokenKind::RightParen);
+
+	return new NodeCall(Func, ArgumentList);
+
 }
 
 Node* Parser::parseFunction() {
