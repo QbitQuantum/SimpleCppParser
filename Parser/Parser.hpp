@@ -87,7 +87,7 @@ private:
 
 	std::vector<Node*> parseArgumentList();
 	NodeTypeQualifier* TypeQualifierParse();
-	std::string parse_namespace(bool Admissibility = true);
+	std::string parse_namespace();
 public:
 	std::vector<Token> ParserEngineBuffer;
 
@@ -157,12 +157,12 @@ Node* Parser::parseProperty() {
 		if (stream.match(TokenKind::Read)) {
 			if (!stream.match(TokenKind::Equals))
 				throw std::runtime_error("Expected '=' after 'read'");
-			getter = parse_namespace(false); // __getValue
+			getter = parse_namespace(); // __getValue
 		}
 		else if (stream.match(TokenKind::Write)) {
 			if (!stream.match(TokenKind::Equals))
 				throw std::runtime_error("Expected '=' after 'write'");
-			setter = parse_namespace(false); // __setValue
+			setter = parse_namespace(); // __setValue
 		}
 		else {
 			stream.consume(stream.peek().type);
@@ -172,7 +172,7 @@ Node* Parser::parseProperty() {
 	return new NodeProperty(name, typeQualifier, getter, setter);
 }
 
-std::string Parser::parse_namespace(bool Admissibility) {
+std::string Parser::parse_namespace() {
 	std::string Identifier = "";
 	while (true) {
 		switch (stream.peek().type) {
@@ -180,8 +180,6 @@ std::string Parser::parse_namespace(bool Admissibility) {
 			Identifier = stream.consume(TokenKind::IdentifierLiteral).value;
 			break;
 		case TokenKind::ScResOp:
-			if (!Admissibility)
-				throw std::runtime_error("Not admissibility token '::'");
 			stream.consume(TokenKind::ScResOp);
 			if (stream.peek().type != TokenKind::IdentifierLiteral)
 				throw std::runtime_error("Expected identifier after '::'");
@@ -253,7 +251,7 @@ Node* Parser::parseDeclaration() {
 	// Имя может быть пустое. По хорошему исключить такую фигню
 	if (stream.peek().type == TokenKind::IdentifierLiteral)
 		// То что может быть Namespace::Name в имене идентикатора - работа семантера
-		Identifier = new NodeIdentifier(parse_namespace(false));
+		Identifier = new NodeIdentifier(parse_namespace());
 
 	if (stream.peek().type == TokenKind::Equals)
 	{
