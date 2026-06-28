@@ -148,6 +148,14 @@ public:
     ~NodeAccess() {};
 };
 
+class NodeUsing : public Node
+{
+public:
+    NodeUsing() {};
+    std::string print() override { return ""; };
+    ~NodeUsing() {};
+};
+
 class NodeFunction : public Node
 {
     NodeTypeQualifier* TypeQualifier = nullptr;

@@ -70,6 +70,7 @@ private:
 
 	Node* parseTopLevel();
 	Node* parseAccess();
+	Node* parseUsing();
 	Node* parseVar();
 	Node* parseIdentifier();
 	Node* parseFunction();
@@ -128,6 +129,7 @@ private:
 Node* Parser::parseTopLevel() {
 	switch (stream.peek().type) {
 	case TokenKind::Access:   return parseAccess();
+	case TokenKind::Using:    return parseUsing();
 	case TokenKind::Var:      return parseVar();
 	case TokenKind::Function: return parseFunction();
 	case TokenKind::Class:    return parseClass();
@@ -488,6 +490,14 @@ Node* Parser::parseAccess() {
 	}
 	// Temporary stub
 	return new NodeAccess();
+};
+
+Node* Parser::parseUsing() {
+	while (!stream.match(TokenKind::Semicolon)) {
+		stream.consume(stream.peek().type);
+	}
+	// Temporary stub
+	return new NodeUsing();
 };
 
 Parser::~Parser()
