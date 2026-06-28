@@ -10,7 +10,7 @@
 #include <iostream>
 #include <stdexcept>
 
-class TokenStream 
+class TokenStream
 {
 
 	std::vector<Token> Buffer;
@@ -29,7 +29,7 @@ public:
 			++Pos;
 		}
 	}
-	
+
 	const Token& peek(size_t offset = 0) const {
 		static Token eofToken{ TokenKind::neof, "", 0, 0 };
 		size_t idx = Pos + offset;
@@ -93,11 +93,11 @@ public:
 	Parser(const std::vector<Token>& Buffer) :
 		ParserEngineBuffer(Buffer),
 		stream(Buffer) {
-		
+
 	}
 
 	void Parse() {
-		
+
 		while (!stream.eof()) {
 			if (Node* node = parseTopLevel()) {
 				ast.push_back(node);
@@ -133,7 +133,7 @@ Node* Parser::parseTopLevel() {
 
 Node* Parser::parseProperty() {
 	stream.consume(TokenKind::Property); // __property
-	
+
 	// тип (int)
 	NodeTypeQualifier* typeQualifier = TypeQualifierParse();
 	if (!typeQualifier) throw std::runtime_error("Expected type in __property");
@@ -193,7 +193,7 @@ NodeTypeQualifier* Parser::TypeQualifierParse() {
 
 	if (!stream.match(TokenKind::LeftBracket))
 		return nullptr;
-	
+
 	while (!stream.match(TokenKind::RightBracket))
 	{
 		switch (stream.peek().type)
@@ -215,7 +215,7 @@ NodeTypeQualifier* Parser::TypeQualifierParse() {
 };
 
 Node* Parser::parseVar() {
-	
+
 	stream.consume(TokenKind::Var);
 
 	auto TypeQualifier = TypeQualifierParse();
@@ -247,7 +247,7 @@ Node* Parser::parseDeclaration() {
 	if (stream.peek().type == TokenKind::IdentifierLiteral)
 		// То что может быть Namespace::Name в имене идентикатора - работа семантера
 		Identifier = new NodeIdentifier(parse_namespace(false));
-	
+
 	if (stream.peek().type == TokenKind::Equals)
 	{
 		if (!Identifier)
@@ -268,9 +268,9 @@ Node* Parser::parseExpression() {
 }
 
 Node* Parser::parseFunction() {
-	
+
 	stream.consume(TokenKind::Function);
-	
+
 	auto TypeQualifier = TypeQualifierParse();
 
 	if (!TypeQualifier)
@@ -284,7 +284,7 @@ Node* Parser::parseFunction() {
 			stream.consume(stream.peek().type);
 		}
 	}
-	
+
 	// Имя функции
 	if (stream.peek().type != TokenKind::IdentifierLiteral) {
 		return nullptr;
@@ -308,7 +308,7 @@ Node* Parser::parseFunction() {
 
 		// Парсим аргументы: var[const int] name = default
 		while (true) {
-			
+
 			switch (stream.peek().type)
 			{
 			case TokenKind::Var:
@@ -472,7 +472,7 @@ Node* Parser::parseGenericParametrs() {
 			}
 
 			genericParams->add(new NodeGenericParam(paramName, construct, defaultExpr));
-			
+
 			if (stream.match(TokenKind::RightBracket))
 				break;
 			if (!stream.match(TokenKind::Comma))
@@ -484,9 +484,9 @@ Node* Parser::parseGenericParametrs() {
 }
 
 Node* Parser::parseGenericParametrsConcretic() {
-	
+
 	NodeGenericParamsConcretic* genericParamsConcretic = nullptr;
-	
+
 	if (stream.match(TokenKind::LeftBracket)) {
 		genericParamsConcretic = new NodeGenericParamsConcretic();
 		while (true) {
