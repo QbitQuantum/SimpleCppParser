@@ -28,6 +28,12 @@ private:
     int CurrentColumn = 0;
     int PosBuffer = 0;
     std::string storage_value = "";
+
+    void LexNumericConstant();
+    bool isPreprocessingNumberBody(char C) const;
+    char getCharAndSize(const char* ptr, unsigned& size) const;
+    const char* consumeChar(const char* ptr, unsigned size);
+
 private:
 
     std::unordered_map<char, LexEnginePtr> map{ {
@@ -63,6 +69,19 @@ private:
     {'*', &Lexer::Asterisk},
     {'\'', &Lexer::Apostrophe},
     {'/', &Lexer::Slash},
+
+
+    {'0', &Lexer::LexNumericConstant},
+    {'1', &Lexer::LexNumericConstant},
+    {'2', &Lexer::LexNumericConstant},
+    {'3', &Lexer::LexNumericConstant},
+    {'4', &Lexer::LexNumericConstant},
+    {'5', &Lexer::LexNumericConstant},
+    {'6', &Lexer::LexNumericConstant},
+    {'7', &Lexer::LexNumericConstant},
+    {'8', &Lexer::LexNumericConstant},
+    {'9', &Lexer::LexNumericConstant},
+
     }};
 
 
@@ -138,35 +157,136 @@ public:
 };
 
 void Lexer::LexerRun() {
-
     while (neof()) {
-        
-        if (auto it = map.find(GetChar()); it != map.end()) {
+        char currentChar = GetChar();
+
+        // Проверяем, является ли символ началом числа
+        if (isdigit(currentChar) ||
+            (currentChar == '.' && PosBuffer + 1 < SourceCode.size() &&
+                isdigit(SourceCode[PosBuffer + 1]))) {
+            LexNumericConstant();
+            continue;
+        }
+
+        if (auto it = map.find(currentChar); it != map.end()) {
             (this->*it->second)();
         }
-        else
-        {   
+        else {
+            // Обработка идентификаторов
             size_t start = PosBuffer;
-            while (neof() && (is_unicode_identifier_start(GetChar()) || isdigit(GetChar()))) {
+            while (neof() && (is_unicode_identifier_start(GetChar()) ||
+                isdigit(GetChar()))) {
                 PosBuffer++;
             }
 
             std::string identifier = SourceCode.substr(start, PosBuffer - start);
-            PosBuffer--;
 
             Token Token{
                 TokenKind::Literal,
                 identifier,
                 CurrentLine,
-                CurrentColumn };
+                CurrentColumn
+            };
             BufferToken.push_back(Token);
-
-            CurrentLine += identifier.size();
+            continue;
         }
+
         CurrentLine++;
         PosBuffer++;
     }
+}
 
+bool Lexer::isPreprocessingNumberBody(char C) const {
+    return isalnum(C) || C == '.' || C == '_' || C == '$' ||
+        (C >= 0x80); // UTF-8 символы
+}
+
+const char* Lexer::consumeChar(const char* ptr, unsigned size) {
+    PosBuffer += size;
+    return ptr + size;
+}
+
+char Lexer::getCharAndSize(const char* ptr, unsigned& size) const {
+    if (ptr >= SourceCode.c_str() + SourceCode.size()) {
+        size = 0;
+        return '\0';
+    }
+    // Для простоты, но надо учитывать UTF-8
+    // Так как isPreprocessingNumberBody есть проверка на этот юникод
+    size = 1;
+    return *ptr;
+}
+
+void Lexer::LexNumericConstant() {
+    std::string numericValue = "";
+    const char* CurPtr = SourceCode.c_str() + PosBuffer;
+    unsigned Size = 0;
+    char C = getCharAndSize(CurPtr, Size);
+    char PrevCh = 0;
+
+    // Собираем тело числа
+    while (isPreprocessingNumberBody(C)) {
+        numericValue += C;
+        CurPtr = consumeChar(CurPtr, Size);
+        PrevCh = C;
+        C = getCharAndSize(CurPtr, Size);
+    }
+
+    // Обработка экспоненты: 1e+12, 1e-12
+    if ((C == '-' || C == '+') && (PrevCh == 'E' || PrevCh == 'e')) {
+        numericValue += C;
+        CurPtr = consumeChar(CurPtr, Size);
+        C = getCharAndSize(CurPtr, Size);
+
+        // Продолжаем сбор
+        while (isPreprocessingNumberBody(C)) {
+            numericValue += C;
+            CurPtr = consumeChar(CurPtr, Size);
+            C = getCharAndSize(CurPtr, Size);
+        }
+    }
+
+    // Обработка шестнадцатеричной плавающей точки: 0x1.2p+3
+    if ((C == '-' || C == '+') && (PrevCh == 'P' || PrevCh == 'p')) {
+        numericValue += C;
+        CurPtr = consumeChar(CurPtr, Size);
+        C = getCharAndSize(CurPtr, Size);
+
+        while (isPreprocessingNumberBody(C)) {
+            numericValue += C;
+            CurPtr = consumeChar(CurPtr, Size);
+            C = getCharAndSize(CurPtr, Size);
+        }
+    }
+
+    // Обработка разделителей разрядов: 1'000'000
+    if (C == '\'' && PosBuffer + 1 < SourceCode.size()) {
+        char Next = SourceCode[PosBuffer + 1];
+        if (isalnum(Next) || Next == '_') {
+            numericValue += C;
+            CurPtr = consumeChar(CurPtr, Size);
+            C = getCharAndSize(CurPtr, Size);
+
+            while (isPreprocessingNumberBody(C)) {
+                numericValue += C;
+                CurPtr = consumeChar(CurPtr, Size);
+                C = getCharAndSize(CurPtr, Size);
+            }
+        }
+    }
+
+    // Обновляем позицию
+    PosBuffer = CurPtr - SourceCode.c_str();
+
+    // Создаем токен
+    Token token{
+        TokenKind::Literal,
+        numericValue,
+        CurrentLine,
+        CurrentColumn
+    };
+
+    BufferToken.push_back(token);
 }
 
 const char Lexer::GetChar() {

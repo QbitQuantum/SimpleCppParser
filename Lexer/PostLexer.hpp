@@ -351,87 +351,67 @@ Token PostLexer::Apostrophe() /* ' */ {
 }
 
 // Обработка типа литералов 
-Token PostLexer::Literal() /* Literal */ {
-
+Token PostLexer::Literal() {
 	Token TLexToken = LexerTokenBufferBasic[PosBuffer];
 
+	// Проверяем ключевые слова
 	auto itKeywordMap = TokenKeywordMap.find(CppHash(TLexToken.value));
 	if (itKeywordMap != TokenKeywordMap.end()) {
 		TLexToken.type = itKeywordMap->second;
 		return TLexToken;
 	}
 
-	// ctype.h [isdigit]
-	if (!isdigit(TLexToken.value[0]))
-	{
-		TLexToken.type = TokenKind::IdentifierLiteral;
+	// Определяем тип числового литерала
+	const std::string& value = TLexToken.value;
+	size_t len = value.length();
+
+	if (len == 0) return TLexToken;
+
+	// Шестнадцатеричные: 0x...
+	if (len > 2 && value[0] == '0' && (value[1] == 'x' || value[1] == 'X')) {
+		TLexToken.type = TokenKind::HexLiteral;
 		return TLexToken;
 	}
 
-	if (TLexToken.value.length() > 1 && TLexToken.value[0] == '0') {
-		switch (TLexToken.value[1])
-		{
-		case 'x':
-		case 'X':
-			TLexToken.type = TokenKind::HexLiteral;
-			break;
-		case 'b':
-		case 'B':
-			TLexToken.type = TokenKind::BinaryLiteral;
-			break;
-		default:
-			// Восьмеричный литерал или просто 0
-			TLexToken.type = TokenKind::IntegerLiteral;
-			break;
-		}
+	// Двоичные: 0b...
+	if (len > 2 && value[0] == '0' && (value[1] == 'b' || value[1] == 'B')) {
+		TLexToken.type = TokenKind::BinaryLiteral;
+		return TLexToken;
 	}
-	else
-	{
+
+	// Восьмеричные: 0...
+	if (len > 1 && value[0] == '0') {
 		TLexToken.type = TokenKind::IntegerLiteral;
-
-		bool IsFind = false;
-
-		switch (TLexToken.value.back())
-		{
-		case 'f':
-		case 'F':
-			TLexToken.type = TokenKind::FloatLiteral;
-			IsFind = true;
-			break;
-		case 'l':
-		case 'L':
-			TLexToken.type = TokenKind::LongDoubleLiteral;
-			IsFind = true;
-			break;
-		default:
-			break;
-		}
-
-		if (IsFind)
-			TLexToken.value.erase(TLexToken.value.end() - 1);
-
-		if ((PosBuffer + 1 < SizeBufferBasic) && LexerTokenBufferBasic[PosBuffer + 1].type == TokenKind::Dot)
-		{
-			PosBuffer++;
-			TLexToken.type = TokenKind::DoubleLiteral;
-			TLexToken.value += LexerTokenBufferBasic[PosBuffer].value;
-		}
-
-		switch (LexerTokenBufferAdvance.back().type)
-		{
-		case TokenKind::DoubleLiteral:
-		case TokenKind::FloatLiteral:
-		{
-			auto Token = LexerTokenBufferAdvance.back();
-			LexerTokenBufferAdvance.erase(LexerTokenBufferAdvance.end() - 1);
-			TLexToken.value = Token.value + TLexToken.value;
-			break;
-		}
-		default:
-			break;
-		}
+		return TLexToken;
 	}
 
+	// Проверяем, есть ли в числе суффиксы типов
+	char lastChar = value.back();
+	if (lastChar == 'f' || lastChar == 'F') {
+		TLexToken.type = TokenKind::FloatLiteral;
+		TLexToken.value = value.substr(0, len - 1);
+		return TLexToken;
+	}
+
+	if (lastChar == 'l' || lastChar == 'L') {
+		TLexToken.type = TokenKind::LongDoubleLiteral;
+		TLexToken.value = value.substr(0, len - 1);
+		return TLexToken;
+	}
+
+	// Проверяем, есть ли точка (числа с плавающей точкой)
+	if (value.find('.') != std::string::npos ||
+		value.find('e') != std::string::npos ||
+		value.find('E') != std::string::npos ||
+		value.find('p') != std::string::npos ||
+		value.find('P') != std::string::npos) {
+		TLexToken.type = TokenKind::DoubleLiteral;
+		return TLexToken;
+	}
+
+	// Обычное целое число
+	TLexToken.type = TokenKind::IntegerLiteral;
 	return TLexToken;
 }
+
 #endif // POST_LEXER_HPP
