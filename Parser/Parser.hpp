@@ -295,6 +295,10 @@ Node* Parser::parseIdentifier() {
 	case TokenKind::Equals:
 		stream.consume(stream.peek().type);
 		return new NodeDeclaration(new NodeIdentifier(Identifier), parseExpression());
+	case TokenKind::Dot:
+	case TokenKind::Arrow:
+		auto Token = stream.consume(stream.peek().type).type;
+		return new NodeMemberCall(new NodeIdentifier(Identifier), parseIdentifier(), Token == TokenKind::Arrow);
 	}
 
 	return Identifier.empty() ? nullptr : new NodeIdentifier(Identifier);
@@ -308,21 +312,11 @@ Node* Parser::parseNew() {
 
 Node* Parser::parseDelete() {
 	stream.consume(TokenKind::Delete_);
-
-	if (stream.peek().type != TokenKind::Semicolon)
-		throw std::runtime_error("Expected Semicolon token");
-	stream.consume(TokenKind::Semicolon);
-
 	return new NodeDelete();
 }
 
 Node* Parser::parseNullptr() {
 	stream.consume(TokenKind::NullptrLiteral);
-
-	if (stream.peek().type != TokenKind::Semicolon)
-		throw std::runtime_error("Expected Semicolon token");
-	stream.consume(TokenKind::Semicolon);
-
 	return new NodeNullptr();
 }
 

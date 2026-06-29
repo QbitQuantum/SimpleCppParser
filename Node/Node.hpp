@@ -124,6 +124,29 @@ public:
     };
 };
 
+class NodeMemberCall : public Node
+{
+    Node* Identifier = nullptr;
+    Node* CallExpr = nullptr;
+    bool IsArrow = false;
+
+public:
+    std::string print() override {
+        std::string fprint = Identifier->print() + 
+            (IsArrow ? "->" : + ".") + CallExpr->print();
+        return fprint;
+    };
+
+    NodeMemberCall(NodeIdentifier* identifier, Node* callExpr, bool isArrow) :
+        Identifier(identifier), CallExpr(callExpr), IsArrow(isArrow) {
+    };
+
+    ~NodeMemberCall() override {
+        delete Identifier; Identifier = nullptr;
+        delete CallExpr; CallExpr = nullptr;
+    };
+};
+
 class NodeAlias : public Node
 {
     std::string Name = "";
