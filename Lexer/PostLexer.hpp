@@ -432,12 +432,6 @@ Token PostLexer::Literal() /* Literal */ {
 		}
 	}
 
-	if (LexerTokenBufferAdvance.back().type == TokenKind::Minus)
-	{
-		auto Token = LexerTokenBufferAdvance.back();
-		LexerTokenBufferAdvance.erase(LexerTokenBufferAdvance.end() - 1);
-		TLexToken.value = Token.value + TLexToken.value;
-	}
 	return TLexToken;
 }
 #endif // POST_LEXER_HPP
