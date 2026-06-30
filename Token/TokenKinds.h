@@ -173,6 +173,8 @@ enum class TokenKind : unsigned short {
     Enum, // enum
     Override, // ovveride
     Virtual, // virtual
+    Constructor, // constructor
+    Destructor, // destructor
 
     // ===== квалификаторы =====
     Const, // const
@@ -437,6 +439,8 @@ std::string getTokenName(TokenKind kind) {
     GENERATE_NAME(Enum);
     GENERATE_NAME(Override);
     GENERATE_NAME(Virtual);
+    GENERATE_NAME(Constructor);
+    GENERATE_NAME(Destructor);
 
     GENERATE_NAME(Const);
 

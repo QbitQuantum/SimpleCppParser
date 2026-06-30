@@ -132,6 +132,8 @@ static const std::unordered_map<uint32_t, TokenKind> TokenKeywordMap = {
     {ConstexprCppHash("using"),         TokenKind::Using },
     {ConstexprCppHash("pointer"),      TokenKind::Pointer },
 
+    {ConstexprCppHash("constructor"),  TokenKind::Constructor },
+    {ConstexprCppHash("destructor"),   TokenKind::Destructor },
 };
 
 static_assert(ConstexprCppHash("div") != ConstexprCppHash("mod"));

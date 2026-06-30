@@ -285,6 +285,41 @@ public:
     };
 };
 
+class NodeConstructor : public Node {
+private:
+    std::vector<Node*> ArgumentList;
+public:
+    NodeConstructor(const std::vector<Node*> argumentList) : 
+        ArgumentList(argumentList) { };
+
+    std::string print() override {
+        std::string fprint = "contructor ";
+        fprint += "(";
+        int size = ArgumentList.size();
+        for (size_t i = 0; i < size; i++)
+            if (auto Decl = ArgumentList[i]; Decl)
+                fprint += Decl->print() + (i == size - 1 ? "" : ", ");
+
+        fprint += ")";
+        return fprint;
+    }
+
+    ~NodeConstructor() override { }
+};
+
+class NodeDestructor : public Node {
+
+public:
+    NodeDestructor() { };
+
+    std::string print() override {
+        std::string fprint = "destructor()";
+        return fprint;
+    }
+
+    ~NodeDestructor() override {}
+};
+
 class NodeBlock : public Node
 {
     std::vector<Node*> Statements;

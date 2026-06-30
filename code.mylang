@@ -44,7 +44,9 @@ private:
         function[void] Get();
         function[void] Abort();
 
-        function[void] OctetBaseLinkRequest(var[OctetBaseLink*], var[string] RequestTag, var[string] Link, var[ERequestObtainData], var[int] Argument = INDEX_INVALID);
+        constructor(var[OctetBaseLink*], var[string] RequestTag, var[string] Link, var[ERequestObtainData], var[int] Argument = INDEX_INVALID);
+        constructor(var[OctetBaseLink*]);
+        destructor();
     };
 
 protected:
@@ -111,7 +113,7 @@ public:
     __property[string] ConnectionHost { read = __host };
     __property[string] ConnectionTask { read = __host };
 
-    function[void] OctetBaseLink(
+    constructor(
         var[TComponent*], 
         var[int] ConnectionTimeout = LinkConnection::timeout, 
         var[int] ResponseTimeout = LinkResponse::timeout, 
