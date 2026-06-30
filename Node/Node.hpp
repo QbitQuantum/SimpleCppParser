@@ -264,7 +264,7 @@ class NodeCall : public Node
     std::vector<Node*> ArgumentConcreticList;
 public:
     NodeCall(
-        std::string name, const std::vector<Node*> argumentConcreticList, bool isHeapAllocated = false) :
+        std::string name, const std::vector<Node*> argumentConcreticList) :
         Name(name), ArgumentConcreticList(argumentConcreticList) {
     };
 
