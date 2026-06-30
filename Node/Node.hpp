@@ -261,19 +261,19 @@ public:
 class NodeCall : public Node
 {
     std::string Name = "";
-    std::vector<Node*> ArgumentList;
+    std::vector<Node*> ArgumentConcreticList;
 public:
     NodeCall(
-        std::string name, const std::vector<Node*> argumentList, bool isHeapAllocated = false) :
-        Name(name), ArgumentList(argumentList) {
+        std::string name, const std::vector<Node*> argumentConcreticList, bool isHeapAllocated = false) :
+        Name(name), ArgumentConcreticList(argumentConcreticList) {
     };
 
     std::string print() override {
         std::string fprint = Name;
         fprint += "(";
-        int size = ArgumentList.size();
+        int size = ArgumentConcreticList.size();
         for (size_t i = 0; i < size; i++)
-            if (auto Decl = ArgumentList[i]; Decl)
+            if (auto Decl = ArgumentConcreticList[i]; Decl)
                 fprint += Decl->print() + (i == size - 1 ? "" : ", ");
 
         fprint += ")";
@@ -281,7 +281,7 @@ public:
     };
 
     ~NodeCall() {
-        for (auto& i : ArgumentList) delete i;
+        for (auto& i : ArgumentConcreticList) delete i;
     };
 };
 

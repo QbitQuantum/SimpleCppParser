@@ -88,7 +88,7 @@ private:
 	Node* parseNullptr();
 	Node* parseNodeCall(std::string Func);
 
-	std::vector<Node*> parseArgumentList();
+	std::vector<Node*> parseArgumentConcreticList();
 	NodeTypeQualifier* TypeQualifierParse();
 	std::string parse_namespace();
 public:
@@ -322,15 +322,15 @@ Node* Parser::parseNullptr() {
 	return new NodeNullptr();
 }
 
-std::vector<Node*> Parser::parseArgumentList() {
+std::vector<Node*> Parser::parseArgumentConcreticList() {
 
-	std::vector<Node*> ArgumentList;
-	ArgumentList.push_back(parseExpression());
+	std::vector<Node*> ArgumentConcreticList;
+	ArgumentConcreticList.push_back(parseExpression());
 	while (stream.peek().type == TokenKind::Comma) {
 		stream.consume(TokenKind::Comma);
-		ArgumentList.push_back(parseExpression());
+		ArgumentConcreticList.push_back(parseExpression());
 	}
-	return ArgumentList;
+	return ArgumentConcreticList;
 
 }
 
@@ -340,13 +340,13 @@ Node* Parser::parseNodeCall(std::string Func) {
 		throw std::runtime_error("Expected LeftParen token");
 	stream.consume(TokenKind::LeftParen);
 
-	std::vector<Node*> ArgumentList = parseArgumentList();
+	std::vector<Node*> ArgumentConcreticList = parseArgumentConcreticList();
 
 	if (stream.peek().type != TokenKind::RightParen)
 		throw std::runtime_error("Expected RightParen token");
 	stream.consume(TokenKind::RightParen);
 
-	return new NodeCall(Func, ArgumentList);
+	return new NodeCall(Func, ArgumentConcreticList);
 
 }
 
@@ -379,7 +379,7 @@ Node* Parser::parseFunction() {
 		return nullptr;
 	}
 
-	std::vector<NodeDeclarationList*> ArgumentList;
+	std::vector<NodeDeclarationList*> ArgumentConcreticList;
 
 	auto ParseInitializer = [&]() -> void {
 		NodeTypeQualifier* ArgQualifier = nullptr;
@@ -436,7 +436,7 @@ Node* Parser::parseFunction() {
 
 					NodeIdentifier* nodeIdentifier = Identifier.empty() ? nullptr : new NodeIdentifier(Identifier);
 					Decls.push_back(new NodeDeclaration(new NodeIdentifier(ArgName), nodeIdentifier));
-					ArgumentList.push_back(new NodeDeclarationList(ArgQualifier, Decls));
+					ArgumentConcreticList.push_back(new NodeDeclarationList(ArgQualifier, Decls));
 				}
 				ArgName = "";
 
@@ -477,7 +477,7 @@ Node* Parser::parseFunction() {
 	default:
 		throw std::runtime_error("not expected Semicolon or LeftBrace");
 	}
-	return new NodeFunction(TypeQualifier, FunctionName, ArgumentList, body);
+	return new NodeFunction(TypeQualifier, FunctionName, ArgumentConcreticList, body);
 }
 
 Node* Parser::parseAccess() {
@@ -662,13 +662,13 @@ Node* Parser::parseConstructor() {
 		throw std::runtime_error("Expected LeftParen token");
 	stream.consume(TokenKind::LeftParen);
 
-	std::vector<Node*> ArgumentList = parseArgumentList();
+	std::vector<Node*> ArgumentConcreticList = parseArgumentConcreticList();
 
 	if (stream.peek().type != TokenKind::RightParen)
 		throw std::runtime_error("Expected RightParen token");
 	stream.consume(TokenKind::RightParen);
 
-	return new NodeConstructor(ArgumentList);
+	return new NodeConstructor(ArgumentConcreticList);
 	
 }
 
