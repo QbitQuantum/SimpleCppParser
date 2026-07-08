@@ -88,7 +88,9 @@ private:
 	Node* parseNullptr();
 	Node* parseNodeCall(std::string Func);
 
-	std::vector<Node*> parseArgumentConcreticList();
+	std::vector<Node*> parseArgumentList();
+	Node* parseArgument();
+
 	NodeTypeQualifier* TypeQualifierParse();
 	std::string parse_namespace();
 public:
@@ -264,9 +266,6 @@ Node* Parser::parseDeclaration() {
 		stream.consume(TokenKind::Equals);
 		Exptression = parseExpression();
 	}
-	// Пустое выражение "Expression, ,Expression"
-	if (!Identifier && !Exptression)
-		throw std::runtime_error("Expected identifier and Exptression");
 
 	return new NodeDeclaration(Identifier, Exptression);
 }
@@ -322,7 +321,11 @@ Node* Parser::parseNullptr() {
 	return new NodeNullptr();
 }
 
-std::vector<Node*> Parser::parseArgumentConcreticList() {
+Node* Parser::parseNodeCall(std::string Func) {
+
+	if (stream.peek().type != TokenKind::LeftParen)
+		throw std::runtime_error("Expected LeftParen token");
+	stream.consume(TokenKind::LeftParen);
 
 	std::vector<Node*> ArgumentConcreticList;
 	ArgumentConcreticList.push_back(parseExpression());
@@ -330,17 +333,6 @@ std::vector<Node*> Parser::parseArgumentConcreticList() {
 		stream.consume(TokenKind::Comma);
 		ArgumentConcreticList.push_back(parseExpression());
 	}
-	return ArgumentConcreticList;
-
-}
-
-Node* Parser::parseNodeCall(std::string Func) {
-
-	if (stream.peek().type != TokenKind::LeftParen)
-		throw std::runtime_error("Expected LeftParen token");
-	stream.consume(TokenKind::LeftParen);
-
-	std::vector<Node*> ArgumentConcreticList = parseArgumentConcreticList();
 
 	if (stream.peek().type != TokenKind::RightParen)
 		throw std::runtime_error("Expected RightParen token");
@@ -374,93 +366,15 @@ Node* Parser::parseFunction() {
 	}
 	std::string FunctionName = stream.consume(TokenKind::IdentifierLiteral).value;
 
-	// Аргументы в скобках
-	if (!stream.match(TokenKind::LeftParen)) {
-		return nullptr;
-	}
+	if (stream.peek().type != TokenKind::LeftParen)
+		throw std::runtime_error("Expected LeftParen token");
+	stream.consume(TokenKind::LeftParen);
 
-	std::vector<NodeDeclarationList*> ArgumentConcreticList;
+	std::vector<Node*> ArgumentList = parseArgumentList();
 
-	auto ParseInitializer = [&]() -> void {
-		NodeTypeQualifier* ArgQualifier = nullptr;
-		std::string Identifier;
-		std::string ArgName;
-		bool NewToken = true;
-		bool IsNamespaceToken = false;
-		bool findEquals = false;
-
-		// Парсим аргументы: var[const int] name = default
-		while (true) {
-
-			switch (stream.peek().type)
-			{
-			case TokenKind::Var:
-			{
-				stream.consume(TokenKind::Var);
-				if (!NewToken)
-					throw std::runtime_error("stream.peek().type != TokenKind::Var");
-				NewToken = false;
-				ArgQualifier = TypeQualifierParse();
-				break;
-			}
-			case TokenKind::Equals:
-				stream.consume(TokenKind::Equals);
-				findEquals = true;
-				break;
-			case TokenKind::ScResOp:
-				stream.consume(TokenKind::ScResOp);
-				Identifier = "";
-				IsNamespaceToken = true;
-				break;
-			case TokenKind::IdentifierLiteral:
-			{
-				std::string TokenStr = stream.consume(TokenKind::IdentifierLiteral).value;
-				if (!findEquals)
-				{
-					if (!ArgName.empty())
-						throw std::runtime_error("not correct token ArgName");
-					ArgName = TokenStr;
-				}
-				else
-				{
-					Identifier = TokenStr;
-				}
-				break;
-			}
-			case TokenKind::Comma:
-			case TokenKind::RightParen:
-			{
-				auto TokenType = stream.consume(stream.peek().type).type;
-				std::vector<Node*> Decls;
-				if (!NewToken) {
-
-					NodeIdentifier* nodeIdentifier = Identifier.empty() ? nullptr : new NodeIdentifier(Identifier);
-					Decls.push_back(new NodeDeclaration(new NodeIdentifier(ArgName), nodeIdentifier));
-					ArgumentConcreticList.push_back(new NodeDeclarationList(ArgQualifier, Decls));
-				}
-				ArgName = "";
-
-				switch (TokenType)
-				{
-				case TokenKind::Comma:
-					NewToken = true;
-					findEquals = false;
-					break;
-				case TokenKind::RightParen:
-					return;
-				}
-				break;
-			}
-			default:
-				if (IsNamespaceToken)
-					throw std::runtime_error("not correct token default");
-				Identifier = stream.consume(stream.peek().type).value;
-				break;
-			}
-		}
-		};
-
-	ParseInitializer();
+	if (stream.peek().type != TokenKind::RightParen)
+		throw std::runtime_error("Expected RightParen token");
+	stream.consume(TokenKind::RightParen);
 
 	// Тело функции или ';'
 	Node* body = nullptr;
@@ -477,7 +391,7 @@ Node* Parser::parseFunction() {
 	default:
 		throw std::runtime_error("not expected Semicolon or LeftBrace");
 	}
-	return new NodeFunction(TypeQualifier, FunctionName, ArgumentConcreticList, body);
+	return new NodeFunction(TypeQualifier, FunctionName, ArgumentList, body);
 }
 
 Node* Parser::parseAccess() {
@@ -653,22 +567,43 @@ Node* Parser::parseClass() {
 	return new NodeClass(name, genericParams, genericParamsConcretic, baseClass, inheritanceType, body);
 }
 
+Node* Parser::parseArgument() {
+
+	stream.consume(TokenKind::Var);
+
+	auto TypeQualifier = TypeQualifierParse();
+	if (!TypeQualifier) return nullptr;
+
+	std::vector<Node*> ContainerDeclarationList;
+	ContainerDeclarationList.push_back(parseDeclaration());
+	return new NodeDeclarationList(TypeQualifier, ContainerDeclarationList);
+}
+
+std::vector<Node*> Parser::parseArgumentList() {
+	std::vector<Node*> ArgumentList;
+	ArgumentList.push_back(parseArgument());
+	while (stream.peek().type == TokenKind::Comma) {
+		stream.consume(TokenKind::Comma);
+		ArgumentList.push_back(parseArgument());
+	}
+	return ArgumentList;
+}
+
 Node* Parser::parseConstructor() {
 	
 	stream.consume(TokenKind::Constructor);
 
-	// parseNodeCall("constructor");? Подходит ))
 	if (stream.peek().type != TokenKind::LeftParen)
 		throw std::runtime_error("Expected LeftParen token");
 	stream.consume(TokenKind::LeftParen);
 
-	std::vector<Node*> ArgumentConcreticList = parseArgumentConcreticList();
+	std::vector<Node*> ArgumentList = parseArgumentList();
 
 	if (stream.peek().type != TokenKind::RightParen)
 		throw std::runtime_error("Expected RightParen token");
 	stream.consume(TokenKind::RightParen);
-
-	return new NodeConstructor(ArgumentConcreticList);
+	
+	return new NodeConstructor(ArgumentList);
 	
 }
 

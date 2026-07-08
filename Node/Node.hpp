@@ -183,11 +183,11 @@ class NodeFunction : public Node
 {
     NodeTypeQualifier* TypeQualifier = nullptr;
     std::string Name = "";
-    std::vector<NodeDeclarationList*> ArgumentList;
+    std::vector<Node*> ArgumentList;
     Node* Body = nullptr;
 public:
     NodeFunction(
-        NodeTypeQualifier* typequalifer, std::string name, const std::vector<NodeDeclarationList*> argumentList, Node* body = nullptr) :
+        NodeTypeQualifier* typequalifer, std::string name, const std::vector<Node*> argumentList, Node* body = nullptr) :
         TypeQualifier(typequalifer), Name(name),  ArgumentList(argumentList), Body(body) { };
 
     std::string print() override {  
