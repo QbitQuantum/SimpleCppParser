@@ -643,7 +643,7 @@ Node* Parser::parseClass() {
 	}
 
 	Node* body = nullptr;
-	if (stream.match(TokenKind::LeftBrace)) {
+	if (stream.peek().type == TokenKind::LeftBrace) {
 		body = parseBlock();
 	}
 	else {
