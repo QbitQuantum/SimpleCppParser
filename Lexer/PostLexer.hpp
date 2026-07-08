@@ -369,7 +369,7 @@ Token PostLexer::Literal() {
 
 	// Идентификаторы не могут начинаться с .
 	// Только числа
-	if (value[0] != '.' && !isxdigit(value[0]))
+	if (value[0] != '.' && !isdigit(value[0]))
 	{
 		TLexToken.type = TokenKind::IdentifierLiteral;
 		return TLexToken;
