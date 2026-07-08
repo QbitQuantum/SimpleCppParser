@@ -9,7 +9,7 @@
 #include <vector>
 #include <unordered_map>
 #include <ctype.h>
-
+#include <iostream>
 class PostLexer {
 private:
 	using LexEnginePtr = Token(PostLexer::*)();
@@ -366,6 +366,14 @@ Token PostLexer::Literal() {
 	size_t len = value.length();
 
 	if (len == 0) return TLexToken;
+
+	// Идентификаторы не могут начинаться с .
+	// Только числа
+	if (value[0] != '.' && !isxdigit(value[0]))
+	{
+		TLexToken.type = TokenKind::IdentifierLiteral;
+		return TLexToken;
+	}
 
 	// Шестнадцатеричные: 0x...
 	if (len > 2 && value[0] == '0' && (value[1] == 'x' || value[1] == 'X')) {
