@@ -77,7 +77,9 @@ class NodeDeclaration : public Node
     Node* Initializer = nullptr;
 public:
     std::string print() override {
-        std::string fprint = Identifier->print();
+        std::string fprint = "";
+        if (Identifier)
+            fprint += Identifier->print();
         if (Initializer)
             fprint += " = " + Initializer->print();
         return fprint;
