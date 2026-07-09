@@ -167,9 +167,12 @@ public:
 
 class NodeAccess : public Node
 {
+    std::string Name;
+    std::string Path;
 public:
-    NodeAccess() {};
-    std::string print() override { return ""; };
+    NodeAccess(const std::string& name, const std::string& path) :
+        Name(name), Path(path) {};
+    std::string print() override { return "access " + Name + " = " + Path + ";"; };
     ~NodeAccess() {};
 };
 

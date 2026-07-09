@@ -438,11 +438,27 @@ Node* Parser::parseFunction() {
 }
 
 Node* Parser::parseAccess() {
-	while (!stream.match(TokenKind::Semicolon)) {
-		stream.consume(stream.peek().type);
-	}
+	
+	stream.consume(TokenKind::Access);
+	
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected IdentifierLiteral token");
+
+	std::string Name = stream.consume(TokenKind::IdentifierLiteral).value;
+
+	if (stream.peek().type != TokenKind::Equals)
+		throw std::runtime_error("Expected Equals token");
+	stream.consume(TokenKind::Equals);
+
+	// Пофиг, пропускаем
+	std::string Path = parse_namespace();
+
+	if (stream.peek().type != TokenKind::Semicolon)
+		throw std::runtime_error("Expected Equals token");
+	stream.consume(TokenKind::Semicolon);
+
 	// Temporary stub
-	return new NodeAccess();
+	return new NodeAccess(Name, Path);
 };
 
 Node* Parser::parseUsing() {
