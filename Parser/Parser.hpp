@@ -88,6 +88,12 @@ private:
 	Node* parseNullptr();
 	Node* parseNodeCall(std::string Func);
 
+	Node* parseNodeInteger();
+	Node* parseNodeFloating();
+	Node* parseNodeBoolean();
+	Node* parseNodeString();
+	Node* parseNodeCharacter();
+
 	std::vector<Node*> parseArgumentList();
 	Node* parseArgument();
 
@@ -281,8 +287,45 @@ Node* Parser::parseExpression() {
 		return parseNullptr();
 	case TokenKind::IdentifierLiteral:
 		return parseIdentifier();
+	case TokenKind::IntegerLiteral:
+	case TokenKind::HexLiteral:
+	case TokenKind::BinaryLiteral:
+		return parseNodeInteger();
+	case TokenKind::FloatLiteral:
+	case TokenKind::DoubleLiteral:
+	case TokenKind::LongDoubleLiteral:
+		return parseNodeFloating();
+	case TokenKind::TrueLiteral:
+	case TokenKind::FalseLiteral:
+		return parseNodeBoolean();
+	case TokenKind::StringLiteral:
+	case TokenKind::WStringLiteral:
+		return parseNodeString();
+	case TokenKind::CharLiteral:
+	case TokenKind::WCharLiteral:
+		return parseNodeBoolean();
 	}
 	return nullptr;
+}
+
+Node* Parser::parseNodeInteger() {
+	return new NodeInteger(stream.consume(stream.peek().type).value);
+}
+
+Node* Parser::parseNodeFloating() {
+	return new NodeFloating(stream.consume(stream.peek().type).value);
+}
+
+Node* Parser::parseNodeBoolean() {
+	return new NodeBoolean(stream.consume(stream.peek().type).value);
+}
+
+Node* Parser::parseNodeString() {
+	return new NodeString(stream.consume(stream.peek().type).value);
+}
+
+Node* Parser::parseNodeCharacter() {
+	return new NodeCharacter(stream.consume(stream.peek().type).value);
 }
 
 Node* Parser::parseIdentifier() {
@@ -364,8 +407,8 @@ Node* Parser::parseFunction() {
 	if (stream.peek().type != TokenKind::IdentifierLiteral) {
 		return nullptr;
 	}
-	std::string FunctionName = stream.consume(TokenKind::IdentifierLiteral).value;
-
+	std::string FunctionName = parse_namespace();
+	
 	if (stream.peek().type != TokenKind::LeftParen)
 		throw std::runtime_error("Expected LeftParen token");
 	stream.consume(TokenKind::LeftParen);

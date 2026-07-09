@@ -245,19 +245,6 @@ public:
     ~NodeDelete() {};
 };
 
-class NodeNullptr : public Node
-{
-public:
-    NodeNullptr() {};
-
-    std::string print() override {
-        std::string fprint = "nullptr";
-        return fprint;
-    };
-
-    ~NodeNullptr() {};
-};
-
 class NodeCall : public Node
 {
     std::string Name = "";
@@ -508,5 +495,68 @@ struct NodeProperty : Node {
         delete TypeQualifier;
     }
 };
+
+class NodeInteger : public Node {
+private:
+    std::string raw_value;
+public:
+    NodeInteger(const std::string& val) : raw_value(val) {}
+
+    std::string print() override {
+        return raw_value;
+    }
+};
+
+class NodeFloating : public Node {
+private:
+    std::string raw_value;
+public:
+    NodeFloating(const std::string& val) : raw_value(val) {}
+
+    std::string print() override {
+        return raw_value;
+    }
+};
+
+class NodeString : public Node {
+private:
+    std::string raw_value;
+public:
+    NodeString(const std::string& val) : raw_value(val) {}
+
+    std::string print() override {
+        return "\"" + raw_value + "\"";
+    }
+};
+
+class NodeCharacter : public Node {
+private:
+    std::string raw_value;
+public:
+    NodeCharacter(const std::string& val) : raw_value(val) {}
+
+    std::string print() override {
+        return "'" + std::string(1, raw_value[0]) + "'";
+    }
+};
+
+class NodeBoolean : public Node {
+private:
+    std::string raw_value;
+public:
+    NodeBoolean(const std::string& val) : raw_value(val) {}
+
+    std::string print() override {
+        return raw_value;
+    }
+};
+
+class NodeNullptr : public Node {
+public:
+    std::string print() override {
+        return "nullptr";
+    }
+};
+
 
 #endif // NODE_HPP
