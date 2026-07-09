@@ -179,8 +179,13 @@ public:
 class NodeUsing : public Node
 {
 public:
-    NodeUsing() {};
-    std::string print() override { return ""; };
+    std::string Name;
+    std::string Path;
+public:
+    NodeUsing(const std::string& name, const std::string& path) :
+        Name(name), Path(path) {
+    };
+    std::string print() override { return "using " + Name + " = " + Path + ";"; };
     ~NodeUsing() {};
 };
 
