@@ -465,8 +465,9 @@ public:
     }
 };
 
-struct NumberNode : Node {
+class NumberNode : public Node {
     double value;
+public:
     NumberNode(double v) : value(v) {}
 
     std::string print() override {
@@ -474,11 +475,11 @@ struct NumberNode : Node {
     }
 };
 
-struct BinaryOpNode : Node {
+class BinaryOpNode : public Node {
     std::string op;
     std::unique_ptr<Node> left;
     std::unique_ptr<Node> right;
-
+public:
     BinaryOpNode(const std::string& o, std::unique_ptr<Node> l,
         std::unique_ptr<Node> r)
         : op(o), left(std::move(l)), right(std::move(r)) {
@@ -489,10 +490,10 @@ struct BinaryOpNode : Node {
     }
 };
 
-struct NodeProperty : Node {
+class NodeProperty : public Node {
     std::string Name, Getter, Setter;
     NodeTypeQualifier* TypeQualifier = nullptr;
-
+public:
     NodeProperty(
         const std::string& name,
         NodeTypeQualifier* typeQualifier,
