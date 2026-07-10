@@ -225,6 +225,49 @@ public:
     };
 };
 
+class NodeConstructor : public Node {
+private:
+    std::vector<Node*> ArgumentList;
+    Node* Body = nullptr;
+public:
+    NodeConstructor(const std::vector<Node*> argumentList, Node* body) :
+        ArgumentList(argumentList), Body(body) {
+    };
+
+    std::string print() override {
+        std::string fprint = "contructor ";
+        fprint += "(";
+        int size = ArgumentList.size();
+        for (size_t i = 0; i < size; i++)
+            if (auto Decl = ArgumentList[i]; Decl)
+                fprint += Decl->print() + (i == size - 1 ? "" : ", ");
+
+        fprint += ")";
+        return fprint;
+    }
+
+    ~NodeConstructor() override {
+        for (auto& Argument : ArgumentList)
+            delete Argument;
+        delete Body;
+    }
+};
+
+class NodeDestructor : public Node {
+    Node* Body = nullptr;
+public:
+    NodeDestructor(Node* body) : Body(body) {};
+
+    std::string print() override {
+        std::string fprint = "destructor()";
+        return fprint;
+    }
+
+    ~NodeDestructor() override {
+        delete Body;
+    }
+};
+
 class NodeNew : public Node
 {
     Node* Call = nullptr;
@@ -280,41 +323,6 @@ public:
     ~NodeCall() {
         for (auto& i : ArgumentConcreticList) delete i;
     };
-};
-
-class NodeConstructor : public Node {
-private:
-    std::vector<Node*> ArgumentList;
-public:
-    NodeConstructor(const std::vector<Node*> argumentList) : 
-        ArgumentList(argumentList) { };
-
-    std::string print() override {
-        std::string fprint = "contructor ";
-        fprint += "(";
-        int size = ArgumentList.size();
-        for (size_t i = 0; i < size; i++)
-            if (auto Decl = ArgumentList[i]; Decl)
-                fprint += Decl->print() + (i == size - 1 ? "" : ", ");
-
-        fprint += ")";
-        return fprint;
-    }
-
-    ~NodeConstructor() override { }
-};
-
-class NodeDestructor : public Node {
-
-public:
-    NodeDestructor() { };
-
-    std::string print() override {
-        std::string fprint = "destructor()";
-        return fprint;
-    }
-
-    ~NodeDestructor() override {}
 };
 
 class NodeBlock : public Node

@@ -69,6 +69,9 @@ private:
 	std::vector<Node*> ast;
 
 	Node* parseTopLevel();
+	Node* parseClassBlock();
+	Node* parseFunctionBlock();
+
 	Node* parseAccess();
 	Node* parseUsing();
 	Node* parseVar();
@@ -79,7 +82,6 @@ private:
 	Node* parseClass();
 	Node* parseConstructor();
 	Node* parseDestructor();
-	Node* parseBlock();
 	Node* parseExpression();
 	Node* parseDeclaration();
 	Node* parseProperty();
@@ -143,7 +145,6 @@ Node* Parser::parseTopLevel() {
 	case TokenKind::Var:      return parseVar();
 	case TokenKind::Function: return parseFunction();
 	case TokenKind::Class:    return parseClass();
-	case TokenKind::Property: return parseProperty();
 	case TokenKind::IdentifierLiteral: return parseIdentifier();
 	default:
 		return nullptr;
@@ -159,7 +160,7 @@ Node* Parser::parseProperty() {
 
 	// имя (Value)
 	std::string name = stream.consume(TokenKind::IdentifierLiteral).value;
-
+	
 	// {
 	if (!stream.match(TokenKind::LeftBrace))
 		throw std::runtime_error("Expected '{' in __property");
@@ -180,7 +181,7 @@ Node* Parser::parseProperty() {
 			stream.consume(stream.peek().type);
 		}
 	}
-
+	
 	return new NodeProperty(name, typeQualifier, getter, setter);
 }
 
@@ -385,6 +386,28 @@ Node* Parser::parseNodeCall(std::string Func) {
 
 }
 
+Node* Parser::parseArgument() {
+
+	stream.consume(TokenKind::Var);
+
+	auto TypeQualifier = TypeQualifierParse();
+	if (!TypeQualifier) return nullptr;
+
+	std::vector<Node*> ContainerDeclarationList;
+	ContainerDeclarationList.push_back(parseDeclaration());
+	return new NodeDeclarationList(TypeQualifier, ContainerDeclarationList);
+}
+
+std::vector<Node*> Parser::parseArgumentList() {
+	std::vector<Node*> ArgumentList;
+	ArgumentList.push_back(parseArgument());
+	while (stream.peek().type == TokenKind::Comma) {
+		stream.consume(TokenKind::Comma);
+		ArgumentList.push_back(parseArgument());
+	}
+	return ArgumentList;
+}
+
 Node* Parser::parseFunction() {
 
 	stream.consume(TokenKind::Function);
@@ -425,7 +448,10 @@ Node* Parser::parseFunction() {
 	switch (stream.peek().type) {
 	case TokenKind::LeftBrace:
 		stream.consume(TokenKind::LeftBrace);
-		body = parseBlock();
+		body = parseFunctionBlock();
+		if (stream.peek().type != TokenKind::RightBrace)
+			throw std::runtime_error("Expected RightBrace token");
+		stream.consume(TokenKind::RightBrace);
 		break;
 	case TokenKind::Semicolon:
 		stream.consume(TokenKind::Semicolon);
@@ -435,6 +461,95 @@ Node* Parser::parseFunction() {
 		throw std::runtime_error("not expected Semicolon or LeftBrace");
 	}
 	return new NodeFunction(TypeQualifier, FunctionName, ArgumentList, body);
+}
+
+Node* Parser::parseConstructor() {
+
+	stream.consume(TokenKind::Constructor);
+
+	if (stream.peek().type != TokenKind::LeftParen)
+		throw std::runtime_error("Expected LeftParen token");
+	stream.consume(TokenKind::LeftParen);
+
+	std::vector<Node*> ArgumentList = parseArgumentList();
+
+	if (stream.peek().type != TokenKind::RightParen)
+		throw std::runtime_error("Expected RightParen token");
+	stream.consume(TokenKind::RightParen);
+
+	// Тело функции или ';'
+	Node* body = nullptr;
+
+	switch (stream.peek().type) {
+	case TokenKind::LeftBrace:
+		stream.consume(TokenKind::LeftBrace);
+		body = parseFunctionBlock();
+		if (stream.peek().type != TokenKind::RightBrace)
+			throw std::runtime_error("Expected RightBrace token");
+		stream.consume(TokenKind::RightBrace);
+		break;
+	case TokenKind::Semicolon:
+		stream.consume(TokenKind::Semicolon);
+		// Прототип функции
+		break;
+	default:
+		throw std::runtime_error("not expected Semicolon or LeftBrace");
+	}
+
+	return new NodeConstructor(ArgumentList, body);
+}
+
+Node* Parser::parseDestructor() {
+
+	stream.consume(TokenKind::Destructor);
+
+	if (stream.peek().type != TokenKind::LeftParen)
+		throw std::runtime_error("Expected LeftParen token");
+	stream.consume(TokenKind::LeftParen);
+
+	if (stream.peek().type != TokenKind::RightParen)
+		throw std::runtime_error("Expected RightParen token");
+	stream.consume(TokenKind::RightParen);
+
+	// Тело функции или ';'
+	Node* body = nullptr;
+
+	switch (stream.peek().type) {
+	case TokenKind::LeftBrace:
+		stream.consume(TokenKind::LeftBrace);
+		body = parseFunctionBlock();
+		if (stream.peek().type != TokenKind::RightBrace)
+			throw std::runtime_error("Expected RightBrace token");
+		stream.consume(TokenKind::RightBrace);
+		break;
+	case TokenKind::Semicolon:
+		stream.consume(TokenKind::Semicolon);
+		// Прототип функции
+		break;
+	default:
+		throw std::runtime_error("not expected Semicolon or LeftBrace");
+	}
+
+	return new NodeDestructor(body);
+}
+
+Node* Parser::parseFunctionBlock() {
+
+	NodeBlock* block = new NodeBlock();
+
+	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
+		Node* stmt = nullptr;
+		switch (stream.peek().type) {
+		case TokenKind::Var:      stmt = parseVar(); break;
+		case TokenKind::IdentifierLiteral: stmt = parseIdentifier(); break;
+		default:
+			stream.consume(stream.peek().type);
+			break;
+		}
+		if (stmt) block->add(stmt);
+	}
+
+	return block;
 }
 
 Node* Parser::parseAccess() {
@@ -484,39 +599,6 @@ Node* Parser::parseUsing() {
 	// Temporary stub
 	return new NodeUsing(Name, Path);
 };
-
-Parser::~Parser()
-{
-	for (auto& i : ast)
-		if (i) delete i;
-}
-
-Node* Parser::parseBlock() {
-	if (!stream.match(TokenKind::LeftBrace))
-		return nullptr;
-
-	NodeBlock* block = new NodeBlock();
-
-	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
-		Node* stmt = nullptr;
-		switch (stream.peek().type) {
-		case TokenKind::Var:      stmt = parseVar(); break;
-		case TokenKind::Function: stmt = parseFunction(); break;
-		case TokenKind::Class:    stmt = parseClass(); break;
-		case TokenKind::Constructor: stmt = parseConstructor(); break;
-		case TokenKind::Destructor: stmt = parseDestructor(); break;
-		default:
-			stream.consume(stream.peek().type);
-			break;
-		}
-		if (stmt) block->add(stmt);
-	}
-
-	if (stream.peek().type == TokenKind::RightBrace)
-		stream.consume(TokenKind::RightBrace);
-
-	return block;
-}
 
 Node* Parser::parseGenericParametrs() {
 
@@ -632,69 +714,45 @@ Node* Parser::parseClass() {
 	}
 
 	Node* body = nullptr;
-	if (stream.peek().type == TokenKind::LeftBrace) {
-		body = parseBlock();
-	}
-	else {
+	if (stream.peek().type != TokenKind::LeftBrace)
 		throw std::runtime_error("Expected '{' after class declaration");
-	}
+	stream.consume(TokenKind::LeftBrace);
+
+	body = parseClassBlock();
+
+	if (stream.peek().type != TokenKind::RightBrace)
+		throw std::runtime_error("Expected '}' after class declaration");
+	stream.consume(TokenKind::RightBrace);
 
 	return new NodeClass(name, genericParams, genericParamsConcretic, baseClass, inheritanceType, body);
 }
 
-Node* Parser::parseArgument() {
+Node* Parser::parseClassBlock() {
+	
+	NodeBlock* block = new NodeBlock();
 
-	stream.consume(TokenKind::Var);
-
-	auto TypeQualifier = TypeQualifierParse();
-	if (!TypeQualifier) return nullptr;
-
-	std::vector<Node*> ContainerDeclarationList;
-	ContainerDeclarationList.push_back(parseDeclaration());
-	return new NodeDeclarationList(TypeQualifier, ContainerDeclarationList);
-}
-
-std::vector<Node*> Parser::parseArgumentList() {
-	std::vector<Node*> ArgumentList;
-	ArgumentList.push_back(parseArgument());
-	while (stream.peek().type == TokenKind::Comma) {
-		stream.consume(TokenKind::Comma);
-		ArgumentList.push_back(parseArgument());
+	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
+		Node* stmt = nullptr;
+		switch (stream.peek().type) {
+		case TokenKind::Var:      stmt = parseVar(); break;
+		case TokenKind::Function: stmt = parseFunction(); break;
+		case TokenKind::Class:    stmt = parseClass(); break;
+		case TokenKind::Constructor: stmt = parseConstructor(); break;
+		case TokenKind::Destructor: stmt = parseDestructor(); break;
+		case TokenKind::Property: stmt = parseProperty(); break;
+		default:
+			stream.consume(stream.peek().type);
+			break;
+		}
+		if (stmt) block->add(stmt);
 	}
-	return ArgumentList;
+	return block;
 }
 
-Node* Parser::parseConstructor() {
-	
-	stream.consume(TokenKind::Constructor);
-
-	if (stream.peek().type != TokenKind::LeftParen)
-		throw std::runtime_error("Expected LeftParen token");
-	stream.consume(TokenKind::LeftParen);
-
-	std::vector<Node*> ArgumentList = parseArgumentList();
-
-	if (stream.peek().type != TokenKind::RightParen)
-		throw std::runtime_error("Expected RightParen token");
-	stream.consume(TokenKind::RightParen);
-	
-	return new NodeConstructor(ArgumentList);
-	
-}
-
-Node* Parser::parseDestructor() {
-	
-	stream.consume(TokenKind::Destructor);
-
-	if (stream.peek().type != TokenKind::LeftParen)
-		throw std::runtime_error("Expected LeftParen token");
-	stream.consume(TokenKind::LeftParen);
-
-	if (stream.peek().type != TokenKind::RightParen)
-		throw std::runtime_error("Expected RightParen token");
-	stream.consume(TokenKind::RightParen);
-
-	return new NodeDestructor();
+Parser::~Parser()
+{
+	for (auto& i : ast)
+		if (i) delete i;
 }
 
 #endif // PARSER_HPP
