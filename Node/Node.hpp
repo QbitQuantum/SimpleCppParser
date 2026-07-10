@@ -149,22 +149,6 @@ public:
     };
 };
 
-class NodeAlias : public Node
-{
-    std::string Name = "";
-    CType * Qualifer = nullptr;
-public:
-    NodeAlias(std::string name, CType* qualifer) :
-        Name(name), Qualifer(qualifer) {
-    };
-    std::string print() override {
-        return "using " + Name + " = " + Qualifer->print();
-    };
-    ~NodeAlias() {
-        delete Qualifer; Qualifer = nullptr;
-    }
-};
-
 class NodeAccess : public Node
 {
     std::string Name;
