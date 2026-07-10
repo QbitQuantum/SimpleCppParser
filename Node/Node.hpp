@@ -41,7 +41,7 @@ public:
     };
 };
 
-class NodeTypeQualifier : public Node
+class NodeType : public Node
 {
     CType* Qualifer = nullptr;
 public:
@@ -51,10 +51,10 @@ public:
         return fprint;
     };
 
-    NodeTypeQualifier(CType * qualifer) :
+    NodeType(CType * qualifer) :
         Qualifer(qualifer) {};
 
-    ~NodeTypeQualifier() override {
+    ~NodeType() override {
         delete Qualifer; Qualifer = nullptr;
     };
 };
@@ -96,15 +96,15 @@ public:
 
 class NodeDeclarationList : public Node
 {
-    NodeTypeQualifier* TypeQualifier = nullptr;
+    Node* Type = nullptr;
     std::vector<Node*> DeclarationList;
 public:
     std::string print() override {
         std::string fprint = "var";
-        if (TypeQualifier)
+        if (Type)
         {
             int size = DeclarationList.size();
-            fprint += TypeQualifier->print();
+            fprint += Type->print();
             for (size_t i = 0; i < size; i++)
                 if (auto Decl = DeclarationList[i]; Decl)
                 {
@@ -115,11 +115,11 @@ public:
         }
         return fprint;
     };
-    NodeDeclarationList(NodeTypeQualifier* typeQualifier, const std::vector<Node*>& declarationList) :
-        TypeQualifier(typeQualifier), DeclarationList(declarationList) { };
+    NodeDeclarationList(Node* type, const std::vector<Node*>& declarationList) :
+        Type(type), DeclarationList(declarationList) { };
 
     ~NodeDeclarationList() override {
-        delete TypeQualifier;
+        delete Type;
         for (auto& decl : DeclarationList) {
             delete decl;
         }
@@ -191,17 +191,17 @@ public:
 
 class NodeFunction : public Node
 {
-    NodeTypeQualifier* TypeQualifier = nullptr;
+    Node* Type = nullptr;
     std::string Name = "";
     std::vector<Node*> ArgumentList;
     Node* Body = nullptr;
 public:
     NodeFunction(
-        NodeTypeQualifier* typequalifer, std::string name, const std::vector<Node*> argumentList, Node* body = nullptr) :
-        TypeQualifier(typequalifer), Name(name),  ArgumentList(argumentList), Body(body) { };
+        Node* type, std::string name, const std::vector<Node*> argumentList, Node* body = nullptr) :
+        Type(type), Name(name),  ArgumentList(argumentList), Body(body) { };
 
     std::string print() override {  
-        std::string fprint = "function "  + TypeQualifier->print() + " " + Name;
+        std::string fprint = "function "  + Type->print() + " " + Name;
         
         fprint += "(";
         int size = ArgumentList.size();
@@ -219,7 +219,7 @@ public:
     };
 
     ~NodeFunction() {
-        delete TypeQualifier; TypeQualifier = nullptr;
+        delete Type; Type = nullptr;
         for (auto& i : ArgumentList) delete i;
         delete Body; Body = nullptr;
     };
@@ -227,18 +227,18 @@ public:
 
 class NodeLambda : public Node
 {
-    NodeTypeQualifier* TypeQualifier = nullptr;
+    Node* Type = nullptr;
     std::string Name = "";
     std::vector<Node*> ArgumentList;
     Node* Body = nullptr;
 public:
     NodeLambda(
-        NodeTypeQualifier* typequalifer, std::string name, const std::vector<Node*> argumentList, Node* body = nullptr) :
-        TypeQualifier(typequalifer), Name(name), ArgumentList(argumentList), Body(body) {
+        Node* type, std::string name, const std::vector<Node*> argumentList, Node* body = nullptr) :
+        Type(type), Name(name), ArgumentList(argumentList), Body(body) {
     };
 
     std::string print() override {
-        std::string fprint = "lambda " + TypeQualifier->print() + " " + Name;
+        std::string fprint = "lambda " + Type->print() + " " + Name;
 
         fprint += "(";
         int size = ArgumentList.size();
@@ -256,7 +256,7 @@ public:
     };
 
     ~NodeLambda() {
-        delete TypeQualifier; TypeQualifier = nullptr;
+        delete Type; Type = nullptr;
         for (auto& i : ArgumentList) delete i;
         delete Body; Body = nullptr;
     };
@@ -549,24 +549,24 @@ public:
 
 class NodeProperty : public Node {
     std::string Name, Getter, Setter;
-    NodeTypeQualifier* TypeQualifier = nullptr;
+    Node* Type = nullptr;
 public:
     NodeProperty(
         const std::string& name,
-        NodeTypeQualifier* typeQualifier,
+        Node* type,
         const std::string& getter,
         const std::string& setter) :
-        Name(name), TypeQualifier(typeQualifier), Getter(getter), Setter(setter) {}
+        Name(name), Type(type), Getter(getter), Setter(setter) {}
 
     std::string print() override {
         return "__property" + 
-            TypeQualifier->print() + " " + Name + " " + "{\n" +
+            Type->print() + " " + Name + " " + "{\n" +
             (Getter.empty() ? "" : "write = " + Getter + ",") +
             (Setter.empty() ? "" : "read = " + Setter) +
             "\n}";
     }
     ~NodeProperty() {
-        delete TypeQualifier;
+        delete Type;
     }
 };
 

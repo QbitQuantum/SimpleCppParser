@@ -102,7 +102,7 @@ private:
 	std::vector<Node*> parseArgumentList();
 	Node* parseArgument();
 
-	NodeTypeQualifier* TypeQualifierParse();
+	Node* parseType();
 	std::string parse_namespace();
 public:
 	std::vector<Token> ParserEngineBuffer;
@@ -199,8 +199,8 @@ Node* Parser::parseProperty() {
 	stream.consume(TokenKind::Property); // __property
 	
 	// тип (int)
-	NodeTypeQualifier* typeQualifier = TypeQualifierParse();
-	if (!typeQualifier) throw std::runtime_error("Expected type in __property");
+	Node* Type = parseType();
+	if (!Type) throw std::runtime_error("Expected type in __property");
 
 	// имя (Value)
 	std::string name = stream.consume(TokenKind::IdentifierLiteral).value;
@@ -226,7 +226,7 @@ Node* Parser::parseProperty() {
 		}
 	}
 	
-	return new NodeProperty(name, typeQualifier, getter, setter);
+	return new NodeProperty(name, Type, getter, setter);
 }
 
 std::string Parser::parse_namespace() {
@@ -248,7 +248,7 @@ std::string Parser::parse_namespace() {
 	}
 }
 
-NodeTypeQualifier* Parser::TypeQualifierParse() {
+Node* Parser::parseType() {
 	std::string Type = "";
 	bool IsConst = false;
 	bool IsRef = false;
@@ -273,16 +273,16 @@ NodeTypeQualifier* Parser::TypeQualifierParse() {
 		}
 	}
 
-	return new NodeTypeQualifier(new CType(Type, IsConst, IsRef));
+	return new NodeType(new CType(Type, IsConst, IsRef));
 };
 
 Node* Parser::parseVar() {
 
 	stream.consume(TokenKind::Var);
 
-	auto TypeQualifier = TypeQualifierParse();
+	auto Type = parseType();
 
-	if (!TypeQualifier)
+	if (!Type)
 		return nullptr;
 
 	std::vector<Node*> ContainerDeclarationList;
@@ -297,7 +297,7 @@ Node* Parser::parseVar() {
 
 	stream.consume(TokenKind::Semicolon);
 
-	return new NodeDeclarationList(TypeQualifier, ContainerDeclarationList);
+	return new NodeDeclarationList(Type, ContainerDeclarationList);
 }
 
 Node* Parser::parseDeclaration() {
@@ -434,12 +434,12 @@ Node* Parser::parseArgument() {
 
 	stream.consume(TokenKind::Var);
 
-	auto TypeQualifier = TypeQualifierParse();
-	if (!TypeQualifier) return nullptr;
+	auto Type = parseType();
+	if (!Type) return nullptr;
 
 	std::vector<Node*> ContainerDeclarationList;
 	ContainerDeclarationList.push_back(parseDeclaration());
-	return new NodeDeclarationList(TypeQualifier, ContainerDeclarationList);
+	return new NodeDeclarationList(Type, ContainerDeclarationList);
 }
 
 std::vector<Node*> Parser::parseArgumentList() {
@@ -456,9 +456,9 @@ Node* Parser::parseFunction() {
 
 	stream.consume(TokenKind::Function);
 
-	auto TypeQualifier = TypeQualifierParse();
+	auto Type = parseType();
 
-	if (!TypeQualifier)
+	if (!Type)
 		return nullptr;
 
 	if (!stream.match(TokenKind::LeftBracket)) {
@@ -504,7 +504,7 @@ Node* Parser::parseFunction() {
 	default:
 		throw std::runtime_error("not expected Semicolon or LeftBrace");
 	}
-	return new NodeFunction(TypeQualifier, FunctionName, ArgumentList, body);
+	return new NodeFunction(Type, FunctionName, ArgumentList, body);
 }
 
 Node* Parser::parseConstructor() {
@@ -601,9 +601,9 @@ Node* Parser::parseLambda() {
 
 	stream.consume(TokenKind::Lambda);
 
-	auto TypeQualifier = TypeQualifierParse();
+	auto Type = parseType();
 
-	if (!TypeQualifier)
+	if (!Type)
 		return nullptr;
 
 	// Имя лямбды
@@ -640,7 +640,7 @@ Node* Parser::parseLambda() {
 	default:
 		throw std::runtime_error("not expected Semicolon or LeftBrace");
 	}
-	return new NodeLambda(TypeQualifier, LambdaName, ArgumentList, body);
+	return new NodeLambda(Type, LambdaName, ArgumentList, body);
 }
 
 Node* Parser::parseAccess() {
