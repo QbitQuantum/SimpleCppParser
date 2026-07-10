@@ -336,16 +336,14 @@ public:
     }
 
     std::string print() override {
-        std::string fprint = "{ ";
-        int size = static_cast<int>(Statements.size());
+        std::string fprint = "{\n ";
+        int size = Statements.size();
         for (int i = 0; i < size; ++i) {
             if (auto stmt = Statements[i]) {
-                fprint += stmt->print();
-                if (i != size - 1)
-                    fprint += "; ";
+                fprint += stmt->print() + ";\n";
             }
         }
-        fprint += " }";
+        fprint += " \n}";
         return fprint;
     }
 
