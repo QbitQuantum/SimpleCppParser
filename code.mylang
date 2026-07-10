@@ -100,7 +100,16 @@ public:
 
     // base network methods
 
-    function[string] Read(var[string], var[int] Type = LinkType::critical);
+    function[string] Read(var[string], var[int] Type = LinkType::critical)
+    {
+        var[int] Temp = -1;
+
+        // Всё по умолчанию по ссылке. Всё.
+        lambda[int] _LocalRead(var[int] Type)
+        {
+            
+        }
+    };
     function[string] Cache(var[string] Link);
     function[void] Stop(var[string] RequestTag = "");
     function[bool] Write(var[string], var[string] Data, var[TStringStream*] Response = NULL);

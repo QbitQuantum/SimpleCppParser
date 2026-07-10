@@ -225,6 +225,43 @@ public:
     };
 };
 
+class NodeLambda : public Node
+{
+    NodeTypeQualifier* TypeQualifier = nullptr;
+    std::string Name = "";
+    std::vector<Node*> ArgumentList;
+    Node* Body = nullptr;
+public:
+    NodeLambda(
+        NodeTypeQualifier* typequalifer, std::string name, const std::vector<Node*> argumentList, Node* body = nullptr) :
+        TypeQualifier(typequalifer), Name(name), ArgumentList(argumentList), Body(body) {
+    };
+
+    std::string print() override {
+        std::string fprint = "lambda " + TypeQualifier->print() + " " + Name;
+
+        fprint += "(";
+        int size = ArgumentList.size();
+        for (size_t i = 0; i < size; i++)
+            if (auto Decl = ArgumentList[i]; Decl)
+                fprint += Decl->print() + (i == size - 1 ? "" : ", ");
+
+        fprint += ")";
+
+        if (Body) {
+            fprint += " " + Body->print();
+        }
+
+        return fprint;
+    };
+
+    ~NodeLambda() {
+        delete TypeQualifier; TypeQualifier = nullptr;
+        for (auto& i : ArgumentList) delete i;
+        delete Body; Body = nullptr;
+    };
+};
+
 class NodeConstructor : public Node {
 private:
     std::vector<Node*> ArgumentList;

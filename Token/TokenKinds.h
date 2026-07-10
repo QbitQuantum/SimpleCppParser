@@ -195,6 +195,7 @@ enum class TokenKind : unsigned short {
     Delegate,     // delegate
     Var, // var
     Function, // function
+    Lambda,     // lambda
     Default,  // default
 
     Access, // access
@@ -458,6 +459,7 @@ std::string getTokenName(TokenKind kind) {
     GENERATE_NAME(Delegate);
     GENERATE_NAME(Var);
     GENERATE_NAME(Function);
+    GENERATE_NAME(Lambda);
 
     GENERATE_NAME(Access);
     GENERATE_NAME(Using);
