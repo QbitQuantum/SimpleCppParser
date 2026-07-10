@@ -273,7 +273,7 @@ Node* Parser::parseType() {
 		}
 	}
 
-	return new NodeType(new CType(Type, IsConst, IsRef));
+	return new NodeType(Type, IsConst, IsRef);
 };
 
 Node* Parser::parseVar() {

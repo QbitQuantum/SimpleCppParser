@@ -16,47 +16,19 @@ public:
     virtual ~Node() = default;
 };
 
-// TODO: Этот класс имеет фукцию print, что по теории моей шизы должен быть частью Node
-class CType {
+class NodeType : public Node
+{
     std::string Type = "";
     bool IsConst = false;
     bool IsRef = false;
 public:
-    CType(std::string type, bool isConst, bool isRef) :
-        Type(type), IsConst(isConst), IsRef(isRef) {};
-    
-    CType(CType& type) {
-        Type = type.Type;
-        IsConst = type.IsConst;
-        IsRef = type.IsRef;
-    };
-
-    CType() {};
-    ~CType() {};
-    std::string print() {
-        std::string fprint  = (IsConst ? std::string("const ") : std::string("")) +
-            Type +
-            (IsRef ? std::string("*") : std::string(""));
-        return fprint;
-    };
-};
-
-class NodeType : public Node
-{
-    CType* Qualifer = nullptr;
-public:
     std::string print() override {
-        std::string fprint = Qualifer ? 
-            "[" + Qualifer->print() + "]" : "";
+        std::string fprint = "[" + (IsConst ? std::string("const ") : std::string("")) + Type +
+            (IsRef ? std::string("*") : std::string("")) + "]";
         return fprint;
     };
-
-    NodeType(CType * qualifer) :
-        Qualifer(qualifer) {};
-
-    ~NodeType() override {
-        delete Qualifer; Qualifer = nullptr;
-    };
+    NodeType(std::string type, bool isConst, bool isRef) :
+        Type(type), IsConst(isConst), IsRef(isRef) {};
 };
 
 class NodeIdentifier : public Node
