@@ -71,6 +71,7 @@ private:
 	Node* parseTopLevel();
 	Node* parseClassBlock();
 	Node* parseFunctionBlock();
+	Node* parseNamespaceBlock();
 
 	Node* parseAccess();
 	Node* parseUsing();
@@ -89,6 +90,7 @@ private:
 	Node* parseDelete();
 	Node* parseNullptr();
 	Node* parseNodeCall(std::string Func);
+	Node* parseNamespace();
 
 	Node* parseNodeInteger();
 	Node* parseNodeFloating();
@@ -146,9 +148,50 @@ Node* Parser::parseTopLevel() {
 	case TokenKind::Function: return parseFunction();
 	case TokenKind::Class:    return parseClass();
 	case TokenKind::IdentifierLiteral: return parseIdentifier();
+	case TokenKind::Namespace: return parseNamespace();
 	default:
 		return nullptr;
 	}
+}
+
+Node* Parser::parseNamespace() {
+
+	stream.consume(TokenKind::Namespace);
+	
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected IdentifierLiteral token");
+	std::string Name = stream.consume(TokenKind::IdentifierLiteral).value;
+
+	if (stream.peek().type != TokenKind::LeftBrace)
+		throw std::runtime_error("Expected LeftBrace token");
+	stream.consume(TokenKind::LeftBrace);
+
+	Node* body = parseNamespaceBlock();
+
+	if (stream.peek().type == TokenKind::RightBrace)
+		stream.consume(TokenKind::RightBrace);
+
+	return new NodeNamespace(Name, body);
+}
+
+Node* Parser::parseNamespaceBlock() {
+
+	NodeBlock* block = new NodeBlock();
+
+	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
+		Node* stmt = nullptr;
+		switch (stream.peek().type) {
+		case TokenKind::Var:		stmt = parseVar(); break;
+		case TokenKind::Function:	stmt = parseFunction(); break;
+		case TokenKind::Class:		stmt = parseClass(); break;
+		case TokenKind::Namespace:	stmt = parseNamespace(); break;
+		default:
+			stream.consume(stream.peek().type);
+			break;
+		}
+		if (stmt) block->add(stmt);
+	}
+	return block;
 }
 
 Node* Parser::parseProperty() {

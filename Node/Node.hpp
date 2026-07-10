@@ -465,6 +465,26 @@ public:
     }
 };
 
+class NodeNamespace : public Node {
+private:
+    std::string Name;
+    Node* Body = nullptr;
+public:
+    NodeNamespace(const std::string& name, Node* body)
+        : Name(name), Body(body) {
+    }
+
+    std::string print() override {
+        std::string fprint = "namespace " + Name;
+        if (Body) fprint += " " + Body->print();
+        return fprint;
+    }
+
+    ~NodeNamespace() override {
+        delete Body;
+    }
+};
+
 class NumberNode : public Node {
     double value;
 public:

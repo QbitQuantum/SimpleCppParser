@@ -9,6 +9,14 @@ access LinkConnection = link::connection;
 access LinkResponse = link::response;
 access LinkType = link::type;
 
+namespace CL
+{
+    namespace CD
+    {
+        var[int] Temporary;
+    }
+}
+
 // Объявление переменной
 var[const int] INDEX_INVALID = -1;
 // base link class
