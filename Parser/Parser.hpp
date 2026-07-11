@@ -161,9 +161,15 @@ Node* Parser::parseNamespace() {
 
 	stream.consume(TokenKind::Namespace);
 	
+	// Stub
+	if (stream.match(TokenKind::LeftBracket))
+		while (stream.peek().type != TokenKind::RightBracket)
+			stream.consume(stream.peek().type);
+	stream.consume(TokenKind::RightBracket);
+
 	if (stream.peek().type != TokenKind::IdentifierLiteral)
 		throw std::runtime_error("Expected IdentifierLiteral token");
-	std::string Name = stream.consume(TokenKind::IdentifierLiteral).value;
+	std::string Name = parse_namespace();
 
 	if (stream.peek().type != TokenKind::LeftBrace)
 		throw std::runtime_error("Expected LeftBrace token");
