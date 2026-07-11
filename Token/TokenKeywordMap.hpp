@@ -102,6 +102,7 @@ static const std::unordered_map<uint32_t, TokenKind> TokenKeywordMap = {
 
     // ===== Объявление типов =====
     {ConstexprCppHash("class"),        TokenKind::Class},
+    {ConstexprCppHash("struct"),       TokenKind::Struct},
     {ConstexprCppHash("namespace"),    TokenKind::Namespace},
     {ConstexprCppHash("enum"),         TokenKind::Enum},
     {ConstexprCppHash("override"),     TokenKind::Override},

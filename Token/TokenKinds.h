@@ -169,6 +169,7 @@ enum class TokenKind : unsigned short {
 
     // ===== Объявление типов =====
     Class, // class
+    Struct, // struct
     Namespace, // namespace
     Enum, // enum
     Override, // ovveride
@@ -436,6 +437,7 @@ std::string getTokenName(TokenKind kind) {
     GENERATE_NAME(Delete_);
 
     GENERATE_NAME(Class);
+    GENERATE_NAME(Struct);
     GENERATE_NAME(Namespace);
     GENERATE_NAME(Enum);
     GENERATE_NAME(Override);

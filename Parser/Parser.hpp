@@ -70,6 +70,7 @@ private:
 
 	Node* parseTopLevel();
 	Node* parseClassBlock();
+	Node* parseStructBlock();
 	Node* parseFunctionBlock();
 	Node* parseNamespaceBlock();
 
@@ -82,6 +83,7 @@ private:
 	Node* parseGenericParametrs();
 	Node* parseGenericParametrsConcretic();
 	Node* parseClass();
+	Node* parseStruct();
 	Node* parseConstructor();
 	Node* parseDestructor();
 	Node* parseExpression();
@@ -831,6 +833,55 @@ Node* Parser::parseClassBlock() {
 		case TokenKind::Constructor: stmt = parseConstructor(); break;
 		case TokenKind::Destructor: stmt = parseDestructor(); break;
 		case TokenKind::Property: stmt = parseProperty(); break;
+		case TokenKind::Struct:   stmt = parseStruct(); break;
+		default:
+			stream.consume(stream.peek().type);
+			break;
+		}
+		if (stmt) block->add(stmt);
+	}
+	return block;
+}
+
+Node* Parser::parseStruct() {
+	// assume current token is Struct
+	stream.consume(TokenKind::Struct);
+
+	std::string name;
+	if (stream.peek().type == TokenKind::IdentifierLiteral)
+		name = stream.consume(TokenKind::IdentifierLiteral).value;
+	else
+		throw std::runtime_error("Expected class name");
+
+	// Generic-параметры: [T, K = int]
+	Node* genericParams = parseGenericParametrs();
+
+	NodeStruct::INHERITANCE_TYPE inheritanceType = NodeStruct::INHERITANCE_TYPE::PUBLIC;
+	Node* body = nullptr;
+	if (stream.peek().type != TokenKind::LeftBrace)
+		throw std::runtime_error("Expected '{' after struct declaration");
+	stream.consume(TokenKind::LeftBrace);
+
+	body = parseClassBlock();
+
+	if (stream.peek().type != TokenKind::RightBrace)
+		throw std::runtime_error("Expected '}' after struct declaration");
+	stream.consume(TokenKind::RightBrace);
+
+	return new NodeStruct(name, genericParams, inheritanceType, body);
+}
+
+Node* Parser::parseStructBlock() {
+
+	NodeBlock* block = new NodeBlock();
+
+	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
+		Node* stmt = nullptr;
+		switch (stream.peek().type) {
+		case TokenKind::Var:      stmt = parseVar(); break;
+		case TokenKind::Function: stmt = parseFunction(); break;
+		case TokenKind::Class:    stmt = parseClass(); break;
+		case TokenKind::Struct:   stmt = parseStruct(); break;
 		default:
 			stream.consume(stream.peek().type);
 			break;

@@ -458,6 +458,38 @@ public:
     }
 };
 
+class NodeStruct : public Node {
+public:
+    enum class INHERITANCE_TYPE { PUBLIC, PRIVATE };
+
+private:
+    std::string Name;
+    Node* GenericParams = nullptr;
+    INHERITANCE_TYPE Type = INHERITANCE_TYPE::PUBLIC;
+    Node* Body = nullptr;
+public:
+    NodeStruct(
+        const std::string& name,
+        Node* generics = nullptr,
+        INHERITANCE_TYPE type = INHERITANCE_TYPE::PRIVATE,
+        Node* body = nullptr
+    )
+        : Name(name), GenericParams(generics), Type(type), Body(body) {
+    }
+
+    std::string print() override {
+        std::string fprint = "class " + Name;
+        if (GenericParams) fprint += GenericParams->print();
+        if (Body) fprint += " " + Body->print();
+        return fprint;
+    }
+
+    ~NodeStruct() override {
+        delete GenericParams;
+        delete Body;
+    }
+};
+
 class NodeNamespace : public Node {
 private:
     std::string Name;
