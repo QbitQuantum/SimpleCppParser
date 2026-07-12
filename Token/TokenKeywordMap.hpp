@@ -89,6 +89,7 @@ static const std::unordered_map<uint32_t, TokenKind> TokenKeywordMap = {
     {ConstexprCppHash("case"),         TokenKind::Case},
     {ConstexprCppHash("for"),          TokenKind::For},
     {ConstexprCppHash("while"),        TokenKind::While},
+    {ConstexprCppHash("do"),           TokenKind::Do},
     {ConstexprCppHash("try"),          TokenKind::Try},
     {ConstexprCppHash("catch"),        TokenKind::Catch},
     {ConstexprCppHash("return"),       TokenKind::Return},

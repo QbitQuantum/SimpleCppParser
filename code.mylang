@@ -214,10 +214,31 @@ function[int] main () {
     
     un.PublicMethodBase();           // Объект напрямую
     un->PublicMethodBase();          // виртуальный через указатель  
-        
-    // Эквивалент C++: delete un;
-    un = delete;
-    un = nullptr;
+    
+    while (un)
+    {
+        // Эквивалент C++: delete un;
+        un = delete;
+        un = nullptr;
+    }
+
+    /*
+    Это аналог 
+    do
+    {
+        // Эквивалент C++: delete un;
+        un = delete;
+        un = nullptr;
+    } while (un);
+    И мне лень парсить сложную конструкцию
+    Забивая парсер лишней конструкцией помимо while
+    */
+    while (un) do
+    {
+        // Эквивалент C++: delete un;
+        un = delete;
+        un = nullptr;
+    }
 
     return 0;
 };

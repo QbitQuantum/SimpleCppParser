@@ -73,6 +73,7 @@ private:
 	Node* parseStructBlock();
 	Node* parseFunctionBlock();
 	Node* parseNamespaceBlock();
+	Node* parseWhileBlock();
 
 	Node* parseAccess();
 	Node* parseUsing();
@@ -80,6 +81,7 @@ private:
 	Node* parseIdentifier();
 	Node* parseFunction();
 	Node* parseLambda();
+	Node* parseWhile();
 	Node* parseGenericParametrs();
 	Node* parseGenericParametrsConcretic();
 	Node* parseClass();
@@ -595,6 +597,7 @@ Node* Parser::parseFunctionBlock() {
 		case TokenKind::Var:      stmt = parseVar(); break;
 		case TokenKind::IdentifierLiteral: stmt = parseIdentifier(); break;
 		case TokenKind::Lambda: stmt = parseLambda(); break;
+		case TokenKind::While: stmt = parseWhile(); break;
 		default:
 			stream.consume(stream.peek().type);
 			break;
@@ -649,6 +652,68 @@ Node* Parser::parseLambda() {
 		throw std::runtime_error("not expected Semicolon or LeftBrace");
 	}
 	return new NodeLambda(Type, LambdaName, ArgumentList, body);
+}
+
+Node* Parser::parseWhile() {
+
+	stream.consume(TokenKind::While);
+
+	if (stream.peek().type != TokenKind::LeftParen)
+		throw std::runtime_error("Expected LeftParen token");
+	stream.consume(TokenKind::LeftParen);
+
+	Node* Condition = nullptr;
+	Node* Body = nullptr;
+	bool IsDoWhile = false;
+
+	switch (stream.peek().type) 
+	{
+	case TokenKind::Var:
+		Condition = parseVar(); break;
+	case TokenKind::IdentifierLiteral:
+		Condition = parseIdentifier(); break;
+	default:
+		throw std::runtime_error("not correct token");
+	}
+
+	if (stream.peek().type != TokenKind::RightParen)
+		throw std::runtime_error("Expected RightParen token");
+	stream.consume(TokenKind::RightParen);
+
+	if (stream.match(TokenKind::Do))
+		IsDoWhile = true;
+
+	if (stream.peek().type != TokenKind::LeftBrace)
+		throw std::runtime_error("Expected '{' after while declaration");
+	stream.consume(TokenKind::LeftBrace);
+
+	Body = parseWhileBlock();
+
+	if (stream.peek().type != TokenKind::RightBrace)
+		throw std::runtime_error("Expected '}' after while declaration");
+	stream.consume(TokenKind::RightBrace);
+
+	return new NodeWhile(Condition, Body, IsDoWhile);
+}
+
+Node* Parser::parseWhileBlock() {
+
+	NodeBlock* block = new NodeBlock();
+
+	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
+		Node* stmt = nullptr;
+		switch (stream.peek().type) {
+		case TokenKind::Var:      stmt = parseVar(); break;
+		case TokenKind::IdentifierLiteral: stmt = parseIdentifier(); break;
+		case TokenKind::Lambda: stmt = parseLambda(); break;
+		case TokenKind::While: stmt = parseWhile(); break;
+		default:
+			stream.consume(stream.peek().type);
+			break;
+		}
+		if (stmt) block->add(stmt);
+	}
+	return block;
 }
 
 Node* Parser::parseAccess() {

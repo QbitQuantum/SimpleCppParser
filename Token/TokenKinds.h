@@ -156,6 +156,7 @@ enum class TokenKind : unsigned short {
     If, // if
     Else, // else 
     While, // while
+    Do, // do
     For, // for
     Try, // try
     Catch, // catch
@@ -424,6 +425,7 @@ std::string getTokenName(TokenKind kind) {
     GENERATE_NAME(If);
     GENERATE_NAME(Else);
     GENERATE_NAME(While);
+    GENERATE_NAME(Do);
     GENERATE_NAME(For);
     GENERATE_NAME(Try);
     GENERATE_NAME(Catch);

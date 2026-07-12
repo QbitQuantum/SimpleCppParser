@@ -22,6 +22,13 @@ std::string ReadFile(std::string filepath) {
     return content;
 };
 
+class MyClass {
+public:
+    MyClass() = default;
+};
+namespace a {
+    MyClass* ss = nullptr;
+}
 
 int main()
 {

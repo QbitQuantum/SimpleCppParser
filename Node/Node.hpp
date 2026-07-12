@@ -620,5 +620,24 @@ public:
     }
 };
 
+class NodeWhile : public Node {
+    Node* Condition = nullptr;
+    Node* Body = nullptr;
+    bool IsDoWhile = false;
+public:
+    NodeWhile(Node* condition, Node* body, bool isDoWhile) :
+        Condition(condition), Body(body), IsDoWhile(isDoWhile) {}
+    std::string print() override {
+        std::string fprint = "while ";
+        fprint += (IsDoWhile ? "do " : "");
+        fprint += "(" + (Condition ? Condition->print() : "") + ")";
+        fprint += (Body ? Body->print() : "");
+        return fprint;
+    }
+    ~NodeWhile() {
+        delete Body;
+        delete Condition;
+    }
+};
 
 #endif // NODE_HPP
