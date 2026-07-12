@@ -74,6 +74,8 @@ private:
 	Node* parseFunctionBlock();
 	Node* parseNamespaceBlock();
 	Node* parseWhileBlock();
+	Node* parseTryBlock();
+	Node* parseCatchBlock();
 
 	Node* parseAccess();
 	Node* parseUsing();
@@ -96,6 +98,7 @@ private:
 	Node* parseNullptr();
 	Node* parseNodeCall(std::string Func);
 	Node* parseNamespace();
+	Node* parseTryCatch();
 
 	Node* parseNodeInteger();
 	Node* parseNodeFloating();
@@ -598,6 +601,7 @@ Node* Parser::parseFunctionBlock() {
 		case TokenKind::IdentifierLiteral: stmt = parseIdentifier(); break;
 		case TokenKind::Lambda: stmt = parseLambda(); break;
 		case TokenKind::While: stmt = parseWhile(); break;
+		case TokenKind::Try: stmt = parseTryCatch(); break;
 		default:
 			stream.consume(stream.peek().type);
 			break;
@@ -707,6 +711,91 @@ Node* Parser::parseWhileBlock() {
 		case TokenKind::IdentifierLiteral: stmt = parseIdentifier(); break;
 		case TokenKind::Lambda: stmt = parseLambda(); break;
 		case TokenKind::While: stmt = parseWhile(); break;
+		case TokenKind::Try: stmt = parseWhile(); break;
+		default:
+			stream.consume(stream.peek().type);
+			break;
+		}
+		if (stmt) block->add(stmt);
+	}
+	return block;
+}
+
+Node* Parser::parseTryCatch() {
+
+	stream.consume(TokenKind::Try);
+
+	Node* TryBody = nullptr;
+	Node* CatchBody = nullptr;
+	Node* Declaration = nullptr;
+
+	if (stream.peek().type != TokenKind::LeftBrace)
+		throw std::runtime_error("Expected LeftBrace token");
+	stream.consume(TokenKind::LeftBrace);
+	
+	TryBody = parseTryBlock();
+	
+	if (stream.peek().type != TokenKind::RightBrace)
+		throw std::runtime_error("Expected RightBrace token");
+	stream.consume(TokenKind::RightBrace);
+
+	if (stream.peek().type == TokenKind::Catch)
+	{
+		stream.consume(TokenKind::Catch);
+
+		if (stream.peek().type == TokenKind::LeftParen)
+		{
+			stream.consume(TokenKind::LeftParen);
+
+			if (stream.peek().type != TokenKind::Var)
+				throw std::runtime_error("Expected Var token");
+
+			Declaration = parseVar();
+
+			if (stream.peek().type != TokenKind::RightParen)
+				throw std::runtime_error("Expected RightParen token");
+			stream.consume(TokenKind::RightParen);
+
+		}
+		CatchBody = parseWhileBlock();
+	}
+
+	return new NodeTryCatch(TryBody, CatchBody, Declaration);
+}
+
+Node* Parser::parseTryBlock() {
+
+	NodeBlock* block = new NodeBlock();
+
+	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
+		Node* stmt = nullptr;
+		switch (stream.peek().type) {
+		case TokenKind::Var:      stmt = parseVar(); break;
+		case TokenKind::IdentifierLiteral: stmt = parseIdentifier(); break;
+		case TokenKind::Lambda: stmt = parseLambda(); break;
+		case TokenKind::While: stmt = parseWhile(); break;
+		case TokenKind::Try: stmt = parseWhile(); break;
+		default:
+			stream.consume(stream.peek().type);
+			break;
+		}
+		if (stmt) block->add(stmt);
+	}
+	return block;
+}
+
+Node* Parser::parseCatchBlock() {
+
+	NodeBlock* block = new NodeBlock();
+
+	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
+		Node* stmt = nullptr;
+		switch (stream.peek().type) {
+		case TokenKind::Var:      stmt = parseVar(); break;
+		case TokenKind::IdentifierLiteral: stmt = parseIdentifier(); break;
+		case TokenKind::Lambda: stmt = parseLambda(); break;
+		case TokenKind::While: stmt = parseWhile(); break;
+		case TokenKind::Try: stmt = parseWhile(); break;
 		default:
 			stream.consume(stream.peek().type);
 			break;

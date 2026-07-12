@@ -640,4 +640,28 @@ public:
     }
 };
 
+class NodeTryCatch : public Node {
+    Node* BodyTry = nullptr;
+    Node* BodyCatch = nullptr;
+    Node* Declaration = nullptr;
+public:
+    NodeTryCatch(Node* bodytry, Node* bodycatch, Node* declaration) :
+        BodyTry(bodytry), BodyCatch(bodycatch), Declaration(declaration) {
+    }
+    std::string print() override {
+        if (!BodyTry) return "BodyTry empty";
+        std::string fprint = "try " + BodyTry->print();
+        if (BodyCatch)
+        {
+            fprint += "\ncatch " + (Declaration ? "(" + Declaration->print() + ")" : "") + BodyCatch->print();
+        }
+        return fprint;
+    }
+    ~NodeTryCatch() {
+        delete Declaration;
+        delete BodyCatch;
+        delete BodyTry;
+    }
+};
+
 #endif // NODE_HPP

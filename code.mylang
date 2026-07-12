@@ -240,5 +240,29 @@ function[int] main () {
         un = nullptr;
     }
 
+    try
+    {
+        
+    }
+    // catch(...)
+    catch
+    {
+    
+    }
+
+    try
+    {
+        
+    }
+    // catch(...) {}
+
+    try
+    {
+        
+    }
+    catch (var[IOException*] object)
+    {
+
+    }
     return 0;
 };
