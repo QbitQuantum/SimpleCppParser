@@ -123,9 +123,22 @@ enum class TokenKind : unsigned short {
     IdentifierLiteral,   // name, age, counter, myVariable (имена переменных, функций, классов)
     HexLiteral,          // 0xFF, 0x1A3, 0xDEADBEEF (шестнадцатеричные числа с префиксом 0x)
     BinaryLiteral,       // 0b1010, 0b11001100, 0b1 (двоичные числа с префиксом 0b, C++14 и выше)
-    TrueLiteral,
-    FalseLiteral,
+    TrueLiteral,         // true
+    FalseLiteral,        // false
     NullptrLiteral,      // nullptr (нулевой указатель, C++11 и выше)
+    
+    // Встроенные типы
+    Char,
+    WChar_t,
+    Short,
+    Int,
+    Long,
+    Double,
+    Float,
+    Bool,
+    Void,
+    Signed,
+    Unsigned,
 
     // Присваивания
     Assign,      // =
@@ -402,6 +415,17 @@ std::string getTokenName(TokenKind kind) {
     GENERATE_NAME(TrueLiteral);
     GENERATE_NAME(FalseLiteral);
     GENERATE_NAME(NullptrLiteral);
+    
+    GENERATE_NAME(Char);
+    GENERATE_NAME(WChar_t);
+    GENERATE_NAME(Short);
+    GENERATE_NAME(Int);
+    GENERATE_NAME(Long);
+    GENERATE_NAME(Double);
+    GENERATE_NAME(Float);
+    GENERATE_NAME(Void);
+    GENERATE_NAME(Signed);
+    GENERATE_NAME(Unsigned);
 
     GENERATE_NAME(Assign);
     GENERATE_NAME(PlusAssign);
