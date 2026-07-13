@@ -83,6 +83,7 @@ static const std::unordered_map<uint32_t, TokenKind> TokenKeywordMap = {
     {ConstexprCppHash("false"),        TokenKind::FalseLiteral},
     {ConstexprCppHash("nullptr"),      TokenKind::NullptrLiteral},
 
+    /*
     // ===== Встроенные типы =====
     {ConstexprCppHash("char"),         TokenKind::Char},
     {ConstexprCppHash("wchar_t"),      TokenKind::WChar_t},
@@ -95,6 +96,8 @@ static const std::unordered_map<uint32_t, TokenKind> TokenKeywordMap = {
     {ConstexprCppHash("void"),         TokenKind::Void},
     {ConstexprCppHash("signed"),       TokenKind::Signed},
     {ConstexprCppHash("unsigned"),     TokenKind::Unsigned},
+    */
+    
 
     // ===== Управляющие конструкции =====
     {ConstexprCppHash("if"),           TokenKind::If},
