@@ -31,7 +31,7 @@ var[const int] INDEX_INVALID = -1;
 // Можно наследовать, но не может наследовать другие
 // Либо иди пиши class и не страдай фигнёй
 // Может быть шаблонным. Вроде не сильно влияет на POD-ность
-struct StCacheName [T, K = int, W = int()]
+struct StCacheName [T, K = [int], W = int()]
 {
 public:
     var[const K] public_INDEX_INVALID = -1;
@@ -164,7 +164,7 @@ function[void] BaseRequest::Abort()  {
 
 // Это шаблоны из C++
 // [T /* По умолчанию имя типа */, K = int /* Имя типа по умолчанию */, W = int() /* значение, на это намекает () */]
-class Base [T, K = int, W = int()] {
+class Base [T, K = [int], W = int()] {
 
 public:
     // Без всяких если. Есть параметрах используется этот шаблон

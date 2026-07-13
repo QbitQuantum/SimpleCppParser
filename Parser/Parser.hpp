@@ -84,6 +84,7 @@ private:
 	Node* parseFunction();
 	Node* parseLambda();
 	Node* parseWhile();
+	Node* parseGenericParametr();
 	Node* parseGenericParametrs();
 	Node* parseGenericParametrsConcretic();
 	Node* parseClass();
@@ -853,51 +854,38 @@ Node* Parser::parseUsing() {
 	return new NodeUsing(Name, Path);
 };
 
-Node* Parser::parseGenericParametrs() {
+Node* Parser::parseGenericParametr() {
 
-	NodeGenericParams* genericParams = nullptr;
+	Node* genericParams = nullptr;
 
-	if (stream.match(TokenKind::LeftBracket)) {
-		genericParams = new NodeGenericParams();
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected generic parameter name");
+	std::string paramName = stream.consume(TokenKind::IdentifierLiteral).value;
 
-		while (true) {
-			// Имя параметра
-			if (stream.peek().type != TokenKind::IdentifierLiteral)
-				throw std::runtime_error("Expected generic parameter name");
-			std::string paramName = stream.consume(TokenKind::IdentifierLiteral).value;
+	Node* defaultExpr = nullptr;
 
-			// Default value (опционально)
-			Node* defaultExpr = nullptr;
-			if (stream.match(TokenKind::Equals)) {
-				if (stream.peek().type == TokenKind::IdentifierLiteral)
-				{
-					// Значение может быть: int, std::string — т.е. namespace/identifier
-					defaultExpr = parseExpression();
-				}
-			}
-
-			bool construct = false;
-			if (stream.match(TokenKind::LeftParen))
-			{
-				// Временно поддерживаем только () чтобы не усложнять парсинг
-				// Хотя по хорошему необходимо вызывать парсинг аргументов функции
-				stream.match(TokenKind::LeftParen);
-				if (!stream.match(TokenKind::RightParen))
-					throw std::runtime_error("Expected RightParen token");
-				stream.match(TokenKind::LeftParen);
-				construct = true;
-			}
-
-			genericParams->add(new NodeGenericParam(paramName, construct, defaultExpr));
-
-			if (stream.match(TokenKind::RightBracket))
-				break;
-			if (!stream.match(TokenKind::Comma))
-				throw std::runtime_error("Expected ',' or ']' in generic parameters");
+	if (stream.match(TokenKind::Equals)) {
+		if (stream.peek().type == TokenKind::LeftBracket)
+		{
+			defaultExpr = parseType();
+		}
+		if (stream.peek().type == TokenKind::IdentifierLiteral)
+		{
+			defaultExpr = parseIdentifier();
 		}
 	}
+	return new NodeDeclaration(new NodeIdentifier(paramName), defaultExpr);
+}
 
-	return genericParams;
+Node* Parser::parseGenericParametrs() {
+
+	std::vector<Node*> genericParam;
+	genericParam.push_back(parseGenericParametr());
+	while (stream.peek().type == TokenKind::Comma) {
+		stream.consume(TokenKind::Comma);
+		genericParam.push_back(parseGenericParametr());
+	}
+	return new NodeGenericParams(genericParam);
 }
 
 Node* Parser::parseGenericParametrsConcretic() {
@@ -938,8 +926,17 @@ Node* Parser::parseClass() {
 	else
 		throw std::runtime_error("Expected class name");
 
-	// Generic-параметры: [T, K = int]
-	Node* genericParams = parseGenericParametrs();
+	Node* genericParams = nullptr;
+
+	// Generic-параметры: [T, K = [int]]
+	if (stream.match(TokenKind::LeftBracket))
+	{
+		genericParams = parseGenericParametrs();
+		if (stream.peek().type != TokenKind::RightBracket)
+			throw std::runtime_error("Expected RightBracket token");
+		stream.consume(TokenKind::RightBracket);
+	}
+
 	// Поддержка generic-конкретизации: [int, std::string]
 	Node* genericParamsConcretic = nullptr;
 	std::string baseClass;

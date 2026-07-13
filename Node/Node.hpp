@@ -370,9 +370,10 @@ public:
 
 // Generic parameter list: [T, K = int, W]
 class NodeGenericParams : public Node {
-    std::vector<NodeGenericParam*> Params;
+    std::vector<Node*> Params;
 public:
-    void add(NodeGenericParam* p) { if (p) Params.push_back(p); }
+    NodeGenericParams(std::vector<Node*> params) :
+        Params(params) { };
 
     std::string print() override {
         std::string res = "[";
@@ -384,7 +385,7 @@ public:
         return res;
     }
 
-    const std::vector<NodeGenericParam*>& getParams() const { return Params; }
+    const std::vector<Node*>& getParams() const { return Params; }
 
     ~NodeGenericParams() override {
         for (auto* p : Params) delete p;
