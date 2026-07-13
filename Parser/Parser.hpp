@@ -263,31 +263,58 @@ std::string Parser::parse_namespace() {
 }
 
 Node* Parser::parseType() {
+
+	/*
+	Допустимые вариации типов
+	T&          // изменяемая ссылка
+	const T&    // неизменяемая ссылка
+	T*          // указатель
+	const T*    // указатель на константу
+	T&&         // rvalue-ссылка (move)
+	const T&&   // - бессмысленно, но для простоты парсинга
+	*/
+
 	std::string Type = "";
 	bool IsConst = false;
-	bool IsRef = false;
+	NodeType::EType eType = NodeType::EType::NONE;
 
 	if (!stream.match(TokenKind::LeftBracket))
-		return nullptr;
+		throw std::runtime_error("Expected LeftBracket token");
 
-	while (!stream.match(TokenKind::RightBracket))
+	// Проверям на константность
+	if (stream.match(TokenKind::Const))
+		IsConst = true;
+
+	// Проверяем наличие типа
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected identifier token");
+
+	// Парсим имя типа
+	Type = parse_namespace();
+
+	// Проверяем семантику 
+	switch (stream.peek().type)
 	{
-		switch (stream.peek().type)
-		{
-		case TokenKind::Const: IsConst = true; stream.consume(TokenKind::Const);
-			break;
-		case TokenKind::Asterisk: IsRef = true; stream.consume(TokenKind::Asterisk);
-			break;
-		case TokenKind::IdentifierLiteral:
-			Type = parse_namespace();
-			break;
-		default:
-			stream.consume(stream.peek().type);
-			break;
-		}
+	case TokenKind::Asterisk:
+		stream.consume(TokenKind::Asterisk);
+		eType = NodeType::EType::POINTER;
+		break;
+	case TokenKind::Ampersand:
+		stream.consume(TokenKind::Ampersand);
+		eType = NodeType::EType::REF;
+		break;
+	case TokenKind::BitAnd:
+		stream.consume(TokenKind::BitAnd);
+		eType = NodeType::EType::RVALUE;
+		break;
+	default:
+		break;
 	}
 
-	return new NodeType(Type, IsConst, IsRef);
+	if (!stream.match(TokenKind::RightBracket))
+		throw std::runtime_error("Expected RightBracket token");
+
+	return new NodeType(Type, IsConst, eType);
 };
 
 Node* Parser::parseVar() {
@@ -446,6 +473,8 @@ Node* Parser::parseNodeCall(std::string Func) {
 
 Node* Parser::parseArgument() {
 
+	if (stream.peek().type != TokenKind::Var)
+		return nullptr;
 	stream.consume(TokenKind::Var);
 
 	auto Type = parseType();
@@ -458,7 +487,9 @@ Node* Parser::parseArgument() {
 
 std::vector<Node*> Parser::parseArgumentList() {
 	std::vector<Node*> ArgumentList;
-	ArgumentList.push_back(parseArgument());
+	Node* OneArgument = parseArgument();
+	if (!OneArgument) return ArgumentList;
+	ArgumentList.push_back(OneArgument);
 	while (stream.peek().type == TokenKind::Comma) {
 		stream.consume(TokenKind::Comma);
 		ArgumentList.push_back(parseArgument());

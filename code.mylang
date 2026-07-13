@@ -56,9 +56,9 @@ private:
         var[int] __arg = INDEX_INVALID;
 
         // Объявление функций
-        function[void] _eventerror(var[TObject* const],  var[string]);
-        function[void] _eventcomplete(var[TObject* const], var[const _di_IHTTPResponse]);
-        function[void] _eventreceive(var[TObject* const], var[__int64] AContentLength, var[__int64] AReadCount, var[bool&] Abort);
+        function[void] _eventerror(var[const TObject*],  var[string]);
+        function[void] _eventcomplete(var[const TObject*], var[const _di_IHTTPResponse]);
+        function[void] _eventreceive(var[const TObject*], var[__int64] AContentLength, var[__int64] AReadCount, var[bool&] Abort);
 
     public:
 
@@ -103,12 +103,12 @@ protected:
     function[void] _setheaders(var[TNetHTTPClient*], var[bool] State);
 
     // internal events
-    function[void] _eventerror(var[TObject* const],  var[string]);
-    function[void] _eventcomplete(var[TObject* const], var[const _di_IHTTPResponse]);
-    function[void] _eventauth(var[TObject* const], var[TAuthTargetType] Target, var[string], var[string], var[string&], var[string], var[bool&], var[TAuthPersistenceType&]);
+    function[void] _eventerror(var[const TObject*],  var[string]);
+    function[void] _eventcomplete(var[const TObject*], var[const _di_IHTTPResponse]);
+    function[void] _eventauth(var[const TObject*], var[TAuthTargetType] Target, var[string], var[string], var[string&], var[string], var[bool&], var[TAuthPersistenceType&]);
 
 static:
-    function[void] _eventexecute(var[TObject* const],  var[string]);
+    function[void] _eventexecute(var[const TObject*],  var[string]);
 
 public:
 

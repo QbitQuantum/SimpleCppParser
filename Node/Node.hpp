@@ -18,17 +18,31 @@ public:
 
 class NodeType : public Node
 {
+public:
+    enum class EType 
+    {
+        NONE, POINTER, REF, RVALUE
+    };
     std::string Type = "";
     bool IsConst = false;
-    bool IsRef = false;
+    EType eType = EType::NONE;
+    std::string getSymbol() const {
+        switch (eType)
+        {
+        case NodeType::EType::POINTER: return "*";
+        case NodeType::EType::REF: return "*";
+        case NodeType::EType::RVALUE: return "&&";
+        default: return "";
+        }
+    }
 public:
     std::string print() override {
         std::string fprint = "[" + (IsConst ? std::string("const ") : std::string("")) + Type +
-            (IsRef ? std::string("*") : std::string("")) + "]";
+            getSymbol() + "]";
         return fprint;
     };
-    NodeType(std::string type, bool isConst, bool isRef) :
-        Type(type), IsConst(isConst), IsRef(isRef) {};
+    NodeType(std::string type, bool isConst, EType etype) :
+        Type(type), IsConst(isConst), eType(etype) {};
 };
 
 class NodeIdentifier : public Node
