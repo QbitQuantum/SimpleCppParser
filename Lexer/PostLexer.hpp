@@ -31,7 +31,6 @@ private:
 	{TokenKind::Colon, &PostLexer::Colon},           // :
 	{TokenKind::Less, &PostLexer::Less},             // <
 	{TokenKind::Equals, &PostLexer::Equals},         // =
-	{TokenKind::Greater, &PostLexer::Greater},       // >
 	{TokenKind::Caret, &PostLexer::Caret},           // ^
 	{TokenKind::Pipe, &PostLexer::Pipe},             // |
 	{TokenKind::Asterisk, &PostLexer::Asterisk},     // *
@@ -261,23 +260,6 @@ Token PostLexer::Equals() /* = */ {
 	{
 		TLexToken.type = TokenKind::Equal;
 		TLexToken.value = "==";
-		PosBuffer++;
-	}
-
-	return TLexToken;
-}
-
-// Обработка символа больше
-Token PostLexer::Greater() /* > */ {
-	Token TLexToken = {
-		TokenKind::Greater, ">", 0, 0
-	};
-
-	if (PosBuffer + 1 < SizeBufferBasic &&
-		LexerTokenBufferBasic[PosBuffer + 1].type == TokenKind::Equals)
-	{
-		TLexToken.type = TokenKind::GreaterEqual;
-		TLexToken.value = ">=";
 		PosBuffer++;
 	}
 
