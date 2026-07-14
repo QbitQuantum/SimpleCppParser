@@ -527,7 +527,7 @@ public:
     }
 
     std::string print() override {
-        std::string fprint = "class " + Name;
+        std::string fprint = "struct " + Name;
         if (GenericParams) fprint += GenericParams->print();
         if (Body) fprint += " " + Body->print();
         return fprint;
