@@ -214,8 +214,6 @@ Token PostLexer::Less() /* < */ {
 		TokenKind::Less, "<", 0, 0
 	};
 
-	PosBuffer++;
-
 	if (IsInclude)
 	{
 		TLexToken.type = TokenKind::StringLiteral;
