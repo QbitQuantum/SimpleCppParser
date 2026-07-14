@@ -465,7 +465,7 @@ public:
 
 class NodeClass : public Node {
 public:
-    enum class INHERITANCE_TYPE { PUBLIC, PRIVATE };
+    enum class INHERITANCE_TYPE { PUBLIC, PRIVATE, STATIC };
 
 private:
     std::string Name;
@@ -509,7 +509,7 @@ public:
 
 class NodeStruct : public Node {
 public:
-    enum class INHERITANCE_TYPE { PUBLIC, PRIVATE };
+    enum class INHERITANCE_TYPE { PUBLIC, STATIC };
 
 private:
     std::string Name;
@@ -520,7 +520,7 @@ public:
     NodeStruct(
         const std::string& name,
         Node* generics = nullptr,
-        INHERITANCE_TYPE type = INHERITANCE_TYPE::PRIVATE,
+        INHERITANCE_TYPE type = INHERITANCE_TYPE::PUBLIC,
         Node* body = nullptr
     )
         : Name(name), GenericParams(generics), Type(type), Body(body) {
