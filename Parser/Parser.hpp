@@ -1062,7 +1062,7 @@ Node* Parser::parseStruct() {
 	if (stream.peek().type == TokenKind::IdentifierLiteral)
 		name = stream.consume(TokenKind::IdentifierLiteral).value;
 	else
-		throw std::runtime_error("Expected class name");
+		throw std::runtime_error("Expected struct name");
 
 	Node* genericParams = nullptr;
 
