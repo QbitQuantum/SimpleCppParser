@@ -23,7 +23,7 @@ public:
     {
         NONE, POINTER, REF, RVALUE
     };
-    std::string Type = "";
+    Node* Type = nullptr;
     bool IsConst = false;
     EType eType = EType::NONE;
     std::string getSymbol() const {
@@ -36,30 +36,37 @@ public:
         }
     }
 public:
+    NodeType(Node* type, bool isConst, EType etype) :
+        Type(type), IsConst(isConst), eType(etype) {};
+
     std::string print() override {
-        std::string fprint = "[" + (IsConst ? std::string("const ") : std::string("")) + Type +
+        std::string fprint = "[" + (IsConst ? std::string("const ") : std::string("")) + Type->print() +
             getSymbol() + "]";
         return fprint;
     };
-    NodeType(std::string type, bool isConst, EType etype) :
-        Type(type), IsConst(isConst), eType(etype) {};
+
+    ~NodeType() {
+        delete Type;
+    }
 };
 
 class NodeIdentifier : public Node
 {
     std::string Name = "";
+    Node* Scope = nullptr;
 public:
-    NodeIdentifier(const std::string& name) :
-        Name(name) {
+    NodeIdentifier(const std::string& name, Node* scope) :
+        Name(name), Scope(scope) {
     };
     std::string print() override { return Name; };
     ~NodeIdentifier() override {
+        delete Scope;
     };
 };
 
 class NodeDeclaration : public Node
 {
-    NodeIdentifier* Identifier = nullptr;
+    Node* Identifier = nullptr;
     Node* Initializer = nullptr;
 public:
     std::string print() override {
@@ -70,7 +77,7 @@ public:
             fprint += " = " + Initializer->print();
         return fprint;
     };
-    NodeDeclaration(NodeIdentifier* identifier, Node* initializer) :
+    NodeDeclaration(Node* identifier, Node* initializer) :
         Identifier(identifier), Initializer(initializer) {
     };
 
@@ -125,7 +132,7 @@ public:
         return fprint;
     };
 
-    NodeMemberCall(NodeIdentifier* identifier, Node* callExpr, bool isArrow) :
+    NodeMemberCall(Node* identifier, Node* callExpr, bool isArrow) :
         Identifier(identifier), CallExpr(callExpr), IsArrow(isArrow) {
     };
 
@@ -135,43 +142,66 @@ public:
     };
 };
 
+class NodeScope : public Node
+{
+    std::vector<std::string> Scope;
+public:
+    NodeScope(const std::vector<std::string>& scope) :
+        Scope(scope) {
+    };
+    std::string print() override { 
+        std::string fprint = "";
+        int size = Scope.size();
+        for (size_t i = 0; i < size; i++)
+            fprint += Scope[i] + (i == size - 1 ? "" : "::");
+        return fprint;
+    
+    };
+    ~NodeScope() {
+    };
+};
+
 class NodeAccess : public Node
 {
     std::string Name;
-    std::string Path;
+    Node* Scope = nullptr;
 public:
-    NodeAccess(const std::string& name, const std::string& path) :
-        Name(name), Path(path) {};
-    std::string print() override { return "access " + Name + " = " + Path + ";"; };
-    ~NodeAccess() {};
+    NodeAccess(const std::string& name, Node* scope) :
+        Name(name), Scope(scope) {};
+    std::string print() override { return "access " + Name + " = " + Scope->print(); };
+    ~NodeAccess() {
+        delete Scope;
+    };
 };
 
 class NodeUsing : public Node
 {
 public:
     std::string Name;
-    std::string Path;
+    Node* Path = nullptr;
 public:
-    NodeUsing(const std::string& name, const std::string& path) :
+    NodeUsing(const std::string& name, Node* path) :
         Name(name), Path(path) {
     };
-    std::string print() override { return "using " + Name + " = " + Path + ";"; };
-    ~NodeUsing() {};
+    std::string print() override { return "using " + Name + " = " + Path->print() + ";"; };
+    ~NodeUsing() {
+        delete Path;
+    };
 };
 
 class NodeFunction : public Node
 {
     Node* Type = nullptr;
-    std::string Name = "";
+    Node* Name = nullptr;
     std::vector<Node*> ArgumentList;
     Node* Body = nullptr;
 public:
     NodeFunction(
-        Node* type, std::string name, const std::vector<Node*> argumentList, Node* body = nullptr) :
+        Node* type, Node* name, const std::vector<Node*> argumentList, Node* body = nullptr) :
         Type(type), Name(name),  ArgumentList(argumentList), Body(body) { };
 
     std::string print() override {  
-        std::string fprint = "function "  + Type->print() + " " + Name;
+        std::string fprint = "function "  + Type->print() + " " + Name->print();
         
         fprint += "(";
         int size = ArgumentList.size();
@@ -190,6 +220,7 @@ public:
 
     ~NodeFunction() {
         delete Type; Type = nullptr;
+        delete Name; Name = nullptr;
         for (auto& i : ArgumentList) delete i;
         delete Body; Body = nullptr;
     };
@@ -198,17 +229,17 @@ public:
 class NodeLambda : public Node
 {
     Node* Type = nullptr;
-    std::string Name = "";
+    Node* Name = nullptr;
     std::vector<Node*> ArgumentList;
     Node* Body = nullptr;
 public:
     NodeLambda(
-        Node* type, std::string name, const std::vector<Node*> argumentList, Node* body = nullptr) :
+        Node* type, Node* name, const std::vector<Node*> argumentList, Node* body = nullptr) :
         Type(type), Name(name), ArgumentList(argumentList), Body(body) {
     };
 
     std::string print() override {
-        std::string fprint = "lambda " + Type->print() + " " + Name;
+        std::string fprint = "lambda " + Type->print() + " " + Name->print();
 
         fprint += "(";
         int size = ArgumentList.size();
@@ -227,6 +258,7 @@ public:
 
     ~NodeLambda() {
         delete Type; Type = nullptr;
+        delete Name; Name = nullptr;
         for (auto& i : ArgumentList) delete i;
         delete Body; Body = nullptr;
     };
@@ -307,16 +339,17 @@ public:
 
 class NodeCall : public Node
 {
-    std::string Name = "";
+    Node* Name = nullptr;
     std::vector<Node*> ArgumentConcreticList;
 public:
     NodeCall(
-        std::string name, const std::vector<Node*> argumentConcreticList) :
+        Node* name, const std::vector<Node*> argumentConcreticList) :
         Name(name), ArgumentConcreticList(argumentConcreticList) {
     };
 
     std::string print() override {
-        std::string fprint = Name;
+        if (!Name) return "";
+        std::string fprint = Name->print();
         fprint += "(";
         int size = ArgumentConcreticList.size();
         for (size_t i = 0; i < size; i++)
@@ -328,6 +361,7 @@ public:
     };
 
     ~NodeCall() {
+        delete Name;
         for (auto& i : ArgumentConcreticList) delete i;
     };
 };
@@ -507,21 +541,22 @@ public:
 
 class NodeNamespace : public Node {
 private:
-    std::string Name;
+    Node* Name = nullptr;
     Node* Body = nullptr;
 public:
-    NodeNamespace(const std::string& name, Node* body)
+    NodeNamespace(Node* name, Node* body)
         : Name(name), Body(body) {
     }
 
     std::string print() override {
-        std::string fprint = "namespace " + Name;
+        std::string fprint = "namespace " + Name->print();
         if (Body) fprint += " " + Body->print();
         return fprint;
     }
 
     ~NodeNamespace() override {
         delete Body;
+        delete Name;
     }
 };
 
@@ -551,21 +586,22 @@ public:
 };
 
 class NodeProperty : public Node {
-    std::string Name, Getter, Setter;
+    std::string Name;
     Node* Type = nullptr;
+    Node* Getter = nullptr, * Setter = nullptr;
 public:
     NodeProperty(
         const std::string& name,
         Node* type,
-        const std::string& getter,
-        const std::string& setter) :
+        Node* getter,
+        Node* setter) :
         Name(name), Type(type), Getter(getter), Setter(setter) {}
 
     std::string print() override {
         return "__property" + 
             Type->print() + " " + Name + " " + "{\n" +
-            (Getter.empty() ? "" : "write = " + Getter + ",") +
-            (Setter.empty() ? "" : "read = " + Setter) +
+            (!Getter ? "" : "write = " + Getter->print() + ",") +
+            (!Setter ? "" : "read = " + Setter->print()) +
             "\n}";
     }
     ~NodeProperty() {
