@@ -13,7 +13,7 @@ namespace[inline] CL1::CD1
 {
     namespace CI
     {
-        var[int] Temporary;
+        var[std::pair<int, int>] Temporary;
     }
 }
 

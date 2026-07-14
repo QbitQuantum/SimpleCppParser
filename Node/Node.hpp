@@ -24,7 +24,9 @@ public:
         NONE, POINTER, REF, RVALUE
     };
     Node* Type = nullptr;
+    std::vector<Node*> TemplateArgs;
     bool IsConst = false;
+    bool IsTemplate = false;
     EType eType = EType::NONE;
     std::string getSymbol() const {
         switch (eType)
@@ -36,16 +38,29 @@ public:
         }
     }
 public:
-    NodeType(Node* type, bool isConst, EType etype) :
-        Type(type), IsConst(isConst), eType(etype) {};
+    NodeType(Node* type, bool isTemplate, bool isConst, EType etype, const std::vector<Node*>& templateArgv = {}) :
+        Type(type), IsTemplate(isTemplate), IsConst(isConst), eType(etype), TemplateArgs(templateArgv) {};
 
     std::string print() override {
-        std::string fprint = "[" + (IsConst ? std::string("const ") : std::string("")) + Type->print() +
-            getSymbol() + "]";
+        
+        std::string TemplateArg;
+        if (!TemplateArgs.empty())
+        {
+            TemplateArg += "<";
+            int size = TemplateArgs.size();
+            for (size_t i = 0; i < size; i++)
+                TemplateArg += TemplateArgs[i]->print() + (i == size - 1 ? "" : ", ");
+            TemplateArg += ">";
+        }
+        const std::string& OpenBracket = IsTemplate ? "" : "[";
+        const std::string& CloseBracket = IsTemplate ? "" : "]";
+        std::string fprint = OpenBracket + (IsConst ? std::string("const ") : std::string("")) + Type->print() + TemplateArg +
+            getSymbol() + CloseBracket;
         return fprint;
     };
 
     ~NodeType() {
+        for (auto& i : TemplateArgs) delete i;
         delete Type;
     }
 };

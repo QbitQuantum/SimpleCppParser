@@ -110,7 +110,17 @@ private:
 	std::vector<Node*> parseArgumentList();
 	Node* parseArgument();
 
-	Node* parseType();
+	std::vector<Node*> parseTemplateList();
+	Node* parseTemplate();
+
+
+	// Проблема в том, что если это убрать, то получится 
+	// var[pair<[int], [vector<[int]>]>] Temporary
+	// Что с точки зрения собственного синтаксиса корректно
+	// Но нам надо нормальный вид
+	Node* parseType(bool IsTemplate = false);
+	Node* parseTypeBracket();
+
 	Node* parseIdeitfierScope();
 	Node* parseScope();
 
@@ -216,7 +226,7 @@ Node* Parser::parseProperty() {
 	stream.consume(TokenKind::Property); // __property
 	
 	// тип (int)
-	Node* Type = parseType();
+	Node* Type = parseTypeBracket();
 	if (!Type) throw std::runtime_error("Expected type in __property");
 
 	// имя (Value)
@@ -285,7 +295,7 @@ Node* Parser::parseScope() {
 	}
 }
 
-Node* Parser::parseType() {
+Node* Parser::parseType(bool IsTemplate) {
 
 	/*
 	Допустимые вариации типов
@@ -301,9 +311,6 @@ Node* Parser::parseType() {
 	bool IsConst = false;
 	NodeType::EType eType = NodeType::EType::NONE;
 
-	if (!stream.match(TokenKind::LeftBracket))
-		throw std::runtime_error("Expected LeftBracket token");
-
 	// Проверям на константность
 	if (stream.match(TokenKind::Const))
 		IsConst = true;
@@ -315,6 +322,15 @@ Node* Parser::parseType() {
 	// Парсим имя типа
 	Type = parseIdeitfierScope();
 
+	std::vector<Node*> TemplateArgs;
+
+	if (stream.peek().type == TokenKind::Less)
+	{
+		TemplateArgs = parseTemplateList();
+		if (stream.peek().type != TokenKind::Greater)
+			throw std::runtime_error("Expected Greater token");
+		stream.consume(TokenKind::Greater);
+	}
 	// Проверяем семантику 
 	switch (stream.peek().type)
 	{
@@ -333,18 +349,71 @@ Node* Parser::parseType() {
 	default:
 		break;
 	}
+	return new NodeType(Type, IsTemplate, IsConst, eType, TemplateArgs);
+};
+
+std::vector<Node*> Parser::parseTemplateList() {
+
+	stream.consume(TokenKind::Less);
+
+	std::vector<Node*> TemplateList;
+	if (stream.peek().type == TokenKind::Greater)
+		return TemplateList;
+
+	TemplateList.push_back(parseTemplate());
+	while (stream.peek().type == TokenKind::Comma) {
+		stream.consume(TokenKind::Comma);
+		TemplateList.push_back(parseTemplate());
+	}
+	return TemplateList;
+};
+
+Node* Parser::parseTemplate() {
+	switch (stream.peek().type)
+	{
+	case TokenKind::NullptrLiteral:
+		return parseNullptr();
+	case TokenKind::IdentifierLiteral:
+		return parseType(true);
+	case TokenKind::IntegerLiteral:
+	case TokenKind::HexLiteral:
+	case TokenKind::BinaryLiteral:
+		return parseNodeInteger();
+	case TokenKind::FloatLiteral:
+	case TokenKind::DoubleLiteral:
+	case TokenKind::LongDoubleLiteral:
+		return parseNodeFloating();
+	case TokenKind::TrueLiteral:
+	case TokenKind::FalseLiteral:
+		return parseNodeBoolean();
+	case TokenKind::StringLiteral:
+	case TokenKind::WStringLiteral:
+		return parseNodeString();
+	case TokenKind::CharLiteral:
+	case TokenKind::WCharLiteral:
+		return parseNodeBoolean();
+	}
+	throw std::runtime_error("Not corrected token");
+};
+
+Node* Parser::parseTypeBracket() {
+
+	if (!stream.match(TokenKind::LeftBracket))
+		throw std::runtime_error("Expected LeftBracket token");
+
+	Node* Type = parseType();
 
 	if (!stream.match(TokenKind::RightBracket))
 		throw std::runtime_error("Expected RightBracket token");
 
-	return new NodeType(Type, IsConst, eType);
+	return Type;
 };
 
 Node* Parser::parseVar() {
 
 	stream.consume(TokenKind::Var);
 
-	auto Type = parseType();
+	auto Type = parseTypeBracket();
 
 	if (!Type)
 		return nullptr;
@@ -500,7 +569,7 @@ Node* Parser::parseArgument() {
 		return nullptr;
 	stream.consume(TokenKind::Var);
 
-	auto Type = parseType();
+	auto Type = parseTypeBracket();
 	if (!Type) return nullptr;
 
 	std::vector<Node*> ContainerDeclarationList;
@@ -524,7 +593,7 @@ Node* Parser::parseFunction() {
 
 	stream.consume(TokenKind::Function);
 
-	auto Type = parseType();
+	auto Type = parseTypeBracket();
 
 	if (!Type)
 		return nullptr;
@@ -672,7 +741,7 @@ Node* Parser::parseLambda() {
 
 	stream.consume(TokenKind::Lambda);
 
-	auto Type = parseType();
+	auto Type = parseTypeBracket();
 
 	if (!Type)
 		return nullptr;
@@ -920,7 +989,7 @@ Node* Parser::parseGenericParametr() {
 	if (stream.match(TokenKind::Equals)) {
 		if (stream.peek().type == TokenKind::LeftBracket)
 		{
-			defaultExpr = parseType();
+			defaultExpr = parseTypeBracket();
 		}
 		if (stream.peek().type == TokenKind::IdentifierLiteral)
 		{
