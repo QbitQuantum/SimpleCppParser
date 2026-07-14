@@ -9,28 +9,22 @@ access LinkConnection = link::connection;
 access LinkResponse = link::response;
 access LinkType = link::type;
 
-namespace CL
+namespace[inline] CL1::CD1
 {
-    namespace[inline] CD
+    namespace CI
     {
         var[int] Temporary;
     }
 }
 
-namespace[inline] CL1::CD1
-{
-    var[int] Temporary;
-}
-
 // Объявление переменной
 var[const int] INDEX_INVALID = -1;
-// base link class
 
 // Это POD - тип.
 // Никаких методов кроме статических. Только данные и  только публичные
 // Можно наследовать, но не может наследовать другие
 // Либо иди пиши class и не страдай фигнёй
-// Может быть шаблонным. Вроде не сильно влияет на POD-ность
+// Может быть шаблонным
 struct StCacheName [T, K = [int], W = int()]
 {
 public:
@@ -39,6 +33,8 @@ static:
     var[const int] static_INDEX_INVALID = -1;
     function[void] validata_field(var[int]);
 }
+
+// base link class
 
 // Объявление класса с наследованием
 class OctetBaseLink : OctetBaseNode {
@@ -52,23 +48,14 @@ private:
     private:
         var[string] __link;
         var[OctetBaseLink*] __parent;
-        var[bool] __abort = false;
-        var[int] __arg = INDEX_INVALID;
 
         // Объявление функций
         function[void] _eventerror(var[const TObject*],  var[string]);
-        function[void] _eventcomplete(var[const TObject*], var[const _di_IHTTPResponse]);
-        function[void] _eventreceive(var[const TObject*], var[__int64] AContentLength, var[__int64] AReadCount, var[bool&] Abort);
-
     public:
 
         var[string] RequestTag;
         var[bool] Completed = false;
 
-        // Объявление геттера/сеттера
-        __property[string] Link { write = __link };
-
-        function[void] Get();
         function[void] Abort();
 
         constructor(var[OctetBaseLink*], var[string] RequestTag, var[string] Link, var[ERequestObtainData], var[int] Argument = INDEX_INVALID);
@@ -90,12 +77,6 @@ protected:
         __contime = LinkConnection::timeout, 
         __restime = LinkResponse::timeout;
 
-    var[int] 
-        __contimeasync = LinkConnection::timeout_async, 
-        __restimeasync = LinkResponse::timeout_async;
-    var[int] 
-        __lastcode = LinkResponse::timeout;
-
     // class init
     function[void] _init();
 
@@ -104,7 +85,6 @@ protected:
 
     // internal events
     function[void] _eventerror(var[const TObject*],  var[string]);
-    function[void] _eventcomplete(var[const TObject*], var[const _di_IHTTPResponse]);
     function[void] _eventauth(var[const TObject*], var[TAuthTargetType] Target, var[string], var[string], var[string&], var[string], var[bool&], var[TAuthPersistenceType&]);
 
 static:
@@ -124,30 +104,16 @@ public:
         var[int] Temp = -1;
 
         // Всё по умолчанию по ссылке. Всё.
-        lambda[int] _LocalRead(var[int] Type)
-        {
-            
-        }
+        lambda[int] _LocalRead(var[int] Type) { }
     };
     function[string] Cache(var[string] Link);
     function[void] Stop(var[string] RequestTag = "");
     function[bool] Write(var[string], var[string] Data, var[TStringStream*] Response = NULL);
-    function[bool] Delete(var[string]);
-    function[bool] Auth(var[string], var[string] User, var[string] Pass, var[TStringStream*] Response = NULL);
-    function[string] ResponseCode();
-    function[string] ResponseCode(var[int], var[string]);
-    function[void] ClearCache(var[int] AgeDays);
-    function[string] ClearCache(var[bool] Download);
 
     // properties
     __property[TNetHTTPClient*] Client { write = __asyncclient };
     __property[int] ConnectionTimeout { write = __contime };
     __property[int] ResponseTimeout { write = __restime };
-    __property[int] ConnectionTimeoutAsync { read = __contimeasync };
-    __property[int] ResponseTimeoutAsync { read = __restimeasync };
-    __property[int] LastResponseCode { write = __lastcode };
-    __property[string] ConnectionHost { read = __host };
-    __property[string] ConnectionTask { read = __host };
 
     constructor(
         var[TComponent*], 
@@ -167,15 +133,13 @@ function[void] BaseRequest::Abort()  {
 class Base [T, K = [int], W = int()] {
 
 public:
+    
     // Без всяких если. Есть параметрах используется этот шаблон
-    // То используем его
-    // Надо подумать об экранирование что-ли
-    // Добавлять ключевое слово typename/template многословно
-    // Можно использовать ^ - но я нарушаю принцип наименьшего использования символов
-    // Но ^ уже использутся, но мы знаем что мы наъодится внутри var, следовательно не будет проблем.
-    // В C++ используется std::pair<std::string, std::vector<st::string>>
     // ^T::value янво лучше чем typename T::value
-    // var[typename T::value] PublicBaseData; vs var[^T::value] PublicBaseData; vs var[template T::value] PublicBaseData;
+    //    var[typename T::value] PublicBaseData;
+    // vs var[^T::value] PublicBaseData; 
+    // vs var[template T::value] PublicBaseData;
+
     var[T] PublicBaseData;
     function[void] [virtual] PublicMethodBase();
     function[void]  Base();
@@ -188,7 +152,6 @@ class Derived : public Base [int, std::string, 5] {
 
 public:
     function[void] [override] PublicMethodBase();
-    function[void]  Derived();
     class Math {
     static:
         function[void]  PublicMethodBase();
@@ -222,17 +185,7 @@ function[int] main () {
         un = nullptr;
     }
 
-    /*
-    Это аналог 
-    do
-    {
-        // Эквивалент C++: delete un;
-        un = delete;
-        un = nullptr;
-    } while (un);
-    И мне лень парсить сложную конструкцию
-    Забивая парсер лишней конструкцией помимо while
-    */
+    /* Это аналог  do-while цикла */
     while (un) do
     {
         // Эквивалент C++: delete un;
@@ -240,29 +193,9 @@ function[int] main () {
         un = nullptr;
     }
 
-    try
-    {
-        
-    }
-    // catch(...)
-    catch
-    {
-    
-    }
+    try { } catch /* catch(...) */ { }
+    try { } // catch(...) {}
+    try { } catch (var[IOException*] object) { }
 
-    try
-    {
-        
-    }
-    // catch(...) {}
-
-    try
-    {
-        
-    }
-    catch (var[IOException*] object)
-    {
-
-    }
     return 0;
 };
