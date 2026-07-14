@@ -158,6 +158,7 @@ Node* Parser::parseTopLevel() {
 	case TokenKind::Var:      return parseVar();
 	case TokenKind::Function: return parseFunction();
 	case TokenKind::Class:    return parseClass();
+	case TokenKind::Struct:    return parseStruct();
 	case TokenKind::IdentifierLiteral: return parseIdentifier();
 	case TokenKind::Namespace: return parseNamespace();
 	default:
@@ -1062,8 +1063,16 @@ Node* Parser::parseStruct() {
 	else
 		throw std::runtime_error("Expected class name");
 
-	// Generic-параметры: [T, K = int]
-	Node* genericParams = parseGenericParametrs();
+	Node* genericParams = nullptr;
+
+	// Generic-параметры: [T, K = [int]]
+	if (stream.match(TokenKind::LeftBracket))
+	{
+		genericParams = parseGenericParametrs();
+		if (stream.peek().type != TokenKind::RightBracket)
+			throw std::runtime_error("Expected RightBracket token");
+		stream.consume(TokenKind::RightBracket);
+	}
 
 	NodeStruct::INHERITANCE_TYPE inheritanceType = NodeStruct::INHERITANCE_TYPE::PUBLIC;
 	Node* body = nullptr;
