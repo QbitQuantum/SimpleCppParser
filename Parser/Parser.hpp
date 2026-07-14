@@ -984,7 +984,8 @@ Node* Parser::parseClass() {
 	// Generic-параметры: [T, K = [int]]
 	if (stream.match(TokenKind::LeftBracket))
 	{
-		genericParams = parseGenericParametrs();
+		if (stream.peek().type != TokenKind::RightBracket)
+			genericParams = parseGenericParametrs();
 		if (stream.peek().type != TokenKind::RightBracket)
 			throw std::runtime_error("Expected RightBracket token");
 		stream.consume(TokenKind::RightBracket);
@@ -1068,7 +1069,8 @@ Node* Parser::parseStruct() {
 	// Generic-параметры: [T, K = [int]]
 	if (stream.match(TokenKind::LeftBracket))
 	{
-		genericParams = parseGenericParametrs();
+		if (stream.peek().type != TokenKind::RightBracket)
+			genericParams = parseGenericParametrs();
 		if (stream.peek().type != TokenKind::RightBracket)
 			throw std::runtime_error("Expected RightBracket token");
 		stream.consume(TokenKind::RightBracket);
