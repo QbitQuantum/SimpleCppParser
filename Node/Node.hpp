@@ -73,7 +73,9 @@ public:
     NodeIdentifier(const std::string& name, Node* scope) :
         Name(name), Scope(scope) {
     };
-    std::string print() override { return Name; };
+    std::string print() override { 
+        return (Scope ? Scope->print() : "") + Name;
+    };
     ~NodeIdentifier() override {
         delete Scope;
     };
@@ -168,7 +170,7 @@ public:
         std::string fprint = "";
         int size = Scope.size();
         for (size_t i = 0; i < size; i++)
-            fprint += Scope[i] + (i == size - 1 ? "" : "::");
+            fprint += Scope[i] + "::";
         return fprint;
     
     };
