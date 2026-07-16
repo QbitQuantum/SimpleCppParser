@@ -481,7 +481,7 @@ Node* Parser::parseExpression() {
 		return parseNodeString();
 	case TokenKind::CharLiteral:
 	case TokenKind::WCharLiteral:
-		return parseNodeBoolean();
+		return parseNodeCharacter();
 	}
 	return nullptr;
 }
