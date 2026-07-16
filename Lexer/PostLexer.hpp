@@ -53,8 +53,24 @@ private:
 	Token Apostrophe();
 	Token Literal();
 
-	bool neof() {
-		return PosBuffer < SizeBufferBasic;
+	bool neof(const int& pos = 0) const {
+		return (PosBuffer + pos) < SizeBufferBasic;
+	}
+
+	Token GetUnsafeToken(const int& pos = 0) const {
+		return LexerTokenBufferBasic[PosBuffer + pos];
+	}
+
+	Token GetCurrentToken(const int& pos = 0) {
+		if (!neof(pos))
+			return Token{ TokenKind::neof, "", 0, 0 };
+		return GetUnsafeToken(pos);
+	}
+
+	bool MatchToken(TokenKind Type, const int& pos = 0) const {
+		if (neof(pos) && GetUnsafeToken(pos).type == Type)
+			return true;
+		return false;
 	}
 
 public:
@@ -74,13 +90,11 @@ public:
 void PostLexer::Init() {
 
 	while (neof()) {
-		auto it = map.find(LexerTokenBufferBasic[PosBuffer].type);
-
+		auto TokCurrent = GetUnsafeToken();
+		auto it = map.find(TokCurrent.type);
 		LexerTokenBufferAdvance.push_back(
-			it != map.end() ?
-			(this->*it->second)() : LexerTokenBufferBasic[PosBuffer]
+			it != map.end() ? (this->*it->second)() : TokCurrent
 		);
-
 		PosBuffer++;
 	}
 }
@@ -88,17 +102,15 @@ void PostLexer::Init() {
 // Обработка строковых литералов 
 Token PostLexer::Quotation() /* " */ {
 
+	Token TLexToken = GetCurrentToken();
+	TLexToken.type = TokenKind::StringLiteral;
+
 	IsInclude = false;
-
-	Token TLexToken = {
-		TokenKind::StringLiteral, "", 0, 0
-	};
-
 	std::string value = "";
 
 	PosBuffer++;
-	while (PosBuffer < SizeBufferBasic && LexerTokenBufferBasic[PosBuffer].type != TokenKind::Quotation) {
-		value += LexerTokenBufferBasic[PosBuffer].value;
+	while (!MatchToken(TokenKind::Quotation)) {
+		value += GetUnsafeToken().value;
 		PosBuffer++;
 	};
 
@@ -115,13 +127,13 @@ Token PostLexer::Quotation() /* " */ {
 
 // Обработка директив препроцессора
 Token PostLexer::Hash() /* # */ {
+
+	Token TLexToken = GetCurrentToken();
+	TLexToken.type = TokenKind::Unknown;
+
 	PosBuffer++;
 
-	Token TLexToken = {
-		TokenKind::Unknown, "", 0, 0
-	};
-
-	std::string directive = "#" + LexerTokenBufferBasic[PosBuffer].value;
+	std::string directive = "#" + GetUnsafeToken().value;
 
 	auto it = TokenDirectiveMap.find(directive);
 	if (it != TokenDirectiveMap.end())
@@ -136,12 +148,11 @@ Token PostLexer::Hash() /* # */ {
 
 // Обработка амперсанда
 Token PostLexer::Ampersand() /* & */ {
-	Token TLexToken = {
-		TokenKind::BitAnd, "&", 0, 0
-	};
 
-	if (PosBuffer + 1 < SizeBufferBasic &&
-		LexerTokenBufferBasic[PosBuffer + 1].type == TokenKind::Ampersand)
+	Token TLexToken = GetCurrentToken();
+	TLexToken.type = TokenKind::BitAnd;
+
+	if (MatchToken(TokenKind::Ampersand, 1))
 	{
 		TLexToken.type = TokenKind::And;
 		TLexToken.value = "&&";
@@ -153,12 +164,11 @@ Token PostLexer::Ampersand() /* & */ {
 
 // Обработка плюса
 Token PostLexer::Plus() /* + */ {
-	Token TLexToken = {
-		TokenKind::Plus, "+", 0, 0
-	};
 
-	if (PosBuffer + 1 < SizeBufferBasic &&
-		LexerTokenBufferBasic[PosBuffer + 1].type == TokenKind::Plus)
+	Token TLexToken = GetCurrentToken();
+	TLexToken.type = TokenKind::Plus;
+
+	if (MatchToken(TokenKind::Plus, 1))
 	{
 		TLexToken.type = TokenKind::Inc;
 		TLexToken.value = "++";
@@ -170,19 +180,17 @@ Token PostLexer::Plus() /* + */ {
 
 // Обработка минуса
 Token PostLexer::Minus() /* - */ {
-	Token TLexToken = {
-		TokenKind::Minus, "-", 0, 0
-	};
 
-	if (PosBuffer + 1 < SizeBufferBasic &&
-		LexerTokenBufferBasic[PosBuffer + 1].type == TokenKind::Minus)
+	Token TLexToken = GetCurrentToken();
+	TLexToken.type = TokenKind::Minus;
+
+	if (MatchToken(TokenKind::Minus, 1))
 	{
 		TLexToken.type = TokenKind::Dec;
 		TLexToken.value = "--";
 		PosBuffer++;
 	}
-	else if (PosBuffer + 1 < SizeBufferBasic &&
-		LexerTokenBufferBasic[PosBuffer + 1].type == TokenKind::Greater)
+	else if (MatchToken(TokenKind::Greater, 1))
 	{
 		TLexToken.type = TokenKind::Arrow;
 		TLexToken.value = "->";
@@ -193,12 +201,11 @@ Token PostLexer::Minus() /* - */ {
 
 // Обработка двоеточие
 Token PostLexer::Colon() /* : */ {
-	Token TLexToken = {
-		TokenKind::Colon, ":", 0, 0
-	};
 
-	if (PosBuffer + 1 < SizeBufferBasic &&
-		LexerTokenBufferBasic[PosBuffer + 1].type == TokenKind::Colon)
+	Token TLexToken = GetCurrentToken();
+	TLexToken.type = TokenKind::Colon;
+
+	if (MatchToken(TokenKind::Colon, 1))
 	{
 		TLexToken.type = TokenKind::ScResOp;
 		TLexToken.value = "::";
@@ -210,17 +217,17 @@ Token PostLexer::Colon() /* : */ {
 
 // Обработка символа уменьшения
 Token PostLexer::Less() /* < */ {
-	Token TLexToken = {
-		TokenKind::Less, "<", 0, 0
-	};
+
+	Token TLexToken = GetCurrentToken();
+	TLexToken.type = TokenKind::Less;
 
 	if (IsInclude)
 	{
 		TLexToken.type = TokenKind::StringLiteral;
 		std::string content = "";
 
-		while (neof() && LexerTokenBufferBasic[PosBuffer].type != TokenKind::Greater) {
-			content += LexerTokenBufferBasic[PosBuffer].value;
+		while (!MatchToken(TokenKind::Greater)) {
+			content += GetUnsafeToken().value;
 			PosBuffer++;
 		}
 
@@ -229,15 +236,13 @@ Token PostLexer::Less() /* < */ {
 		return TLexToken;
 	}
 
-	if (PosBuffer + 1 < SizeBufferBasic &&
-		LexerTokenBufferBasic[PosBuffer + 1].type == TokenKind::Equals)
+	if (MatchToken(TokenKind::Equals, 1))
 	{
 		TLexToken.type = TokenKind::LessEqual;
 		TLexToken.value = "<=";
 		PosBuffer++;
 	}
-	else if (PosBuffer + 1 < SizeBufferBasic &&
-		LexerTokenBufferBasic[PosBuffer + 1].type == TokenKind::Greater)
+	else if (MatchToken(TokenKind::Greater, 1))
 	{
 		TLexToken.type = TokenKind::NotEqual;
 		TLexToken.value = "<>";
@@ -249,12 +254,11 @@ Token PostLexer::Less() /* < */ {
 
 // Обработка символа ровно
 Token PostLexer::Equals() /* = */ {
-	Token TLexToken = {
-		TokenKind::Equals, "=", 0, 0
-	};
 
-	if (PosBuffer + 1 < SizeBufferBasic &&
-		LexerTokenBufferBasic[PosBuffer + 1].type == TokenKind::Equals)
+	Token TLexToken = GetCurrentToken();
+	TLexToken.type = TokenKind::Equals;
+
+	if (MatchToken(TokenKind::Equals, 1))
 	{
 		TLexToken.type = TokenKind::Equal;
 		TLexToken.value = "==";
@@ -266,19 +270,18 @@ Token PostLexer::Equals() /* = */ {
 
 // Обработка символа ^
 Token PostLexer::Caret() /* ^ */ {
-	return Token{
-		TokenKind::Xor, "^", 0, 0
-	};
+	Token TLexToken = GetCurrentToken();
+	TLexToken.type = TokenKind::Xor;
+	return TLexToken;
 }
 
 // Обработка символа прямого слэша
 Token PostLexer::Pipe() /* | */ {
-	Token TLexToken = {
-		TokenKind::BitOr, "|", 0, 0
-	};
 
-	if (PosBuffer + 1 < SizeBufferBasic &&
-		LexerTokenBufferBasic[PosBuffer + 1].type == TokenKind::Pipe)
+	Token TLexToken = GetCurrentToken();
+	TLexToken.type = TokenKind::BitOr;
+
+	if (MatchToken(TokenKind::Pipe, 1))
 	{
 		TLexToken.type = TokenKind::Or;
 		TLexToken.value = "||";
@@ -290,12 +293,11 @@ Token PostLexer::Pipe() /* | */ {
 
 // Обработка символа астерикса
 Token PostLexer::Asterisk() /* * */ {
-	Token TLexToken = {
-		TokenKind::Asterisk, "*", 0, 0
-	};
 
-	if (PosBuffer + 1 < SizeBufferBasic &&
-		LexerTokenBufferBasic[PosBuffer + 1].type == TokenKind::Asterisk)
+	Token TLexToken = GetCurrentToken();
+	TLexToken.type = TokenKind::Asterisk;
+
+	if (MatchToken(TokenKind::Asterisk, 1))
 	{
 		TLexToken.type = TokenKind::Power;
 		TLexToken.value = "**";
@@ -307,15 +309,16 @@ Token PostLexer::Asterisk() /* * */ {
 
 // Обработка строковых литералов 
 Token PostLexer::Apostrophe() /* ' */ {
+
+	Token TLexToken = GetCurrentToken();
+	TLexToken.type = TokenKind::CharLiteral;
+
 	PosBuffer++;
-	Token TLexToken = {
-		TokenKind::CharLiteral, "", 0, 0
-	};
 
 	std::string value = "";
 
-	while (PosBuffer < SizeBufferBasic && LexerTokenBufferBasic[PosBuffer].type != TokenKind::Apostrophe) {
-		value += LexerTokenBufferBasic[PosBuffer].value;
+	while (!MatchToken(TokenKind::Apostrophe)) {
+		value += GetUnsafeToken().value;
 		PosBuffer++;
 	};
 
@@ -332,7 +335,7 @@ Token PostLexer::Apostrophe() /* ' */ {
 
 // Обработка типа литералов 
 Token PostLexer::Literal() {
-	Token TLexToken = LexerTokenBufferBasic[PosBuffer];
+	Token TLexToken = GetCurrentToken();
 
 	// Проверяем ключевые слова
 	auto itKeywordMap = TokenKeywordMap.find(CppHash(TLexToken.value));
