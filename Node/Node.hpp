@@ -32,7 +32,7 @@ public:
         switch (eType)
         {
         case NodeType::EType::POINTER: return "*";
-        case NodeType::EType::REF: return "*";
+        case NodeType::EType::REF: return "&";
         case NodeType::EType::RVALUE: return "&&";
         default: return "";
         }
