@@ -234,7 +234,6 @@ enum class TokenKind : unsigned short {
     // Арифметические
     Inc,         // ++ (инкремент)
     Dec,         // -- (декремент)
-    Power,       // ** (возведение в степень)
 
     // Логические/битовые
     And,         // &&
@@ -507,7 +506,6 @@ std::string getTokenName(TokenKind kind) {
 
     GENERATE_NAME(Inc);
     GENERATE_NAME(Dec);
-    GENERATE_NAME(Power);
     GENERATE_NAME(And);
     GENERATE_NAME(Or);
     GENERATE_NAME(Not);

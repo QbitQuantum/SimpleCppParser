@@ -33,7 +33,6 @@ private:
 	{TokenKind::Equals, &PostLexer::Equals},         // =
 	{TokenKind::Caret, &PostLexer::Caret},           // ^
 	{TokenKind::Pipe, &PostLexer::Pipe},             // |
-	{TokenKind::Asterisk, &PostLexer::Asterisk},     // *
 	{TokenKind::Apostrophe, &PostLexer::Apostrophe}, // '
 	{TokenKind::Literal, &PostLexer::Literal},       // Literal
 	} };
@@ -285,22 +284,6 @@ Token PostLexer::Pipe() /* | */ {
 	{
 		TLexToken.type = TokenKind::Or;
 		TLexToken.value = "||";
-		PosBuffer++;
-	}
-
-	return TLexToken;
-}
-
-// Обработка символа астерикса
-Token PostLexer::Asterisk() /* * */ {
-
-	Token TLexToken = GetCurrentToken();
-	TLexToken.type = TokenKind::Asterisk;
-
-	if (MatchToken(TokenKind::Asterisk, 1))
-	{
-		TLexToken.type = TokenKind::Power;
-		TLexToken.value = "**";
 		PosBuffer++;
 	}
 
