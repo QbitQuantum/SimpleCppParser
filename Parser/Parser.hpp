@@ -91,7 +91,7 @@ private:
 	Node* parseStruct();
 	Node* parseConstructor();
 	Node* parseDestructor();
-	Node* parseExpression();
+	Node* parseExpression(int priory = 0);
 	Node* parseDeclaration();
 	Node* parseProperty();
 	Node* parseNew();
@@ -106,6 +106,8 @@ private:
 	Node* parseNodeBoolean();
 	Node* parseNodeString();
 	Node* parseNodeCharacter();
+
+	Node* parsePrimary();
 
 	std::vector<Node*> parseArgumentList();
 	Node* parseArgument();
@@ -123,6 +125,155 @@ private:
 
 	Node* parseIdeitfierScope();
 	Node* parseScope();
+
+	bool static IsBinaryOperator(TokenKind Kind) {
+		switch (Kind)
+		{
+			// Арифметические
+		case TokenKind::Minus:
+		case TokenKind::Plus:
+		case TokenKind::Asterisk:
+		case TokenKind::Slash:
+		case TokenKind::Percent:
+			// Операции сравнения
+		case TokenKind::Equal:
+		case TokenKind::NotEqual:
+		case TokenKind::Less:
+		case TokenKind::Greater:
+		case TokenKind::LessEqual:
+		case TokenKind::GreaterEqual:
+			// <=>	Трёхстороннее сравнение
+			// Побитовые (для целых чисел)
+		case TokenKind::Ampersand:
+		case TokenKind::Pipe:
+		case TokenKind::Caret:
+		case TokenKind::Shl:
+		case TokenKind::Shr:
+			// Логические
+		case TokenKind::And:
+		case TokenKind::Or:
+			//Операции присваивания
+		case TokenKind::Assign:
+		case TokenKind::PlusAssign:
+		case TokenKind::MinusAssign:
+		case TokenKind::MultAssign:
+		case TokenKind::DivAssign:
+		case TokenKind::ModAssign:
+		case TokenKind::AndAssign:
+		case TokenKind::OrAssign:
+		case TokenKind::XorAssign:
+		case TokenKind::ShlAssign:
+		case TokenKind::ShrAssign:
+			return true;
+		}
+		return false;
+	}
+
+	bool static IsUnaryOperator(TokenKind Kind) {
+		switch (Kind)
+		{
+		case TokenKind::Minus:
+		case TokenKind::Plus:
+		case TokenKind::Dec:
+		case TokenKind::Inc:
+		case TokenKind::Asterisk:
+		case TokenKind::Exclamation:
+		case TokenKind::Tilde:
+			return true;
+		}
+		return false;
+	}
+
+	// Для бинарных операторов
+	int static GetBinaryOperatorPriority(TokenKind Kind) {
+		switch (Kind) {
+			// Уровень 1: Присваивание (самый низкий приоритет)
+		case TokenKind::Assign:
+		case TokenKind::PlusAssign:
+		case TokenKind::MinusAssign:
+		case TokenKind::MultAssign:
+		case TokenKind::DivAssign:
+		case TokenKind::ModAssign:
+		case TokenKind::AndAssign:
+		case TokenKind::OrAssign:
+		case TokenKind::XorAssign:
+		case TokenKind::ShlAssign:
+		case TokenKind::ShrAssign:
+			return 1;
+
+			// Уровень 2: Логическое ИЛИ
+		case TokenKind::Or:
+			return 2;
+
+			// Уровень 3: Логическое И
+		case TokenKind::And:
+			return 3;
+
+			// Уровень 4: Побитовое ИЛИ
+		case TokenKind::Pipe:
+			return 4;
+
+			// Уровень 5: Побитовое XOR
+		case TokenKind::Caret:
+			return 5;
+
+			// Уровень 6: Побитовое И
+		case TokenKind::Ampersand:
+			return 6;
+
+			// Уровень 7: Равенство
+		case TokenKind::Equal:
+		case TokenKind::NotEqual:
+			return 7;
+
+			// Уровень 8: Сравнения
+		case TokenKind::Less:
+		case TokenKind::Greater:
+			// ...
+			return 8;
+
+			// Уровень 9: Сдвиги
+		case TokenKind::Shl:
+		case TokenKind::Shr:
+			return 9;
+
+			// Уровень 10: Сложение/вычитание
+		case TokenKind::Plus:
+		case TokenKind::Minus:
+			return 10;
+
+			// Уровень 11: Умножение/деление
+		case TokenKind::Asterisk:
+		case TokenKind::Slash:
+		case TokenKind::Percent:
+			return 11;
+
+		default:
+			return 0; // Нет приоритета
+		}
+	}
+
+	
+	/*
+		// Для унарных операторов
+	int static GetUnaryOperatorPriority(TokenKind Kind) {
+		switch (Kind) {
+			// Уровень 3: Унарные операции
+		case TokenKind::Plus:        // унарный плюс
+		case TokenKind::Minus:       // унарный минус
+		case TokenKind::Inc:         // префиксный инкремент
+		case TokenKind::Dec:         // префиксный декремент
+		case TokenKind::Exclamation: // логическое НЕ
+		case TokenKind::Tilde:       // побитовое НЕ
+		case TokenKind::Asterisk:    // разыменование
+		case TokenKind::Ampersand:   // взятие адреса
+			return 3;
+
+		default:
+			return 0;
+		}
+	}
+	*/
 
 public:
 	std::vector<Token> ParserEngineBuffer;
@@ -454,36 +605,96 @@ Node* Parser::parseDeclaration() {
 	return new NodeDeclaration(Identifier, Exptression);
 }
 
-Node* Parser::parseExpression() {
-	switch (stream.peek().type)
+Node* Parser::parsePrimary() {
+
+	using UnaryOperand = NodeUnaryOp::UnaryOp;
+	UnaryOperand UnaryOp = UnaryOperand::Unknown;
+
+	auto getUnaryOperand = [](TokenKind op) -> UnaryOperand
+		{
+			switch (op) {
+			case TokenKind::Minus: return UnaryOperand::Minus;
+			default: return UnaryOperand::Unknown;
+			}
+		};
+
+	if (IsUnaryOperator(stream.peek().type))
 	{
-	case TokenKind::New:
-		return parseNew();
-	case TokenKind::Delete_:
-		return parseDelete();
-	case TokenKind::NullptrLiteral:
-		return parseNullptr();
+		UnaryOp = getUnaryOperand(stream.peek().type);
+		stream.consume(stream.peek().type);
+	}
+
+	Node* Right = nullptr;
+
+	switch (stream.peek().type) {
 	case TokenKind::IdentifierLiteral:
-		return parseIdentifier();
+		Right = parseIdentifier(); break;
 	case TokenKind::IntegerLiteral:
 	case TokenKind::HexLiteral:
 	case TokenKind::BinaryLiteral:
-		return parseNodeInteger();
+		Right = parseNodeInteger(); break;
 	case TokenKind::FloatLiteral:
 	case TokenKind::DoubleLiteral:
 	case TokenKind::LongDoubleLiteral:
-		return parseNodeFloating();
+		Right = parseNodeFloating(); break;
 	case TokenKind::TrueLiteral:
 	case TokenKind::FalseLiteral:
-		return parseNodeBoolean();
+		Right = parseNodeBoolean(); break;
 	case TokenKind::StringLiteral:
 	case TokenKind::WStringLiteral:
-		return parseNodeString();
+		Right = parseNodeString(); break;
 	case TokenKind::CharLiteral:
 	case TokenKind::WCharLiteral:
-		return parseNodeCharacter();
+		Right = parseNodeCharacter(); break;
+	case TokenKind::LeftParen:
+	{
+		stream.consume(TokenKind::LeftParen);
+		Right = parseExpression();
+		if (stream.peek().type != TokenKind::RightParen) {
+			throw std::runtime_error("Expected ')'");
+		}
+		stream.consume(TokenKind::RightParen);
+		break;
 	}
-	return nullptr;
+	default: 
+	{
+		// throw std::runtime_error("Unexpected token in primary expression");
+	}
+	}
+	return UnaryOp == UnaryOperand::Unknown ? Right : new NodeUnaryOp(UnaryOp, Right);
+}
+
+Node* Parser::parseExpression(int MinPrec) {
+	
+	using BinaryOperand = NodeBinaryOp::BinaryOp;
+	BinaryOperand UnaryOp = BinaryOperand::Unknown;
+
+	auto getBinaryOperand = [](TokenKind op) -> BinaryOperand
+		{
+			switch (op) {
+			case TokenKind::Minus: return BinaryOperand::Minus;
+			case TokenKind::Plus: return BinaryOperand::Plus;
+			case TokenKind::Asterisk: return BinaryOperand::Asterisk;
+			case TokenKind::Slash: return BinaryOperand::Slash;
+			default: return BinaryOperand::Unknown;
+			}
+		};
+	
+	Node* Left = parsePrimary();
+
+	while (true) {
+		TokenKind op = stream.peek().type;
+		if (!IsBinaryOperator(op))
+			break;
+		int currentPriority = GetBinaryOperatorPriority(op);
+		if (currentPriority < MinPrec)
+			break;
+		stream.consume(op);
+		Node* Right = parseExpression(currentPriority + 1);
+		Left = new NodeBinaryOp(getBinaryOperand(op), Left, Right);
+	}
+
+	return Left;
 }
 
 Node* Parser::parseNodeInteger() {

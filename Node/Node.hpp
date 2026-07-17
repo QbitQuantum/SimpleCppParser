@@ -587,21 +587,6 @@ public:
     }
 };
 
-class BinaryOpNode : public Node {
-    std::string op;
-    std::unique_ptr<Node> left;
-    std::unique_ptr<Node> right;
-public:
-    BinaryOpNode(const std::string& o, std::unique_ptr<Node> l,
-        std::unique_ptr<Node> r)
-        : op(o), left(std::move(l)), right(std::move(r)) {
-    }
-
-    std::string print() override {
-        return "";
-    }
-};
-
 class NodeProperty : public Node {
     std::string Name;
     Node* Type = nullptr;
@@ -729,6 +714,75 @@ public:
         delete Declaration;
         delete BodyCatch;
         delete BodyTry;
+    }
+};
+
+class NodeBinaryOp : public Node {
+public:
+    enum class BinaryOp
+    {
+        Unknown, Plus, Minus, Asterisk, Slash
+    };
+private:
+    BinaryOp Op = BinaryOp::Unknown;
+    Node* Left = nullptr;
+    Node* Right = nullptr;
+    std::string getSymbol()
+    {
+        switch (Op) {
+        case BinaryOp::Plus: return "+";
+        case BinaryOp::Minus: return "-";
+        case BinaryOp::Asterisk: return "*";
+        case BinaryOp::Slash: return "/";
+        default: return "";
+        }
+    }
+public:
+    NodeBinaryOp(const BinaryOp& op, Node* left, Node* right)
+        : Op(op), Left(left), Right(right) {
+    }
+
+    std::string print() override {
+        if (Op == BinaryOp::Unknown)
+            return "";
+        if (!Left || !Right)
+            return "";
+        return Left->print() + " " + getSymbol() + " " + Right->print();
+    }
+    ~NodeBinaryOp() {
+        delete Left;
+        delete Right;
+    }
+};
+
+class NodeUnaryOp : public Node {
+public:
+    enum class UnaryOp
+    {
+        Unknown, Minus
+    };
+private:
+    UnaryOp Op = UnaryOp::Unknown;
+    Node* Right = nullptr;
+    std::string getSymbol()
+    {
+        switch (Op) {
+        case UnaryOp::Minus: return "-";
+        default: return "";
+        }
+    }
+public:
+    NodeUnaryOp(const UnaryOp& op, Node* right)
+        : Op(op), Right(right) {
+    }
+
+    std::string print() override {
+        if (!Right)
+            return "";
+        return getSymbol() + Right->print();
+    }
+    ~NodeUnaryOp() {
+        delete Right;
     }
 };
 
