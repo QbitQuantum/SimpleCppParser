@@ -52,7 +52,6 @@ private:
     {'+', &Lexer::Plus},
     {',', &Lexer::Comma},
     {'-', &Lexer::Minus},
-    {'.', &Lexer::Dot},
     {':', &Lexer::Colon},
     {';', &Lexer::Semicolon},
     {'<', &Lexer::Less},
@@ -70,7 +69,7 @@ private:
     {'\'', &Lexer::Apostrophe},
     {'/', &Lexer::Slash},
 
-
+    {'.', &Lexer::LexNumericConstant},
     {'0', &Lexer::LexNumericConstant},
     {'1', &Lexer::LexNumericConstant},
     {'2', &Lexer::LexNumericConstant},
@@ -105,7 +104,6 @@ private:
     void Plus() { DEF_GENERATION_BASE(Plus); };
     void Comma() { DEF_GENERATION_BASE(Comma); };
     void Minus() { DEF_GENERATION_BASE(Minus); };
-    void Dot() { DEF_GENERATION_BASE(Dot); };
     void Colon() { DEF_GENERATION_BASE(Colon); };
     void Semicolon() { DEF_GENERATION_BASE(Semicolon); };
     void Less() { DEF_GENERATION_BASE(Less); };
@@ -160,14 +158,6 @@ void Lexer::LexerRun() {
     while (neof()) {
         char currentChar = GetChar();
 
-        // Проверяем, является ли символ началом числа
-        if (isdigit(currentChar) ||
-            (currentChar == '.' && PosBuffer + 1 < SourceCode.size() &&
-                isdigit(SourceCode[PosBuffer + 1]))) {
-            LexNumericConstant();
-            continue;
-        }
-
         if (auto it = map.find(currentChar); it != map.end()) {
             (this->*it->second)();
         }
@@ -218,11 +208,26 @@ char Lexer::getCharAndSize(const char* ptr, unsigned& size) const {
 }
 
 void Lexer::LexNumericConstant() {
+    
+    Token token 
+    {
+        TokenKind::Literal, "",
+        CurrentLine, CurrentColumn
+    };
+
     std::string numericValue = "";
     const char* CurPtr = SourceCode.c_str() + PosBuffer;
     unsigned Size = 0;
     char C = getCharAndSize(CurPtr, Size);
     char PrevCh = 0;
+
+    if (C == '.' && PosBuffer + 1 < SourceCode.size() && !isdigit(SourceCode[PosBuffer + 1]))
+    {
+        token.type = TokenKind::Dot;
+        token.value = std::string(1, C);
+        BufferToken.push_back(token);
+        return;
+    }
 
     // Собираем тело числа
     while (isPreprocessingNumberBody(C)) {
@@ -276,16 +281,8 @@ void Lexer::LexNumericConstant() {
     }
 
     // Обновляем позицию
-    PosBuffer = CurPtr - SourceCode.c_str();
-
-    // Создаем токен
-    Token token{
-        TokenKind::Literal,
-        numericValue,
-        CurrentLine,
-        CurrentColumn
-    };
-
+    PosBuffer = CurPtr - SourceCode.c_str() - 1;
+    token.value = numericValue;
     BufferToken.push_back(token);
 }
 
