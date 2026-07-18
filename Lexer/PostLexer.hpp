@@ -5,7 +5,7 @@
 
 #include "TokenKinds.h"
 #include "TokenDirectiveMap.hpp"
-
+#include "TokenKeywordMap.hpp"
 #include <vector>
 #include <unordered_map>
 #include <ctype.h>
