@@ -31,7 +31,6 @@ private:
 	{TokenKind::Colon, &PostLexer::Colon},           // :
 	{TokenKind::Less, &PostLexer::Less},             // <
 	{TokenKind::Equals, &PostLexer::Equals},         // =
-	{TokenKind::Caret, &PostLexer::Caret},           // ^
 	{TokenKind::Pipe, &PostLexer::Pipe},             // |
 	{TokenKind::Apostrophe, &PostLexer::Apostrophe}, // '
 	{TokenKind::Exclamation,&PostLexer::Exclamation},// !
@@ -47,7 +46,6 @@ private:
 	Token Less();
 	Token Equals();
 	Token Greater();
-	Token Caret();
 	Token Pipe();
 	Token Asterisk();
 	Token Apostrophe();
@@ -151,7 +149,7 @@ Token PostLexer::Hash() /* # */ {
 Token PostLexer::Ampersand() /* & */ {
 
 	Token TLexToken = GetCurrentToken();
-	TLexToken.type = TokenKind::BitAnd;
+	TLexToken.type = TokenKind::Ampersand;
 
 	if (MatchToken(TokenKind::Ampersand, 1))
 	{
@@ -263,18 +261,11 @@ Token PostLexer::Equals() /* = */ {
 	return TLexToken;
 }
 
-// Обработка символа ^
-Token PostLexer::Caret() /* ^ */ {
-	Token TLexToken = GetCurrentToken();
-	TLexToken.type = TokenKind::Xor;
-	return TLexToken;
-}
-
 // Обработка символа прямого слэша
 Token PostLexer::Pipe() /* | */ {
 
 	Token TLexToken = GetCurrentToken();
-	TLexToken.type = TokenKind::BitOr;
+	TLexToken.type = TokenKind::Pipe;
 
 	if (MatchToken(TokenKind::Pipe, 1))
 	{

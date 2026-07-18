@@ -7,7 +7,7 @@
 
 enum class TokenKind : unsigned short {
     
-    /*************************** Токены по умолчанию:: ***************************/
+    /*************************** Токены лексера ***************************/
 
     // Заглавные буквы A-Z
     A = 'A', B = 'B', C = 'C', D = 'D', E = 'E', F = 'F', G = 'G', H = 'H', I = 'I', J = 'J',
@@ -100,18 +100,9 @@ enum class TokenKind : unsigned short {
     neof,          // Конец файла
     Unknown,      // Неизвестный символ
 
-    /*************************** Токены лексера ***************************/
-
+    /*************************** Токены пре-лексера ***************************/
     // ===== Литералы =====
     Literal,
-    Not,         // !
-    Xor,         // ^ (исключающее ИЛИ)
-    BitAnd,      // & (побитовое И)
-    BitOr,       // | (побитовое ИЛИ)
-    BitNot,      // ~ (побитовое НЕ)
-
-    /*************************** Токены пре-лексера ***************************/
-
     IntegerLiteral,      // 123, -456, 0, 1000 (целочисленные значения в десятичной системе)
     FloatLiteral,        // литералы типа float: 3.14f, 2.5e10f, -0.5f, 1.0e-5f (обязательный суффикс f/F)
     DoubleLiteral,       // литералы типа double: 3.14, 2.5e10, -0.5, 1.0e-5 (по умолчанию или с суффиксом d/D)
@@ -499,11 +490,6 @@ std::string getTokenName(TokenKind kind) {
     GENERATE_NAME(Dec);
     GENERATE_NAME(And);
     GENERATE_NAME(Or);
-    GENERATE_NAME(Not);
-    GENERATE_NAME(Xor);
-    GENERATE_NAME(BitAnd);
-    GENERATE_NAME(BitOr);
-    GENERATE_NAME(BitNot);
     GENERATE_NAME(Shl);
     GENERATE_NAME(Shr);
     GENERATE_NAME(ScResOp);
