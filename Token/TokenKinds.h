@@ -155,7 +155,7 @@ enum class TokenKind : unsigned short {
 
     // Сравнения
     Equal,       // ==
-    NotEqual,    // <>
+    NotEqual,    // !=
     LessEqual,   // <=
     GreaterEqual,// >=
 

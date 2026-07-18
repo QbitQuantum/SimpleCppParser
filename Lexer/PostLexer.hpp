@@ -34,6 +34,7 @@ private:
 	{TokenKind::Caret, &PostLexer::Caret},           // ^
 	{TokenKind::Pipe, &PostLexer::Pipe},             // |
 	{TokenKind::Apostrophe, &PostLexer::Apostrophe}, // '
+	{TokenKind::Exclamation,&PostLexer::Exclamation},// !
 	{TokenKind::Literal, &PostLexer::Literal},       // Literal
 	} };
 
@@ -50,6 +51,7 @@ private:
 	Token Pipe();
 	Token Asterisk();
 	Token Apostrophe();
+	Token Exclamation();
 	Token Literal();
 
 	bool neof(const int& pos = 0) const {
@@ -241,12 +243,6 @@ Token PostLexer::Less() /* < */ {
 		TLexToken.value = "<=";
 		PosBuffer++;
 	}
-	else if (MatchToken(TokenKind::Greater, 1))
-	{
-		TLexToken.type = TokenKind::NotEqual;
-		TLexToken.value = "<>";
-		PosBuffer++;
-	}
 
 	return TLexToken;
 }
@@ -313,6 +309,21 @@ Token PostLexer::Apostrophe() /* ' */ {
 		TLexToken.type = TokenKind::WCharLiteral;
 		return TLexToken;
 	}
+	return TLexToken;
+}
+
+Token PostLexer::Exclamation() /* ! */ {
+
+	Token TLexToken = GetCurrentToken();
+	TLexToken.type = TokenKind::Exclamation;
+
+	if (MatchToken(TokenKind::Equals, 1))
+	{
+		TLexToken.type = TokenKind::NotEqual;
+		TLexToken.value = "!=";
+		PosBuffer++;
+	}
+
 	return TLexToken;
 }
 
