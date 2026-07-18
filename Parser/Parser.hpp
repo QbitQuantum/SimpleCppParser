@@ -97,6 +97,7 @@ private:
 	Node* parseNew();
 	Node* parseDelete();
 	Node* parseNullptr();
+	Node* parseDefault();
 	Node* parseNodeCall(Node* Func);
 	Node* parseNamespace();
 	Node* parseTryCatch();
@@ -627,6 +628,14 @@ Node* Parser::parsePrimary() {
 	Node* Right = nullptr;
 
 	switch (stream.peek().type) {
+	case TokenKind::New:
+		Right = parseNew(); break;
+	case TokenKind::Delete_:
+		Right = parseDelete(); break;
+	case TokenKind::NullptrLiteral:
+		Right = parseNullptr(); break;
+	case TokenKind::Default:
+		Right = parseDefault(); break;
 	case TokenKind::IdentifierLiteral:
 		Right = parseIdentifier(); break;
 	case TokenKind::IntegerLiteral:
@@ -656,10 +665,7 @@ Node* Parser::parsePrimary() {
 		stream.consume(TokenKind::RightParen);
 		break;
 	}
-	default: 
-	{
-		// throw std::runtime_error("Unexpected token in primary expression");
-	}
+	default: throw std::runtime_error("Unexpected token in primary expression");
 	}
 	return UnaryOp == UnaryOperand::Unknown ? Right : new NodeUnaryOp(UnaryOp, Right);
 }
@@ -753,6 +759,11 @@ Node* Parser::parseNullptr() {
 	return new NodeNullptr();
 }
 
+Node* Parser::parseDefault() {
+	stream.consume(TokenKind::Default);
+	return new NodeDefault();
+}
+
 Node* Parser::parseNodeCall(Node* Func) {
 
 	if (stream.peek().type != TokenKind::LeftParen)
@@ -760,10 +771,14 @@ Node* Parser::parseNodeCall(Node* Func) {
 	stream.consume(TokenKind::LeftParen);
 
 	std::vector<Node*> ArgumentConcreticList;
-	ArgumentConcreticList.push_back(parseExpression());
-	while (stream.peek().type == TokenKind::Comma) {
-		stream.consume(TokenKind::Comma);
+
+	if (stream.peek().type != TokenKind::RightParen)
+	{
 		ArgumentConcreticList.push_back(parseExpression());
+		while (stream.peek().type == TokenKind::Comma) {
+			stream.consume(TokenKind::Comma);
+			ArgumentConcreticList.push_back(parseExpression());
+		}
 	}
 
 	if (stream.peek().type != TokenKind::RightParen)

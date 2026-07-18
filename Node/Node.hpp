@@ -674,6 +674,13 @@ public:
     }
 };
 
+class NodeDefault : public Node {
+public:
+    std::string print() override {
+        return "default";
+    }
+};
+
 class NodeWhile : public Node {
     Node* Condition = nullptr;
     Node* Body = nullptr;
