@@ -493,8 +493,8 @@ Node* Parser::parseType(bool IsTemplate) {
 		stream.consume(TokenKind::Ampersand);
 		eType = NodeType::EType::REF;
 		break;
-	case TokenKind::BitAnd:
-		stream.consume(TokenKind::BitAnd);
+	case TokenKind::And:
+		stream.consume(TokenKind::And);
 		eType = NodeType::EType::RVALUE;
 		break;
 	default:
