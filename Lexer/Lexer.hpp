@@ -5,9 +5,6 @@
 
 #include "TokenKinds.h"
 #include "TokenKeywordMap.hpp"
-
-#include "LexerError.hh"
-
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -16,22 +13,21 @@ using Callback = void(*)(std::string);
 Callback LexError;
 
 #define DEF_GENERATION_BASE(X) \
-push_back_token_storage(); \
-Token Token{ TokenKind::##X, std::string(1, constexprToChar(TokenKind::##X)), CurrentLine, CurrentColumn }; \
+Token Token{ TokenKind::##X, std::string(1, constexprToChar(TokenKind::##X)), CurrentLine, CurrentColumn}; \
 BufferToken.push_back(Token); \
+UpdatePosition(); \
 
 class Lexer {
 private:
     using LexEnginePtr = void (Lexer::*)();
 private:
-    int CurrentLine = 0;
-    int CurrentColumn = 0;
+    
+    int CurrentColumn = 1;
+    int CurrentLine = 1;
     int PosBuffer = 0;
-    std::string storage_value = "";
 
     void LexNumericConstant();
     bool isPreprocessingNumberBody(char C) const;
-    char getCharAndSize(const char* ptr, unsigned& size) const;
     const char* consumeChar(const char* ptr, unsigned size);
 
 private:
@@ -85,7 +81,6 @@ private:
 
 
     void Space() { DEF_GENERATION_BASE(Space);};
-    void LineFeed() { DEF_GENERATION_BASE(LineFeed);};
 
     void Hash() { DEF_GENERATION_BASE(Hash); };
     void Dollar() { DEF_GENERATION_BASE(Dollar); };
@@ -120,7 +115,14 @@ private:
     void Quotation() { DEF_GENERATION_BASE(Quotation);};
 
     void CarriageReturn();
+    void LineFeed();
     void Slash();
+
+    void UpdatePosition()
+    {
+        CurrentColumn++;
+        PosBuffer++;
+    }
 
     // Обновляем проверку идентификаторов:
     bool is_unicode_identifier_start(char32_t c) {
@@ -135,9 +137,7 @@ private:
         return PosBuffer < SourceCode.size();
     }
 
-    void push_back_token_storage();
-    
-    const char GetChar();
+    char GetChar() const;
 
     void LexerRun();
 
@@ -161,50 +161,36 @@ void Lexer::LexerRun() {
         if (auto it = map.find(currentChar); it != map.end()) {
             (this->*it->second)();
         }
-        else {
+        else
+        {
             // Обработка идентификаторов
             size_t start = PosBuffer;
-            while (neof() && (is_unicode_identifier_start(GetChar()) ||
-                isdigit(GetChar()))) {
+            while (neof() && (is_unicode_identifier_start(GetChar()) || isdigit(GetChar())))
                 PosBuffer++;
-            }
 
-            std::string identifier = SourceCode.substr(start, PosBuffer - start);
+            // sizeof(identifier)
+            size_t CurrentSize = PosBuffer - start;
+            std::string identifier = SourceCode.substr(start, CurrentSize);
 
-            Token Token{
-                TokenKind::Literal,
-                identifier,
-                CurrentLine,
-                CurrentColumn
+            Token Token
+            {
+                TokenKind::Literal, identifier,
+                CurrentLine, CurrentColumn,
             };
-            BufferToken.push_back(Token);
-            continue;
-        }
 
-        CurrentLine++;
-        PosBuffer++;
+            CurrentColumn += CurrentSize;
+            BufferToken.push_back(Token);
+        }
     }
 }
 
 bool Lexer::isPreprocessingNumberBody(char C) const {
-    return isalnum(C) || C == '.' || C == '_' || C == '$' ||
-        (C >= 0x80); // UTF-8 символы
+    return isalnum(C) || C == '.' || C == '_' || C == '$';
 }
 
 const char* Lexer::consumeChar(const char* ptr, unsigned size) {
     PosBuffer += size;
     return ptr + size;
-}
-
-char Lexer::getCharAndSize(const char* ptr, unsigned& size) const {
-    if (ptr >= SourceCode.c_str() + SourceCode.size()) {
-        size = 0;
-        return '\0';
-    }
-    // Для простоты, но надо учитывать UTF-8
-    // Так как isPreprocessingNumberBody есть проверка на этот юникод
-    size = 1;
-    return *ptr;
 }
 
 void Lexer::LexNumericConstant() {
@@ -218,49 +204,47 @@ void Lexer::LexNumericConstant() {
     std::string numericValue = "";
     const char* CurPtr = SourceCode.c_str() + PosBuffer;
     unsigned Size = 0;
-    char C = getCharAndSize(CurPtr, Size);
+    char C = SourceCode[PosBuffer];
     char PrevCh = 0;
 
     if (C == '.' && PosBuffer + 1 < SourceCode.size() && !isdigit(SourceCode[PosBuffer + 1]))
     {
-        token.type = TokenKind::Dot;
-        token.value = std::string(1, C);
-        BufferToken.push_back(token);
+        DEF_GENERATION_BASE(Dot);
         return;
     }
 
     // Собираем тело числа
     while (isPreprocessingNumberBody(C)) {
-        numericValue += C;
-        CurPtr = consumeChar(CurPtr, Size);
         PrevCh = C;
-        C = getCharAndSize(CurPtr, Size);
+        numericValue += C;
+        UpdatePosition();
+        C = SourceCode[PosBuffer];
     }
 
     // Обработка экспоненты: 1e+12, 1e-12
     if ((C == '-' || C == '+') && (PrevCh == 'E' || PrevCh == 'e')) {
         numericValue += C;
-        CurPtr = consumeChar(CurPtr, Size);
-        C = getCharAndSize(CurPtr, Size);
+        UpdatePosition();
+        C = SourceCode[PosBuffer];
 
         // Продолжаем сбор
         while (isPreprocessingNumberBody(C)) {
             numericValue += C;
-            CurPtr = consumeChar(CurPtr, Size);
-            C = getCharAndSize(CurPtr, Size);
+            UpdatePosition();
+            C = SourceCode[PosBuffer];
         }
     }
 
     // Обработка шестнадцатеричной плавающей точки: 0x1.2p+3
     if ((C == '-' || C == '+') && (PrevCh == 'P' || PrevCh == 'p')) {
         numericValue += C;
-        CurPtr = consumeChar(CurPtr, Size);
-        C = getCharAndSize(CurPtr, Size);
+        UpdatePosition();
+        C = SourceCode[PosBuffer];
 
         while (isPreprocessingNumberBody(C)) {
             numericValue += C;
-            CurPtr = consumeChar(CurPtr, Size);
-            C = getCharAndSize(CurPtr, Size);
+            UpdatePosition();
+            C = SourceCode[PosBuffer];
         }
     }
 
@@ -269,70 +253,72 @@ void Lexer::LexNumericConstant() {
         char Next = SourceCode[PosBuffer + 1];
         if (isalnum(Next) || Next == '_') {
             numericValue += C;
-            CurPtr = consumeChar(CurPtr, Size);
-            C = getCharAndSize(CurPtr, Size);
+            UpdatePosition();
+            C = SourceCode[PosBuffer];
 
             while (isPreprocessingNumberBody(C)) {
                 numericValue += C;
-                CurPtr = consumeChar(CurPtr, Size);
-                C = getCharAndSize(CurPtr, Size);
+                UpdatePosition();
+                C = SourceCode[PosBuffer];
             }
         }
     }
 
-    // Обновляем позицию
-    PosBuffer = CurPtr - SourceCode.c_str() - 1;
     token.value = numericValue;
     BufferToken.push_back(token);
 }
 
-const char Lexer::GetChar() {
+char Lexer::GetChar() const {
     return SourceCode[PosBuffer];
 }
 
-void Lexer::push_back_token_storage() {
-    if (!storage_value.empty()) {
-        Token Token{ TokenKind::Literal, storage_value, CurrentLine, CurrentColumn };
-        BufferToken.push_back(Token);
-        storage_value = "";
-    }
+void Lexer::LineFeed() {
+    Token Token{ TokenKind::LineFeed, std::string(1, constexprToChar(TokenKind::LineFeed)), CurrentLine, CurrentColumn };
+    BufferToken.push_back(Token);
+    CurrentColumn = 1;
+    CurrentLine++;
+    PosBuffer++;
 }
 
 void Lexer::CarriageReturn() {
-    push_back_token_storage();
     // Если после `\r` идёт `\n` (Windows: `\r\n`), пропускаем `\n`
     if (PosBuffer + 1 < SourceCode.size() && SourceCode[PosBuffer + 1] == '\n') {
-        PosBuffer++;  // Пропускаем `\n`, чтобы не дублировать LineFeed
+        PosBuffer++;
+        LineFeed();  // Пропускаем `\n`, чтобы не дублировать LineFeed
+    }
+    else
+    {
+        DEF_GENERATION_BASE(CarriageReturn);
     }
 }
 
 void Lexer::Slash() {
-    push_back_token_storage();
-    PosBuffer++;
-    char _getchar = GetChar();
-    if (_getchar == '/')
+    if (PosBuffer + 1 < SourceCode.size() && (SourceCode[PosBuffer + 1] == '/' || SourceCode[PosBuffer + 1] == '*'))
     {
-        while (neof() && GetChar() != '\n') {
-            PosBuffer++;
+        UpdatePosition();
+        char _getchar = GetChar();
+        if (_getchar == '/')
+        {
+            while (neof() && GetChar() != '\n') {
+                UpdatePosition();
+            }
         }
-    }
-    else if (_getchar == '*')
-    {
-        PosBuffer++;
-        while (neof()) {
-            char current = GetChar();
-            PosBuffer++;
-
-            // Ищем последовательность */
-            if (current == '*' && neof() && GetChar() == '/') {
-                PosBuffer++; // Пропускаем '/'
-                break; // Конец комментария
+        else if (_getchar == '*')
+        {
+            UpdatePosition();
+            while (neof()) {
+                char current = GetChar();
+                UpdatePosition();
+                // Ищем последовательность */
+                if (current == '*' && neof() && GetChar() == '/') {
+                    UpdatePosition();
+                    break; // Конец комментария
+                }
             }
         }
     }
     else
     {
-        PosBuffer--;
         DEF_GENERATION_BASE(Slash);
     }
 }
