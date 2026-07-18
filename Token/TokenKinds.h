@@ -159,12 +159,6 @@ enum class TokenKind : unsigned short {
     LessEqual,   // <=
     GreaterEqual,// >=
 
-    
-    // ===== Операторы (расширенный) =====
-    // Арифметические
-    Div,         // div
-    Mod,         // mod
-
     // ===== Управляющие конструкции =====
     If, // if
     Else, // else 
@@ -441,9 +435,6 @@ std::string getTokenName(TokenKind kind) {
     GENERATE_NAME(NotEqual);
     GENERATE_NAME(LessEqual);
     GENERATE_NAME(GreaterEqual);
-
-    GENERATE_NAME(Div);
-    GENERATE_NAME(Mod);
 
     GENERATE_NAME(If);
     GENERATE_NAME(Else);

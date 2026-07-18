@@ -73,10 +73,6 @@ uint32_t CppHash(const std::string& s, uint32_t seed = 0) {
 }
 
 static const std::unordered_map<uint32_t, TokenKind> TokenKeywordMap = {
-    // ===== Операторы (расширенный) =====
-    // Арифметические
-    {ConstexprCppHash("div"),          TokenKind::Div},
-    {ConstexprCppHash("mod"),          TokenKind::Mod},
 
     // ===== Встроенные значение типов =====
     {ConstexprCppHash("true"),         TokenKind::TrueLiteral},
