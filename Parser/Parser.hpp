@@ -760,10 +760,10 @@ Node* Parser::parseNodeCall(Node* Func, const std::vector<Node*>& TemplateArgs) 
 
 	if (stream.peek().type != TokenKind::RightParen)
 	{
-		ArgumentConcreticList.push_back(parsePrimary());
+		ArgumentConcreticList.push_back(parseExpression());
 		while (stream.peek().type == TokenKind::Comma) {
 			stream.consume(TokenKind::Comma);
-			ArgumentConcreticList.push_back(parsePrimary());
+			ArgumentConcreticList.push_back(parseExpression());
 		}
 	}
 

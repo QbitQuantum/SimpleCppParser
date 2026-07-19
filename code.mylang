@@ -180,7 +180,7 @@ function[int] main () {
     Derived::Math::PublicMethodBase(); // статический вложенного класса
     
     un.PublicMethodBase();           // Объект напрямую
-    un->PublicMethodBase();          // виртуальный через указатель  
+    un->PublicMethodBase(2 + 2);     // виртуальный через указатель  
     
     while (un)
     {
