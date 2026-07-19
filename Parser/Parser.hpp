@@ -1224,34 +1224,13 @@ Node* Parser::parseGenericParametrs() {
 }
 
 Node* Parser::parseGenericParametrsConcretic() {
-
-	NodeGenericParamsConcretic* genericParamsConcretic = nullptr;
-
-	if (stream.match(TokenKind::Less)) {
-		if (stream.match(TokenKind::Greater))
-			return genericParamsConcretic;
-
-		genericParamsConcretic = new NodeGenericParamsConcretic();
-		while (true) {
-			std::string arg;
-			// Парсим аргумент: int, 5, std::string (namespace)
-			if (stream.peek().type == TokenKind::IdentifierLiteral)
-			{
-				genericParamsConcretic->add(parseIdeitfierScope());
-			}
-			else
-			{
-				// Не заморачиваемся с выражениями
-				genericParamsConcretic->add(new NodeIdentifier(stream.consume(stream.peek().type).value, {}));
-			}
-			if (stream.match(TokenKind::Greater)) {
-				break;
-			}
-			if (!stream.match(TokenKind::Comma))
-				throw std::runtime_error("Expected ',' or '>' in generic arguments");
-		}
+	std::vector<Node*> genericParametrsConcretic;
+	genericParametrsConcretic.push_back(parsePrimary());
+	while (stream.peek().type == TokenKind::Comma) {
+		stream.consume(TokenKind::Comma);
+		genericParametrsConcretic.push_back(parsePrimary());
 	}
-	return genericParamsConcretic;
+	return new NodeGenericParamsConcretic(genericParametrsConcretic);
 }
 
 Node* Parser::parseClass() {
@@ -1299,7 +1278,15 @@ Node* Parser::parseClass() {
 		else {
 			throw std::runtime_error("Expected base class name");
 		}
-		genericParamsConcretic = parseGenericParametrsConcretic();
+
+		if (stream.match(TokenKind::Less))
+		{
+			if (stream.peek().type != TokenKind::Greater)
+				genericParamsConcretic = parseGenericParametrsConcretic();
+			if (stream.peek().type != TokenKind::Greater)
+				throw std::runtime_error("Expected Greater token");
+			stream.consume(TokenKind::Greater);
+		}
 	}
 
 	Node* body = nullptr;

@@ -424,33 +424,11 @@ public:
     }
 };
 
-// Generic parameter: T, K = int
-class NodeGenericParam : public Node {
-    std::string Name;
-    bool Contruct = false;
-    Node* Default; // может быть nullptr
-public:
-    NodeGenericParam(const std::string& name, bool construct, Node* def = nullptr)
-        : Name(name), Contruct(construct), Default(def) {
-    }
-
-    std::string print() override {
-        std::string res = Name;
-        if (Default) res += " = " + Default->print() + (Contruct ? "()" : "");
-        return res;
-    }
-
-    ~NodeGenericParam() override {
-        delete Default;
-    }
-};
-
 // Generic parameter list: <T, K = int, W>
 class NodeGenericParams : public Node {
     std::vector<Node*> Params;
 public:
-    NodeGenericParams(std::vector<Node*> params) :
-        Params(params) { };
+    NodeGenericParams(std::vector<Node*> params) : Params(params) { };
 
     std::string print() override {
         std::string fprint;
@@ -472,9 +450,7 @@ public:
 class NodeGenericParamsConcretic : public Node {
     std::vector<Node*> Params;
 public:
-    void add(Node* p) { if (p) Params.push_back(p); }
-
-    const std::vector<Node*>& getParams() const { return Params; }
+    NodeGenericParamsConcretic(std::vector<Node*> params) : Params(params) {};
 
     std::string print() override {
         std::string fprint;
