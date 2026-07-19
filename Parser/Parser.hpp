@@ -806,10 +806,19 @@ Node* Parser::parseFunction() {
 
 	stream.consume(TokenKind::Function);
 
-	auto Type = parseTypeBracket();
+	Node* genericParams = nullptr;
 
-	if (!Type)
-		return nullptr;
+	// Generic-параметры: <T, K = [int]>
+	if (stream.match(TokenKind::Less))
+	{
+		if (stream.peek().type != TokenKind::Greater)
+			genericParams = parseGenericParametrs();
+		if (stream.peek().type != TokenKind::Greater)
+			throw std::runtime_error("Expected Greater token");
+		stream.consume(TokenKind::Greater);
+	}
+
+	auto Type = parseTypeBracket();
 
 	if (!stream.match(TokenKind::LeftBracket)) {
 		// Необязательный — если нет, пропускаем
@@ -855,7 +864,7 @@ Node* Parser::parseFunction() {
 	default:
 		throw std::runtime_error("not expected Semicolon or LeftBrace");
 	}
-	return new NodeFunction(Type, FunctionName, ArgumentList, body);
+	return new NodeFunction(Type, FunctionName, ArgumentList, body, genericParams);
 }
 
 Node* Parser::parseConstructor() {

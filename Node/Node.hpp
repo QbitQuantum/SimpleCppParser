@@ -213,14 +213,16 @@ class NodeFunction : public Node
     Node* Name = nullptr;
     std::vector<Node*> ArgumentList;
     Node* Body = nullptr;
+    Node* GenericParams = nullptr;
 public:
     NodeFunction(
-        Node* type, Node* name, const std::vector<Node*> argumentList, Node* body = nullptr) :
-        Type(type), Name(name),  ArgumentList(argumentList), Body(body) { };
+        Node* type, Node* name, const std::vector<Node*>& argumentList, Node* body, Node* genericParams) :
+        Type(type), Name(name),  ArgumentList(argumentList), Body(body), GenericParams(genericParams){ };
 
     std::string print() override {  
-        std::string fprint = "function "  + Type->print() + " " + Name->print();
-        
+        std::string fprint = "function";
+        if (GenericParams) fprint += "<" + GenericParams->print() + ">";
+        fprint += Type->print() + " " + Name->print();
         fprint += "(";
         int size = ArgumentList.size();
         for (size_t i = 0; i < size; i++)
@@ -241,6 +243,7 @@ public:
         delete Name; Name = nullptr;
         for (auto& i : ArgumentList) delete i;
         delete Body; Body = nullptr;
+        delete GenericParams; GenericParams = nullptr;
     };
 };
 

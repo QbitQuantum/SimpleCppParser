@@ -169,7 +169,7 @@ private:
 
 }
 
-function[void]  PublicMethodBase() { };
+function<T, K>[void]  PublicMethodBase() { };
 
 function[int] main () {
     
