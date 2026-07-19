@@ -1049,7 +1049,7 @@ Node* Parser::parseWhileBlock() {
 		case TokenKind::IdentifierLiteral: stmt = parseIdentifier(); break;
 		case TokenKind::Lambda: stmt = parseLambda(); break;
 		case TokenKind::While: stmt = parseWhile(); break;
-		case TokenKind::Try: stmt = parseWhile(); break;
+		case TokenKind::Try: stmt = parseTryCatch(); break;
 		default:
 			stream.consume(stream.peek().type);
 			break;
@@ -1112,7 +1112,7 @@ Node* Parser::parseTryBlock() {
 		case TokenKind::IdentifierLiteral: stmt = parseIdentifier(); break;
 		case TokenKind::Lambda: stmt = parseLambda(); break;
 		case TokenKind::While: stmt = parseWhile(); break;
-		case TokenKind::Try: stmt = parseWhile(); break;
+		case TokenKind::Try: stmt = parseTryCatch(); break;
 		default:
 			stream.consume(stream.peek().type);
 			break;
@@ -1133,7 +1133,7 @@ Node* Parser::parseCatchBlock() {
 		case TokenKind::IdentifierLiteral: stmt = parseIdentifier(); break;
 		case TokenKind::Lambda: stmt = parseLambda(); break;
 		case TokenKind::While: stmt = parseWhile(); break;
-		case TokenKind::Try: stmt = parseWhile(); break;
+		case TokenKind::Try: stmt = parseTryCatch(); break;
 		default:
 			stream.consume(stream.peek().type);
 			break;
