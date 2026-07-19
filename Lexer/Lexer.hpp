@@ -194,6 +194,14 @@ const char* Lexer::consumeChar(const char* ptr, unsigned size) {
 
 void Lexer::LexNumericConstant() {
     
+    char C = SourceCode[PosBuffer];
+
+    if (C == '.' && PosBuffer + 1 < SourceCode.size() && !isdigit(SourceCode[PosBuffer + 1]))
+    {
+        DEF_GENERATION_BASE(Dot);
+        return;
+    }
+
     Token token 
     {
         TokenKind::Literal, "",
@@ -201,16 +209,7 @@ void Lexer::LexNumericConstant() {
     };
 
     std::string numericValue = "";
-    const char* CurPtr = SourceCode.c_str() + PosBuffer;
-    unsigned Size = 0;
-    char C = SourceCode[PosBuffer];
     char PrevCh = 0;
-
-    if (C == '.' && PosBuffer + 1 < SourceCode.size() && !isdigit(SourceCode[PosBuffer + 1]))
-    {
-        DEF_GENERATION_BASE(Dot);
-        return;
-    }
 
     // Собираем тело числа
     while (isPreprocessingNumberBody(C)) {
