@@ -1077,14 +1077,10 @@ Node* Parser::parseTryCatch() {
 		throw std::runtime_error("Expected RightBrace token");
 	stream.consume(TokenKind::RightBrace);
 
-	if (stream.peek().type == TokenKind::Catch)
+	if (stream.match(TokenKind::Catch))
 	{
-		stream.consume(TokenKind::Catch);
-
-		if (stream.peek().type == TokenKind::LeftParen)
+		if (stream.match(TokenKind::LeftParen))
 		{
-			stream.consume(TokenKind::LeftParen);
-
 			if (stream.peek().type != TokenKind::Var)
 				throw std::runtime_error("Expected Var token");
 
@@ -1093,9 +1089,17 @@ Node* Parser::parseTryCatch() {
 			if (stream.peek().type != TokenKind::RightParen)
 				throw std::runtime_error("Expected RightParen token");
 			stream.consume(TokenKind::RightParen);
-
 		}
-		CatchBody = parseWhileBlock();
+
+		if (stream.peek().type != TokenKind::LeftBrace)
+			throw std::runtime_error("Expected LeftBrace token");
+		stream.consume(TokenKind::LeftBrace);
+
+		CatchBody = parseCatchBlock();
+
+		if (stream.peek().type != TokenKind::RightBrace)
+			throw std::runtime_error("Expected RightBrace token");
+		stream.consume(TokenKind::RightBrace);
 	}
 
 	return new NodeTryCatch(TryBody, CatchBody, Declaration);
