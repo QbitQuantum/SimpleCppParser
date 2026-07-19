@@ -359,15 +359,25 @@ class NodeCall : public Node
 {
     Node* Name = nullptr;
     std::vector<Node*> ArgumentConcreticList;
+    std::vector<Node*> TemplateArgs;
 public:
     NodeCall(
-        Node* name, const std::vector<Node*> argumentConcreticList) :
-        Name(name), ArgumentConcreticList(argumentConcreticList) {
+        Node* name, const std::vector<Node*> argumentConcreticList, const std::vector<Node*>& templateArgs) :
+        Name(name), ArgumentConcreticList(argumentConcreticList), TemplateArgs(templateArgs) {
     };
 
     std::string print() override {
         if (!Name) return "";
         std::string fprint = Name->print();
+        int Args = TemplateArgs.size();
+        if (Args)
+        {
+            fprint += "<";
+            for (size_t i = 0; i < Args; i++)
+                if (auto Decl = TemplateArgs[i]; Decl)
+                    fprint += Decl->print() + (i == Args - 1 ? "" : ", ");
+            fprint += ">";
+        }
         fprint += "(";
         int size = ArgumentConcreticList.size();
         for (size_t i = 0; i < size; i++)
@@ -381,6 +391,7 @@ public:
     ~NodeCall() {
         delete Name;
         for (auto& i : ArgumentConcreticList) delete i;
+        for (auto& i : TemplateArgs) delete i;
     };
 };
 

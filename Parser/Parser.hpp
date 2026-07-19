@@ -98,7 +98,7 @@ private:
 	Node* parseDelete();
 	Node* parseNullptr();
 	Node* parseDefault();
-	Node* parseNodeCall(Node* Func);
+	Node* parseNodeCall(Node* Func, const std::vector<Node*>& TemplateArgs = {});
 	Node* parseNamespace();
 	Node* parseTryCatch();
 
@@ -710,6 +710,14 @@ Node* Parser::parseIdentifier() {
 	{
 	case TokenKind::LeftParen:
 		return parseNodeCall(Identifier);
+	case TokenKind::Less:
+	{
+		std::vector<Node*> TemplateArgs = parseTemplateList();
+		if (stream.peek().type != TokenKind::Greater)
+			throw std::runtime_error("Expected Greater token");
+		stream.consume(TokenKind::Greater);
+		return parseNodeCall(Identifier, TemplateArgs);
+	}
 	case TokenKind::Equals:
 		stream.consume(stream.peek().type);
 		return new NodeDeclaration(Identifier, parseExpression());
@@ -743,7 +751,7 @@ Node* Parser::parseDefault() {
 	return new NodeDefault();
 }
 
-Node* Parser::parseNodeCall(Node* Func) {
+Node* Parser::parseNodeCall(Node* Func, const std::vector<Node*>& TemplateArgs) {
 
 	if (stream.peek().type != TokenKind::LeftParen)
 		throw std::runtime_error("Expected LeftParen token");
@@ -764,7 +772,7 @@ Node* Parser::parseNodeCall(Node* Func) {
 		throw std::runtime_error("Expected RightParen token");
 	stream.consume(TokenKind::RightParen);
 
-	return new NodeCall(Func, ArgumentConcreticList);
+	return new NodeCall(Func, ArgumentConcreticList, TemplateArgs);
 
 }
 

@@ -175,7 +175,7 @@ function[int] main () {
     
     var[Derived*] un = new Derived();
 
-    PublicMethodBase();            // текущий контекст -> глобальный
+    PublicMethodBase<int, std::vector<int>>(); // текущий контекст -> глобальный
     Derived::StaticMethodBase();       // статический
     Derived::Math::PublicMethodBase(); // статический вложенного класса
     
