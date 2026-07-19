@@ -26,7 +26,7 @@ var[const int] INDEX_INVALID = -1;
 // Либо иди пиши class и не страдай фигнёй
 // Может быть шаблонным
 struct StCacheName;
-struct StCacheName [T, K = [int], W = int()]
+struct<T, K = [int], W = int()> StCacheName
 {
 public:
     var[const K] public_INDEX_INVALID = -1;
@@ -136,7 +136,7 @@ static:
 }
 // Это шаблоны из C++
 // [T /* По умолчанию имя типа */, K = int /* Имя типа по умолчанию */, W = int() /* значение, на это намекает () */]
-class Base [T, K = [Basic], W = int()] {
+class<T, K = [Basic], W = int()> Base {
 public:
     // Здесь мы объявляем член данных (поле класса) с именем PublicBaseData типа T
     // В этом месте грамматика требует тип.
@@ -152,7 +152,7 @@ public:
     };
 }
 
-class Derived : public Base [int, std::string, 5] {
+class Derived : public Base<int, std::string, 5> {
 
 public:
     function[void] [override] PublicMethodBase();

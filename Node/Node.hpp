@@ -445,7 +445,7 @@ public:
     }
 };
 
-// Generic parameter list: [T, K = int, W]
+// Generic parameter list: <T, K = int, W>
 class NodeGenericParams : public Node {
     std::vector<Node*> Params;
 public:
@@ -453,13 +453,12 @@ public:
         Params(params) { };
 
     std::string print() override {
-        std::string res = "[";
+        std::string fprint;
         for (size_t i = 0; i < Params.size(); ++i) {
-            res += Params[i]->print();
-            if (i + 1 < Params.size()) res += ", ";
+            fprint += Params[i]->print();
+            if (i + 1 < Params.size()) fprint += ", ";
         }
-        res += "]";
-        return res;
+        return fprint;
     }
 
     const std::vector<Node*>& getParams() const { return Params; }
@@ -469,7 +468,7 @@ public:
     }
 };
 
-// Generic parameter list concretic: [int, 5, std::string]
+// Generic parameter list concretic: <int, 5, std::string>
 class NodeGenericParamsConcretic : public Node {
     std::vector<Node*> Params;
 public:
@@ -478,13 +477,12 @@ public:
     const std::vector<Node*>& getParams() const { return Params; }
 
     std::string print() override {
-        std::string res = "[";
+        std::string fprint;
         for (size_t i = 0; i < Params.size(); ++i) {
-            res += Params[i]->print();
-            if (i + 1 < Params.size()) res += ", ";
+            fprint += Params[i]->print();
+            if (i + 1 < Params.size()) fprint += ", ";
         }
-        res += "]";
-        return res;
+        return fprint;
     }
 
     ~NodeGenericParamsConcretic() override {
@@ -516,13 +514,13 @@ public:
     }
 
     std::string print() override {
-        std::string fprint = "class " + Name;
-        if (GenericParams) fprint += GenericParams->print();
-
+        std::string fprint = "class";
+        if (GenericParams) fprint += "<" + GenericParams->print() + ">";
+        fprint += " " + Name;
         if (!BaseClass.empty()) {
             std::string type = (Type == INHERITANCE_TYPE::PRIVATE ? "" : "public ");
             fprint += " : " + type + BaseClass;
-            if (GenericConcretic) fprint += GenericConcretic->print();
+            if (GenericConcretic) fprint += "<" + GenericConcretic->print() + ">";
         }
         if (Body) fprint += " " + Body->print();
 
@@ -556,8 +554,9 @@ public:
     }
 
     std::string print() override {
-        std::string fprint = "struct " + Name;
-        if (GenericParams) fprint += GenericParams->print();
+        std::string fprint = "struct";
+        if (GenericParams) fprint += "<" + GenericParams->print() + ">";
+        fprint += " " + Name;
         if (Body) fprint += " " + Body->print();
         return fprint;
     }

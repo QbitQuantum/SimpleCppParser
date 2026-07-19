@@ -1227,7 +1227,10 @@ Node* Parser::parseGenericParametrsConcretic() {
 
 	NodeGenericParamsConcretic* genericParamsConcretic = nullptr;
 
-	if (stream.match(TokenKind::LeftBracket)) {
+	if (stream.match(TokenKind::Less)) {
+		if (stream.match(TokenKind::Greater))
+			return genericParamsConcretic;
+
 		genericParamsConcretic = new NodeGenericParamsConcretic();
 		while (true) {
 			std::string arg;
@@ -1241,11 +1244,11 @@ Node* Parser::parseGenericParametrsConcretic() {
 				// Не заморачиваемся с выражениями
 				genericParamsConcretic->add(new NodeIdentifier(stream.consume(stream.peek().type).value, {}));
 			}
-			if (stream.match(TokenKind::RightBracket)) {
+			if (stream.match(TokenKind::Greater)) {
 				break;
 			}
 			if (!stream.match(TokenKind::Comma))
-				throw std::runtime_error("Expected ',' or ']' in generic arguments");
+				throw std::runtime_error("Expected ',' or '>' in generic arguments");
 		}
 	}
 	return genericParamsConcretic;
@@ -1255,23 +1258,23 @@ Node* Parser::parseClass() {
 	// assume current token is Class
 	stream.consume(TokenKind::Class);
 
+	Node* genericParams = nullptr;
+
+	// Generic-параметры: <T, K = [int]>
+	if (stream.match(TokenKind::Less))
+	{
+		if (stream.peek().type != TokenKind::Greater)
+			genericParams = parseGenericParametrs();
+		if (stream.peek().type != TokenKind::Greater)
+			throw std::runtime_error("Expected Greater token");
+		stream.consume(TokenKind::Greater);
+	}
+
 	std::string name;
 	if (stream.peek().type == TokenKind::IdentifierLiteral)
 		name = stream.consume(TokenKind::IdentifierLiteral).value;
 	else
 		throw std::runtime_error("Expected class name");
-
-	Node* genericParams = nullptr;
-
-	// Generic-параметры: [T, K = [int]]
-	if (stream.match(TokenKind::LeftBracket))
-	{
-		if (stream.peek().type != TokenKind::RightBracket)
-			genericParams = parseGenericParametrs();
-		if (stream.peek().type != TokenKind::RightBracket)
-			throw std::runtime_error("Expected RightBracket token");
-		stream.consume(TokenKind::RightBracket);
-	}
 
 	// Поддержка generic-конкретизации: [int, std::string]
 	Node* genericParamsConcretic = nullptr;
@@ -1345,23 +1348,23 @@ Node* Parser::parseStruct() {
 	// assume current token is Struct
 	stream.consume(TokenKind::Struct);
 
+	Node* genericParams = nullptr;
+
+	// Generic-параметры: <T, K = [int]>
+	if (stream.match(TokenKind::Less))
+	{
+		if (stream.peek().type != TokenKind::Greater)
+			genericParams = parseGenericParametrs();
+		if (stream.peek().type != TokenKind::Greater)
+			throw std::runtime_error("Expected Greater token");
+		stream.consume(TokenKind::Greater);
+	}
+
 	std::string name;
 	if (stream.peek().type == TokenKind::IdentifierLiteral)
 		name = stream.consume(TokenKind::IdentifierLiteral).value;
 	else
 		throw std::runtime_error("Expected struct name");
-
-	Node* genericParams = nullptr;
-
-	// Generic-параметры: [T, K = [int]]
-	if (stream.match(TokenKind::LeftBracket))
-	{
-		if (stream.peek().type != TokenKind::RightBracket)
-			genericParams = parseGenericParametrs();
-		if (stream.peek().type != TokenKind::RightBracket)
-			throw std::runtime_error("Expected RightBracket token");
-		stream.consume(TokenKind::RightBracket);
-	}
 
 	NodeStruct::INHERITANCE_TYPE inheritanceType = NodeStruct::INHERITANCE_TYPE::PUBLIC;
 	Node* body = nullptr;
