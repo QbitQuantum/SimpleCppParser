@@ -578,16 +578,6 @@ public:
     }
 };
 
-class NumberNode : public Node {
-    double value;
-public:
-    NumberNode(double v) : value(v) {}
-
-    std::string print() override {
-        return "";
-    }
-};
-
 class NodeProperty : public Node {
     std::string Name;
     Node* Type = nullptr;
