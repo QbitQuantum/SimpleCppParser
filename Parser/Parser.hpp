@@ -230,7 +230,8 @@ private:
 			// Уровень 8: Сравнения
 		case TokenKind::Less:
 		case TokenKind::Greater:
-			// ...
+		case TokenKind::LessEqual:
+		case TokenKind::GreaterEqual:
 			return 8;
 
 			// Уровень 9: Сдвиги
