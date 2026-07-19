@@ -1313,15 +1313,20 @@ Node* Parser::parseClass() {
 	}
 
 	Node* body = nullptr;
-	if (stream.peek().type != TokenKind::LeftBrace)
-		throw std::runtime_error("Expected '{' after class declaration");
-	stream.consume(TokenKind::LeftBrace);
-
-	body = parseClassBlock();
-
-	if (stream.peek().type != TokenKind::RightBrace)
-		throw std::runtime_error("Expected '}' after class declaration");
-	stream.consume(TokenKind::RightBrace);
+	
+	if (stream.peek().type == TokenKind::LeftBrace)
+	{
+		stream.consume(TokenKind::LeftBrace);
+		body = parseClassBlock();
+		if (stream.peek().type != TokenKind::RightBrace)
+			throw std::runtime_error("Expected '}' after class declaration");
+		stream.consume(TokenKind::RightBrace);
+	}
+	else
+	{
+		if (stream.peek().type != TokenKind::Semicolon)
+			throw std::runtime_error("Expected ';' after class forward declaration");
+	}
 
 	return new NodeClass(name, genericParams, genericParamsConcretic, baseClass, inheritanceType, body);
 }
@@ -1373,15 +1378,20 @@ Node* Parser::parseStruct() {
 
 	NodeStruct::INHERITANCE_TYPE inheritanceType = NodeStruct::INHERITANCE_TYPE::PUBLIC;
 	Node* body = nullptr;
-	if (stream.peek().type != TokenKind::LeftBrace)
-		throw std::runtime_error("Expected '{' after struct declaration");
-	stream.consume(TokenKind::LeftBrace);
 
-	body = parseClassBlock();
-
-	if (stream.peek().type != TokenKind::RightBrace)
-		throw std::runtime_error("Expected '}' after struct declaration");
-	stream.consume(TokenKind::RightBrace);
+	if (stream.peek().type == TokenKind::LeftBrace)
+	{
+		stream.consume(TokenKind::LeftBrace);
+		body = parseClassBlock();
+		if (stream.peek().type != TokenKind::RightBrace)
+			throw std::runtime_error("Expected '}' after struct declaration");
+		stream.consume(TokenKind::RightBrace);
+	}
+	else
+	{
+		if (stream.peek().type != TokenKind::Semicolon)
+			throw std::runtime_error("Expected ';' after struct forward declaration");
+	}
 
 	return new NodeStruct(name, genericParams, inheritanceType, body);
 }

@@ -25,6 +25,7 @@ var[const int] INDEX_INVALID = -1;
 // Можно наследовать, но не может наследовать другие
 // Либо иди пиши class и не страдай фигнёй
 // Может быть шаблонным
+struct StCacheName;
 struct StCacheName [T, K = [int], W = int()]
 {
 public:
@@ -35,7 +36,7 @@ static:
 }
 
 // base link class
-
+class OctetBaseLink;
 // Объявление класса с наследованием
 class OctetBaseLink : OctetBaseNode {
 
