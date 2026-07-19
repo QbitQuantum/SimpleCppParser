@@ -458,9 +458,6 @@ Node* Parser::parseType(bool IsTemplate) {
 	if (stream.peek().type == TokenKind::Less)
 	{
 		TemplateArgs = parseTemplateList();
-		if (stream.peek().type != TokenKind::Greater)
-			throw std::runtime_error("Expected Greater token");
-		stream.consume(TokenKind::Greater);
 	}
 	// Проверяем семантику 
 	switch (stream.peek().type)
@@ -496,6 +493,11 @@ std::vector<Node*> Parser::parseTemplateList() {
 		stream.consume(TokenKind::Comma);
 		TemplateList.push_back(parseTemplate());
 	}
+
+	if (stream.peek().type != TokenKind::Greater)
+		throw std::runtime_error("Expected Greater token");
+	stream.consume(TokenKind::Greater);
+
 	return TemplateList;
 };
 
@@ -713,9 +715,6 @@ Node* Parser::parseIdentifier() {
 	case TokenKind::Less:
 	{
 		std::vector<Node*> TemplateArgs = parseTemplateList();
-		if (stream.peek().type != TokenKind::Greater)
-			throw std::runtime_error("Expected Greater token");
-		stream.consume(TokenKind::Greater);
 		return parseNodeCall(Identifier, TemplateArgs);
 	}
 	case TokenKind::Equals:
