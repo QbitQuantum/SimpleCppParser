@@ -1200,14 +1200,8 @@ Node* Parser::parseGenericParametr() {
 	Node* defaultExpr = nullptr;
 
 	if (stream.match(TokenKind::Equals)) {
-		if (stream.peek().type == TokenKind::LeftBracket)
-		{
-			defaultExpr = parseTypeBracket();
-		}
-		if (stream.peek().type == TokenKind::IdentifierLiteral)
-		{
-			defaultExpr = parseIdentifier();
-		}
+		defaultExpr = stream.peek().type == TokenKind::LeftBracket ?
+			parseTypeBracket() : parsePrimary();
 	}
 	return new NodeDeclaration(paramName, defaultExpr);
 }
