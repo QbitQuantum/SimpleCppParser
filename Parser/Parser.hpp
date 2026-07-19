@@ -791,9 +791,7 @@ Node* Parser::parseArgument() {
 
 std::vector<Node*> Parser::parseArgumentList() {
 	std::vector<Node*> ArgumentList;
-	Node* OneArgument = parseArgument();
-	if (!OneArgument) return ArgumentList;
-	ArgumentList.push_back(OneArgument);
+	ArgumentList.push_back(parseArgument());
 	while (stream.peek().type == TokenKind::Comma) {
 		stream.consume(TokenKind::Comma);
 		ArgumentList.push_back(parseArgument());
@@ -839,7 +837,10 @@ Node* Parser::parseFunction() {
 		throw std::runtime_error("Expected LeftParen token");
 	stream.consume(TokenKind::LeftParen);
 
-	std::vector<Node*> ArgumentList = parseArgumentList();
+	std::vector<Node*> ArgumentList;
+
+	if (stream.peek().type != TokenKind::RightParen)
+		ArgumentList = parseArgumentList();
 
 	if (stream.peek().type != TokenKind::RightParen)
 		throw std::runtime_error("Expected RightParen token");
@@ -874,7 +875,10 @@ Node* Parser::parseConstructor() {
 		throw std::runtime_error("Expected LeftParen token");
 	stream.consume(TokenKind::LeftParen);
 
-	std::vector<Node*> ArgumentList = parseArgumentList();
+	std::vector<Node*> ArgumentList;
+
+	if (stream.peek().type != TokenKind::RightParen)
+		ArgumentList = parseArgumentList();
 
 	if (stream.peek().type != TokenKind::RightParen)
 		throw std::runtime_error("Expected RightParen token");
