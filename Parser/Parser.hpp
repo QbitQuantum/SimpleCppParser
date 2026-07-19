@@ -255,28 +255,6 @@ private:
 		}
 	}
 
-	
-	/*
-		// Для унарных операторов
-	int static GetUnaryOperatorPriority(TokenKind Kind) {
-		switch (Kind) {
-			// Уровень 3: Унарные операции
-		case TokenKind::Plus:        // унарный плюс
-		case TokenKind::Minus:       // унарный минус
-		case TokenKind::Inc:         // префиксный инкремент
-		case TokenKind::Dec:         // префиксный декремент
-		case TokenKind::Exclamation: // логическое НЕ
-		case TokenKind::Tilde:       // побитовое НЕ
-		case TokenKind::Asterisk:    // разыменование
-		case TokenKind::Ampersand:   // взятие адреса
-			return 3;
-
-		default:
-			return 0;
-		}
-	}
-	*/
-
 public:
 	std::vector<Token> ParserEngineBuffer;
 
