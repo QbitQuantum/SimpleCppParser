@@ -207,108 +207,79 @@ public:
     };
 };
 
+class NodeParameterList : public Node
+{
+    std::vector<Node*> ParameterList;
+public:
+    NodeParameterList(const std::vector<Node*>& parameterList) 
+    : ParameterList(parameterList) { };
+
+    std::string print() override {
+        std::string fprint = "(";
+        int size = ParameterList.size();
+        for (size_t i = 0; i < size; i++)
+            if (auto Decl = ParameterList[i]; Decl)
+                fprint += Decl->print() + (i == size - 1 ? "" : ", ");
+        fprint += ")";
+        return fprint;
+    };
+
+    ~NodeParameterList() {
+        for (auto& i : ParameterList) delete i;
+    };
+};
+
 class NodeFunction : public Node
 {
     Node* Type = nullptr;
-    Node* Name = nullptr;
-    std::vector<Node*> ArgumentList;
+    Node* Identifier = nullptr;
+    Node* ParameterList = nullptr;
     Node* Body = nullptr;
     Node* GenericParams = nullptr;
 public:
     NodeFunction(
-        Node* type, Node* name, const std::vector<Node*>& argumentList, Node* body, Node* genericParams) :
-        Type(type), Name(name),  ArgumentList(argumentList), Body(body), GenericParams(genericParams){ };
+        Node* type, Node* name, Node* parameterList, Node* body, Node* genericParams) :
+        Type(type), Identifier(name), ParameterList(parameterList), Body(body), GenericParams(genericParams){ };
 
     std::string print() override {  
+        if (!Type || !Identifier || !ParameterList) return "";
+
         std::string fprint = "function";
         if (GenericParams) fprint += "<" + GenericParams->print() + ">";
-        fprint += Type->print() + " " + Name->print();
-        fprint += "(";
-        int size = ArgumentList.size();
-        for (size_t i = 0; i < size; i++)
-            if (auto Decl = ArgumentList[i]; Decl)
-                fprint += Decl->print() + (i == size - 1 ? "" : ", ");
-
-        fprint += ")";
-
-        if (Body) {
-            fprint += " " + Body->print();
-        }
-
+        fprint += (Type->print()) + " " + Identifier->print() + ParameterList->print();
+        fprint += Body ? Body->print() : "";
         return fprint;
     };
 
     ~NodeFunction() {
         delete Type; Type = nullptr;
-        delete Name; Name = nullptr;
-        for (auto& i : ArgumentList) delete i;
+        delete Identifier; Identifier = nullptr;
+        delete ParameterList; ParameterList = nullptr;
         delete Body; Body = nullptr;
         delete GenericParams; GenericParams = nullptr;
     };
 };
 
-class NodeLambda : public Node
-{
-    Node* Type = nullptr;
-    Node* Name = nullptr;
-    std::vector<Node*> ArgumentList;
-    Node* Body = nullptr;
-public:
-    NodeLambda(
-        Node* type, Node* name, const std::vector<Node*> argumentList, Node* body = nullptr) :
-        Type(type), Name(name), ArgumentList(argumentList), Body(body) {
-    };
-
-    std::string print() override {
-        std::string fprint = "lambda " + Type->print() + " " + Name->print();
-
-        fprint += "(";
-        int size = ArgumentList.size();
-        for (size_t i = 0; i < size; i++)
-            if (auto Decl = ArgumentList[i]; Decl)
-                fprint += Decl->print() + (i == size - 1 ? "" : ", ");
-
-        fprint += ")";
-
-        if (Body) {
-            fprint += " " + Body->print();
-        }
-
-        return fprint;
-    };
-
-    ~NodeLambda() {
-        delete Type; Type = nullptr;
-        delete Name; Name = nullptr;
-        for (auto& i : ArgumentList) delete i;
-        delete Body; Body = nullptr;
-    };
-};
 
 class NodeConstructor : public Node {
 private:
-    std::vector<Node*> ArgumentList;
+    Node* ParameterList = nullptr;
     Node* Body = nullptr;
 public:
-    NodeConstructor(const std::vector<Node*> argumentList, Node* body) :
-        ArgumentList(argumentList), Body(body) {
+    NodeConstructor(Node* parameterList, Node* body) :
+        ParameterList(parameterList), Body(body) {
     };
 
     std::string print() override {
-        std::string fprint = "contructor ";
-        fprint += "(";
-        int size = ArgumentList.size();
-        for (size_t i = 0; i < size; i++)
-            if (auto Decl = ArgumentList[i]; Decl)
-                fprint += Decl->print() + (i == size - 1 ? "" : ", ");
-
-        fprint += ")";
+        if (!ParameterList) return "";
+        
+        std::string fprint = "contructor" + ParameterList->print();
+        fprint += Body ? Body->print() : "";
         return fprint;
     }
 
     ~NodeConstructor() override {
-        for (auto& Argument : ArgumentList)
-            delete Argument;
+        delete ParameterList;
         delete Body;
     }
 };
@@ -326,6 +297,35 @@ public:
     ~NodeDestructor() override {
         delete Body;
     }
+};
+
+class NodeLambda : public Node
+{
+    Node* Type = nullptr;
+    Node* Identifier = nullptr;
+    Node* ParameterList = nullptr;
+    Node* Body = nullptr;
+public:
+    NodeLambda(
+        Node* type, Node* identifier, Node* parameterList, Node* body = nullptr) :
+        Type(type), Identifier(identifier), ParameterList(parameterList), Body(body) {
+    };
+
+    std::string print() override {
+        
+        if (!Identifier) return "";
+        std::string fprint = "lambda";
+        fprint += (Type->print()) + " " + Identifier->print() + ParameterList->print();
+        fprint += Body ? Body->print() : "";
+        return fprint;
+    };
+
+    ~NodeLambda() {
+        delete Type; Type = nullptr;
+        delete Identifier; Identifier = nullptr;
+        delete ParameterList; ParameterList = nullptr;
+        delete Body; Body = nullptr;
+    };
 };
 
 class NodeNew : public Node

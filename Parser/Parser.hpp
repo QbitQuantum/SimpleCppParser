@@ -81,7 +81,10 @@ private:
 	Node* parseUsing();
 	Node* parseVar();
 	Node* parseIdentifier();
+	
+	Node* parseParameterList();
 	Node* parseFunction();
+
 	Node* parseLambda();
 	Node* parseWhile();
 	Node* parseGenericParametr();
@@ -109,8 +112,6 @@ private:
 	Node* parseNodeCharacter();
 
 	Node* parsePrimary();
-
-	std::vector<Node*> parseArgumentList();
 	Node* parseArgument();
 
 	std::vector<Node*> parseTemplateList();
@@ -789,14 +790,28 @@ Node* Parser::parseArgument() {
 	return new NodeDeclarationList(Type, ContainerDeclarationList);
 }
 
-std::vector<Node*> Parser::parseArgumentList() {
+Node* Parser::parseParameterList() {
+
+	if (stream.peek().type != TokenKind::LeftParen)
+		throw std::runtime_error("Expected LeftParen token");
+	stream.consume(TokenKind::LeftParen);
+
 	std::vector<Node*> ArgumentList;
-	ArgumentList.push_back(parseArgument());
-	while (stream.peek().type == TokenKind::Comma) {
-		stream.consume(TokenKind::Comma);
+
+	if (stream.peek().type != TokenKind::RightParen)
+	{
 		ArgumentList.push_back(parseArgument());
+		while (stream.peek().type == TokenKind::Comma) {
+			stream.consume(TokenKind::Comma);
+			ArgumentList.push_back(parseArgument());
+		}
 	}
-	return ArgumentList;
+
+	if (stream.peek().type != TokenKind::RightParen)
+		throw std::runtime_error("Expected RightParen token");
+	stream.consume(TokenKind::RightParen);
+
+	return new NodeParameterList(ArgumentList);
 }
 
 Node* Parser::parseFunction() {
@@ -832,19 +847,8 @@ Node* Parser::parseFunction() {
 	}
 	
 	Node* FunctionName = parseIdeitfierScope();
-	
-	if (stream.peek().type != TokenKind::LeftParen)
-		throw std::runtime_error("Expected LeftParen token");
-	stream.consume(TokenKind::LeftParen);
 
-	std::vector<Node*> ArgumentList;
-
-	if (stream.peek().type != TokenKind::RightParen)
-		ArgumentList = parseArgumentList();
-
-	if (stream.peek().type != TokenKind::RightParen)
-		throw std::runtime_error("Expected RightParen token");
-	stream.consume(TokenKind::RightParen);
+	Node* ParameterList = parseParameterList();
 
 	// Тело функции или ';'
 	Node* body = nullptr;
@@ -864,25 +868,14 @@ Node* Parser::parseFunction() {
 	default:
 		throw std::runtime_error("not expected Semicolon or LeftBrace");
 	}
-	return new NodeFunction(Type, FunctionName, ArgumentList, body, genericParams);
+	return new NodeFunction(Type, FunctionName, ParameterList, body, genericParams);
 }
 
 Node* Parser::parseConstructor() {
 
 	stream.consume(TokenKind::Constructor);
 
-	if (stream.peek().type != TokenKind::LeftParen)
-		throw std::runtime_error("Expected LeftParen token");
-	stream.consume(TokenKind::LeftParen);
-
-	std::vector<Node*> ArgumentList;
-
-	if (stream.peek().type != TokenKind::RightParen)
-		ArgumentList = parseArgumentList();
-
-	if (stream.peek().type != TokenKind::RightParen)
-		throw std::runtime_error("Expected RightParen token");
-	stream.consume(TokenKind::RightParen);
+	Node* ParameterList = parseParameterList();
 
 	// Тело функции или ';'
 	Node* body = nullptr;
@@ -903,7 +896,7 @@ Node* Parser::parseConstructor() {
 		throw std::runtime_error("not expected Semicolon or LeftBrace");
 	}
 
-	return new NodeConstructor(ArgumentList, body);
+	return new NodeConstructor(ParameterList, body);
 }
 
 Node* Parser::parseDestructor() {
@@ -940,6 +933,45 @@ Node* Parser::parseDestructor() {
 	return new NodeDestructor(body);
 }
 
+Node* Parser::parseLambda() {
+
+	stream.consume(TokenKind::Lambda);
+
+	auto Type = parseTypeBracket();
+
+	if (!Type)
+		return nullptr;
+
+	// Имя лямбды
+	if (stream.peek().type != TokenKind::IdentifierLiteral) {
+		return nullptr;
+	}
+	
+	Node* LambdaName = parseIdeitfierScope();
+
+	Node* ParameterList = parseParameterList();
+
+	// Тело лямбды или ';'
+	Node* body = nullptr;
+
+	switch (stream.peek().type) {
+	case TokenKind::LeftBrace:
+		stream.consume(TokenKind::LeftBrace);
+		body = parseFunctionBlock();
+		if (stream.peek().type != TokenKind::RightBrace)
+			throw std::runtime_error("Expected RightBrace token");
+		stream.consume(TokenKind::RightBrace);
+		break;
+	case TokenKind::Semicolon:
+		stream.consume(TokenKind::Semicolon);
+		// Прототип функции
+		break;
+	default:
+		throw std::runtime_error("not expected Semicolon or LeftBrace");
+	}
+	return new NodeLambda(Type, LambdaName, ParameterList, body);
+}
+
 Node* Parser::parseFunctionBlock() {
 
 	NodeBlock* block = new NodeBlock();
@@ -960,52 +992,6 @@ Node* Parser::parseFunctionBlock() {
 	}
 
 	return block;
-}
-
-Node* Parser::parseLambda() {
-
-	stream.consume(TokenKind::Lambda);
-
-	auto Type = parseTypeBracket();
-
-	if (!Type)
-		return nullptr;
-
-	// Имя лямбды
-	if (stream.peek().type != TokenKind::IdentifierLiteral) {
-		return nullptr;
-	}
-	Node* LambdaName = parseIdeitfierScope();
-
-	if (stream.peek().type != TokenKind::LeftParen)
-		throw std::runtime_error("Expected LeftParen token");
-	stream.consume(TokenKind::LeftParen);
-
-	std::vector<Node*> ArgumentList = parseArgumentList();
-
-	if (stream.peek().type != TokenKind::RightParen)
-		throw std::runtime_error("Expected RightParen token");
-	stream.consume(TokenKind::RightParen);
-
-	// Тело лямбды или ';'
-	Node* body = nullptr;
-
-	switch (stream.peek().type) {
-	case TokenKind::LeftBrace:
-		stream.consume(TokenKind::LeftBrace);
-		body = parseFunctionBlock();
-		if (stream.peek().type != TokenKind::RightBrace)
-			throw std::runtime_error("Expected RightBrace token");
-		stream.consume(TokenKind::RightBrace);
-		break;
-	case TokenKind::Semicolon:
-		stream.consume(TokenKind::Semicolon);
-		// Прототип функции
-		break;
-	default:
-		throw std::runtime_error("not expected Semicolon or LeftBrace");
-	}
-	return new NodeLambda(Type, LambdaName, ArgumentList, body);
 }
 
 Node* Parser::parseWhile() {
