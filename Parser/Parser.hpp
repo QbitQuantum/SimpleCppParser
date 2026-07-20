@@ -69,7 +69,6 @@ private:
 	std::vector<Node*> ast;
 
 	Node* parseTopLevel();
-	Node* parseStructBlock();
 	Node* parseNamespaceBlock();
 	Node* parseWhileBlock();
 	Node* parseTryBlock();
@@ -94,6 +93,13 @@ private:
 	Node* parseClassTemplateParameterList();
 	Node* parseClassTemplateParameterDeclarationList();
 
+	// Парсинг структур (POD-типы)
+	Node* parseStruct();
+	Node* parseStructName();
+	Node* parseStructBody();
+	Node* parseStructBlock();
+	Node* parseStructTemplateParameterDeclarationList();
+
 	// Парсинг функций
 	Node* parseFunction();
 	Node* parseFunctionTemplateParameterDeclarationList();
@@ -116,7 +122,6 @@ private:
 	Node* parseLambdaBlock();
 
 	Node* parseWhile();
-	Node* parseStruct();
 	Node* parseConstructor();
 	Node* parseDestructor();
 	Node* parseExpression(int priory = 0);
@@ -997,6 +1002,99 @@ Node* Parser::parseClassTemplateParameterDeclarationList() {
 	return ClassTemplateParametrDeclarationList;
 }
 
+Node* Parser::parseStruct() {
+	// assume current token is Struct
+	stream.consume(TokenKind::Struct);
+
+	Node* StructTemplateParameterDeclarationList = parseStructTemplateParameterDeclarationList();
+
+	Node* StructName = parseStructName();
+
+	Node* StructBody = parseStructBody();
+
+	return new NodeStruct(StructName, StructTemplateParameterDeclarationList, StructBody);
+}
+
+Node* Parser::parseStructTemplateParameterDeclarationList() {
+	Node* StructTemplateParametrDeclarationList = nullptr;
+	if (stream.peek().type == TokenKind::Less)
+		StructTemplateParametrDeclarationList = parseTemplateParametrDeclarationList();
+	return StructTemplateParametrDeclarationList;
+}
+
+Node* Parser::parseStructName() {
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected struct name");
+	return parseIdeitfierScope();
+}
+
+Node* Parser::parseStructBody() {
+
+	Node* Body = nullptr;
+
+	if (stream.peek().type == TokenKind::LeftBrace)
+	{
+		stream.consume(TokenKind::LeftBrace);
+		Body = parseStructBlock();
+		if (stream.peek().type != TokenKind::RightBrace)
+			throw std::runtime_error("Expected '}' after struct declaration");
+		stream.consume(TokenKind::RightBrace);
+	}
+	else
+	{
+		if (stream.peek().type != TokenKind::Semicolon)
+			throw std::runtime_error("Expected ';' after struct forward declaration");
+	}
+
+	return Body;
+}
+
+Node* Parser::parseStructBlock() {
+
+	// Ужас. Надо будет переделать
+	using StructFieldType = NodeBlockStruct::FieldType;
+	std::vector<Node*> Statements;
+	std::vector<std::pair<StructFieldType, std::vector<Node*>>> FieldStatements;
+	StructFieldType Type = StructFieldType::NONE;
+
+	auto getStructFieldType = [](TokenKind op) -> StructFieldType
+		{
+			switch (op) {
+			case TokenKind::Public: return StructFieldType::PUBLIC;
+			case TokenKind::Static: return StructFieldType::STATIC;
+			default: return StructFieldType::NONE;
+			}
+		};
+
+	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
+		Node* stmt = nullptr;
+		switch (stream.peek().type) {
+		case TokenKind::Public:
+		case TokenKind::Static:
+		{
+			TokenKind Scope = stream.peek().type;
+			FieldStatements.push_back({ Type, Statements });
+			Statements.clear();
+			Type = getStructFieldType(Scope);
+			stream.consume(Scope);
+			break;
+		}
+		case TokenKind::Var:      stmt = parseVar(); break;
+		case TokenKind::Function: stmt = parseFunction(); break;
+		case TokenKind::Class:    stmt = parseClass(); break;
+		case TokenKind::Constructor: stmt = parseConstructor(); break;
+		case TokenKind::Destructor: stmt = parseDestructor(); break;
+		case TokenKind::Property: stmt = parseProperty(); break;
+		case TokenKind::Struct:   stmt = parseStruct(); break;
+		default:
+			stream.consume(stream.peek().type);
+			break;
+		}
+		if (stmt) Statements.push_back(stmt);
+	}
+	return new NodeBlockStruct(FieldStatements);
+}
+
 Node* Parser::parseFunction() {
 
 	stream.consume(TokenKind::Function);
@@ -1428,60 +1526,6 @@ Node* Parser::parseUsing() {
 	// Temporary stub
 	return new NodeUsing(Name, Path);
 };
-
-Node* Parser::parseStruct() {
-	// assume current token is Struct
-	stream.consume(TokenKind::Struct);
-
-	Node* genericParams = nullptr;
-	if (stream.peek().type == TokenKind::Less)
-		genericParams = parseTemplateParametrDeclarationList();
-
-	std::string name;
-	if (stream.peek().type == TokenKind::IdentifierLiteral)
-		name = stream.consume(TokenKind::IdentifierLiteral).value;
-	else
-		throw std::runtime_error("Expected struct name");
-
-	NodeStruct::INHERITANCE_TYPE inheritanceType = NodeStruct::INHERITANCE_TYPE::PUBLIC;
-	Node* body = nullptr;
-
-	if (stream.peek().type == TokenKind::LeftBrace)
-	{
-		stream.consume(TokenKind::LeftBrace);
-		body = parseClassBlock();
-		if (stream.peek().type != TokenKind::RightBrace)
-			throw std::runtime_error("Expected '}' after struct declaration");
-		stream.consume(TokenKind::RightBrace);
-	}
-	else
-	{
-		if (stream.peek().type != TokenKind::Semicolon)
-			throw std::runtime_error("Expected ';' after struct forward declaration");
-	}
-
-	return new NodeStruct(name, genericParams, inheritanceType, body);
-}
-
-Node* Parser::parseStructBlock() {
-
-	NodeBlock* block = new NodeBlock();
-
-	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
-		Node* stmt = nullptr;
-		switch (stream.peek().type) {
-		case TokenKind::Var:      stmt = parseVar(); break;
-		case TokenKind::Function: stmt = parseFunction(); break;
-		case TokenKind::Class:    stmt = parseClass(); break;
-		case TokenKind::Struct:   stmt = parseStruct(); break;
-		default:
-			stream.consume(stream.peek().type);
-			break;
-		}
-		if (stmt) block->add(stmt);
-	}
-	return block;
-}
 
 Parser::~Parser()
 {

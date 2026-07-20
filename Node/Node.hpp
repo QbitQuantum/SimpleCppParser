@@ -589,35 +589,78 @@ public:
     }
 };
 
+class NodeBlockStruct : public Node
+{
+public:
+    // NONE - значит по умолчаниб небыло установлено
+    enum class FieldType { NONE, PUBLIC, STATIC };
+private:
+
+    std::vector<std::pair<FieldType, std::vector<Node*>>> FieldStatements;
+    std::string getSymbol(FieldType Type) {
+        switch (Type)
+        {
+        case NodeBlockStruct::FieldType::NONE: return "";
+        case NodeBlockStruct::FieldType::PUBLIC: return "public:";
+        case NodeBlockStruct::FieldType::STATIC: return "static:";
+        default: return "";
+        }
+    }
+public:
+    NodeBlockStruct(std::vector<std::pair<FieldType, std::vector<Node*>>> fieldStatements)
+        : FieldStatements(fieldStatements) {
+    };
+
+    std::string print() override {
+        std::string fprint = "{\n";
+        for (auto& Statement : FieldStatements)
+        {
+            fprint += getSymbol(Statement.first) + "\n";
+            for (auto& field : Statement.second)
+                fprint += field->print() + "\n";
+        }
+        fprint += "\n}";
+        return fprint;
+    }
+
+    ~NodeBlockStruct() override {
+        for (auto& Statement : FieldStatements) {
+            for (auto& field : Statement.second)
+                delete field;
+        }
+    }
+};
+
 class NodeStruct : public Node {
 public:
     enum class INHERITANCE_TYPE { PUBLIC, STATIC };
 
 private:
-    std::string Name;
-    Node* GenericParams = nullptr;
-    INHERITANCE_TYPE Type = INHERITANCE_TYPE::PUBLIC;
+    Node* Identifier = nullptr;
+    Node* TemplateParameterDeclarationList = nullptr;
     Node* Body = nullptr;
 public:
     NodeStruct(
-        const std::string& name,
-        Node* generics = nullptr,
-        INHERITANCE_TYPE type = INHERITANCE_TYPE::PUBLIC,
-        Node* body = nullptr
+        Node* identifier,
+        Node* generics,
+        Node* body
     )
-        : Name(name), GenericParams(generics), Type(type), Body(body) {
+        : Identifier(identifier), TemplateParameterDeclarationList(generics), Body(body) {
     }
 
     std::string print() override {
+        if (!Identifier) return "";
+
         std::string fprint = "struct";
-        if (GenericParams) fprint += "<" + GenericParams->print() + ">";
-        fprint += " " + Name;
+        if (TemplateParameterDeclarationList) fprint += "<" + TemplateParameterDeclarationList->print() + ">";
+        fprint += " " + Identifier->print();
         if (Body) fprint += " " + Body->print();
         return fprint;
     }
 
     ~NodeStruct() override {
-        delete GenericParams;
+        delete Identifier;
+        delete TemplateParameterDeclarationList;
         delete Body;
     }
 };
