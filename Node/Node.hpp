@@ -232,20 +232,20 @@ public:
 class NodeFunction : public Node
 {
     Node* Type = nullptr;
+    Node* GenericParametrs = nullptr;
     Node* Identifier = nullptr;
     Node* ParameterList = nullptr;
     Node* Body = nullptr;
-    Node* GenericParams = nullptr;
 public:
     NodeFunction(
-        Node* type, Node* name, Node* parameterList, Node* body, Node* genericParams) :
-        Type(type), Identifier(name), ParameterList(parameterList), Body(body), GenericParams(genericParams){ };
+        Node* type, Node* genericParametrs, Node* name, Node* parameterList, Node* body) :
+        Type(type), GenericParametrs(genericParametrs), Identifier(name), ParameterList(parameterList), Body(body){ };
 
     std::string print() override {  
         if (!Type || !Identifier || !ParameterList) return "";
 
         std::string fprint = "function";
-        if (GenericParams) fprint += "<" + GenericParams->print() + ">";
+        if (GenericParametrs) fprint += "<" + GenericParametrs->print() + ">";
         fprint += (Type->print()) + " " + Identifier->print() + ParameterList->print();
         fprint += Body ? Body->print() : "";
         return fprint;
@@ -253,10 +253,10 @@ public:
 
     ~NodeFunction() {
         delete Type; Type = nullptr;
+        delete GenericParametrs; GenericParametrs = nullptr;
         delete Identifier; Identifier = nullptr;
         delete ParameterList; ParameterList = nullptr;
         delete Body; Body = nullptr;
-        delete GenericParams; GenericParams = nullptr;
     };
 };
 
