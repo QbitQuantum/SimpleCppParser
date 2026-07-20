@@ -96,12 +96,14 @@ private:
 
 	// Парсинг функций
 	Node* parseFunction();
+	Node* parseFunctionTemplateParameterDeclarationList();
+	Node* parseFunctionReturnType();
+	Node* parseFunctionQulifier();
 	Node* parseFunctionName();
-	Node* parseFunctionBody();
-	Node* parseFunctionBlock();
 	Node* parseFunctionParameter();
 	Node* parseFunctionParameterList();
-	Node* parseFunctionTemplateParameterDeclarationList();
+	Node* parseFunctionBody();
+	Node* parseFunctionBlock();
 
 	Node* parseLambda();
 	Node* parseWhile();
@@ -992,22 +994,14 @@ Node* Parser::parseFunction() {
 
 	Node* FunctionTemplateParametrDeclarationList = parseFunctionTemplateParameterDeclarationList();
 
-	Node* FunctionType = parseTypeBracket();
+	Node* FunctionType = parseFunctionReturnType();
 
-	if (!stream.match(TokenKind::LeftBracket)) {
-		// Необязательный — если нет, пропускаем
-	}
-	else {
-		while (!stream.match(TokenKind::RightBracket)) {
-			stream.consume(stream.peek().type);
-		}
-	}
+	Node* FunctionQuliafier = parseFunctionQulifier();
 
 	Node* FunctionName = parseFunctionName();
 
 	Node* FunctionParameterList = parseFunctionParameterList();
 
-	// Тело функции или ';'
 	Node* FunctionBody = parseFunctionBody();
 
 	return new NodeFunction(FunctionType, FunctionTemplateParametrDeclarationList, FunctionName, FunctionParameterList, FunctionBody);
@@ -1017,6 +1011,29 @@ Node* Parser::parseFunctionName() {
 	if (stream.peek().type != TokenKind::IdentifierLiteral)
 		throw std::runtime_error("Expected IdentifierLiteral token");
 	return parseIdeitfierScope();
+}
+
+Node* Parser::parseFunctionTemplateParameterDeclarationList() {
+	Node* FunctionTemplateParametrDeclarationList = nullptr;
+	if (stream.peek().type == TokenKind::Less)
+		FunctionTemplateParametrDeclarationList = parseTemplateParametrDeclarationList();
+	return FunctionTemplateParametrDeclarationList;
+}
+
+Node* Parser::parseFunctionReturnType() {
+	return parseTypeBracket();
+}
+
+Node* Parser::parseFunctionQulifier() {
+	if (!stream.match(TokenKind::LeftBracket)) {
+		// Необязательный — если нет, пропускаем
+	}
+	else {
+		while (!stream.match(TokenKind::RightBracket)) {
+			stream.consume(stream.peek().type);
+		}
+	}
+	return nullptr;
 }
 
 Node* Parser::parseFunctionBody() {
@@ -1097,13 +1114,6 @@ Node* Parser::parseFunctionParameterList() {
 	stream.consume(TokenKind::RightParen);
 
 	return new NodeParameterList(ArgumentList);
-}
-
-Node* Parser::parseFunctionTemplateParameterDeclarationList() {
-	Node* FunctionTemplateParametrDeclarationList = nullptr;
-	if (stream.peek().type == TokenKind::Less)
-		FunctionTemplateParametrDeclarationList = parseTemplateParametrDeclarationList();
-	return FunctionTemplateParametrDeclarationList;
 }
 
 Node* Parser::parseConstructor() {
