@@ -69,7 +69,6 @@ private:
 	std::vector<Node*> ast;
 
 	Node* parseTopLevel();
-	Node* parseClassBlock();
 	Node* parseStructBlock();
 	Node* parseNamespaceBlock();
 	Node* parseWhileBlock();
@@ -81,8 +80,19 @@ private:
 	Node* parseVar();
 	Node* parseIdentifier();
 
+	Node* parseTemplateParameter();
+	Node* parseTemplateParameterList();
 	Node* parseTemplateParametrDeclaration();
 	Node* parseTemplateParametrDeclarationList();
+
+	// Парсинг класса
+	Node* parseClass();
+	Node* parseClassName();
+	Node* parseClassBody();
+	Node* parseClassBaseClass();
+	Node* parseClassBlock();
+	Node* parseClassTemplateParameterList();
+	Node* parseClassTemplateParameterDeclarationList();
 
 	// Парсинг функций
 	Node* parseFunction();
@@ -95,8 +105,6 @@ private:
 
 	Node* parseLambda();
 	Node* parseWhile();
-	Node* parseGenericParametrsConcretic();
-	Node* parseClass();
 	Node* parseStruct();
 	Node* parseConstructor();
 	Node* parseDestructor();
@@ -316,7 +324,7 @@ Node* Parser::parseTopLevel() {
 Node* Parser::parseNamespace() {
 
 	stream.consume(TokenKind::Namespace);
-	
+
 	// Stub
 	if (stream.match(TokenKind::LeftBracket))
 		while (stream.peek().type != TokenKind::RightBracket)
@@ -361,14 +369,14 @@ Node* Parser::parseNamespaceBlock() {
 
 Node* Parser::parseProperty() {
 	stream.consume(TokenKind::Property); // __property
-	
+
 	// тип (int)
 	Node* Type = parseTypeBracket();
 	if (!Type) throw std::runtime_error("Expected type in __property");
 
 	// имя (Value)
 	std::string name = stream.consume(TokenKind::IdentifierLiteral).value;
-	
+
 	// {
 	if (!stream.match(TokenKind::LeftBrace))
 		throw std::runtime_error("Expected '{' in __property");
@@ -389,7 +397,7 @@ Node* Parser::parseProperty() {
 			stream.consume(stream.peek().type);
 		}
 	}
-	
+
 	return new NodeProperty(name, Type, getter, setter);
 }
 
@@ -658,7 +666,7 @@ Node* Parser::parsePrimary() {
 }
 
 Node* Parser::parseExpression(int MinPrec) {
-	
+
 	using BinaryOperand = NodeBinaryOp::BinaryOp;
 	BinaryOperand UnaryOp = BinaryOperand::Unknown;
 
@@ -672,7 +680,7 @@ Node* Parser::parseExpression(int MinPrec) {
 			default: return BinaryOperand::Unknown;
 			}
 		};
-	
+
 	Node* Left = parsePrimary();
 
 	while (true) {
@@ -781,6 +789,31 @@ Node* Parser::parseNodeCall(Node* Func, const std::vector<Node*>& TemplateArgs) 
 
 }
 
+Node* Parser::parseTemplateParameter() {
+	return parsePrimary();
+}
+
+Node* Parser::parseTemplateParameterList() {
+
+	// Concretic-параметры: <int, 5, std::string>
+	stream.consume(TokenKind::Less);
+
+	std::vector<Node*> TemplateParameterList;
+
+	if (stream.peek().type != TokenKind::Greater)
+	{
+		TemplateParameterList.push_back(parseTemplateParameter());
+		while (stream.peek().type == TokenKind::Comma) {
+			stream.consume(TokenKind::Comma);
+			TemplateParameterList.push_back(parseTemplateParameter());
+		}
+	}
+	if (stream.peek().type != TokenKind::Greater)
+		throw std::runtime_error("Expected Greater token");
+	stream.consume(TokenKind::Greater);
+	return new NodeTemplateParameterList(TemplateParameterList);
+}
+
 Node* Parser::parseTemplateParametrDeclaration() {
 
 	Node* genericParams = nullptr;
@@ -802,7 +835,7 @@ Node* Parser::parseTemplateParametrDeclarationList() {
 
 	// Template-параметры: <T, K = [int]>
 	stream.consume(TokenKind::Less);
-	
+
 	std::vector<Node*> TemplateParametrList;
 	if (stream.peek().type != TokenKind::Greater)
 	{
@@ -817,6 +850,115 @@ Node* Parser::parseTemplateParametrDeclarationList() {
 	stream.consume(TokenKind::Greater);
 
 	return new NodeTemplateParametrDeclartionList(TemplateParametrList);
+}
+
+Node* Parser::parseClass() {
+	// assume current token is Class
+	stream.consume(TokenKind::Class);
+
+	Node* genericParams = parseClassTemplateParameterDeclarationList();
+
+	Node* ClassName = parseClassName();
+
+	Node* ClassBaseClass = parseClassBaseClass();
+
+	Node* ClassBody = parseClassBody();
+
+	return new NodeClass(ClassName, genericParams, ClassBaseClass, ClassBody);
+}
+
+Node* Parser::parseClassName() {
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected class name");
+	return parseIdeitfierScope();
+}
+
+Node* Parser::parseClassBody() {
+	
+	Node* Body = nullptr;
+
+	if (stream.peek().type == TokenKind::LeftBrace)
+	{
+		stream.consume(TokenKind::LeftBrace);
+		Body = parseClassBlock();
+		if (stream.peek().type != TokenKind::RightBrace)
+			throw std::runtime_error("Expected '}' after class declaration");
+		stream.consume(TokenKind::RightBrace);
+	}
+	else
+	{
+		if (stream.peek().type != TokenKind::Semicolon)
+			throw std::runtime_error("Expected ';' after class forward declaration");
+	}
+
+	return Body;
+}
+
+Node* Parser::parseClassBaseClass() {
+	Node* BaseClass = nullptr;
+
+	if (stream.match(TokenKind::Colon))
+	{
+		using ClassInheritanceType = NodeBaseClass::InheritanceType;
+		ClassInheritanceType Type = ClassInheritanceType::NONE;
+
+		switch (stream.peek().type)
+		{
+		case TokenKind::Public: 
+			stream.consume(TokenKind::Public);
+			Type = ClassInheritanceType::PUBLIC;
+			break;
+		case TokenKind::Private: 
+			stream.consume(TokenKind::Private);
+			Type = ClassInheritanceType::PRIVATE;
+			break;
+		default:
+			Type = ClassInheritanceType::NONE; break;
+		}
+
+		Node* Identifier = parseClassName();
+		Node* genericParamsConcretic = parseClassTemplateParameterList();
+
+		BaseClass = new NodeBaseClass(Identifier, genericParamsConcretic, Type);
+	}
+	return BaseClass;
+}
+
+Node* Parser::parseClassBlock() {
+
+	NodeBlock* block = new NodeBlock();
+
+	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
+		Node* stmt = nullptr;
+		switch (stream.peek().type) {
+		case TokenKind::Var:      stmt = parseVar(); break;
+		case TokenKind::Function: stmt = parseFunction(); break;
+		case TokenKind::Class:    stmt = parseClass(); break;
+		case TokenKind::Constructor: stmt = parseConstructor(); break;
+		case TokenKind::Destructor: stmt = parseDestructor(); break;
+		case TokenKind::Property: stmt = parseProperty(); break;
+		case TokenKind::Struct:   stmt = parseStruct(); break;
+		default:
+			stream.consume(stream.peek().type);
+			break;
+		}
+		if (stmt) block->add(stmt);
+	}
+	return block;
+}
+
+Node* Parser::parseClassTemplateParameterList() {
+	Node* ClassTemplateParameterList = nullptr;
+	if (stream.peek().type == TokenKind::Less)
+		ClassTemplateParameterList = parseTemplateParameterList();
+	return ClassTemplateParameterList;
+}
+
+Node* Parser::parseClassTemplateParameterDeclarationList() {
+	Node* ClassTemplateParametrDeclarationList = nullptr;
+	if (stream.peek().type == TokenKind::Less)
+		ClassTemplateParametrDeclarationList = parseTemplateParametrDeclarationList();
+	return ClassTemplateParametrDeclarationList;
 }
 
 Node* Parser::parseFunction() {
@@ -1017,7 +1159,7 @@ Node* Parser::parseLambda() {
 	if (stream.peek().type != TokenKind::IdentifierLiteral) {
 		return nullptr;
 	}
-	
+
 	Node* LambdaName = parseIdeitfierScope();
 
 	Node* ParameterList = parseFunctionParameterList();
@@ -1055,7 +1197,7 @@ Node* Parser::parseWhile() {
 	Node* Body = nullptr;
 	bool IsDoWhile = false;
 
-	switch (stream.peek().type) 
+	switch (stream.peek().type)
 	{
 	case TokenKind::Var:
 		Condition = parseVar(); break;
@@ -1117,9 +1259,9 @@ Node* Parser::parseTryCatch() {
 	if (stream.peek().type != TokenKind::LeftBrace)
 		throw std::runtime_error("Expected LeftBrace token");
 	stream.consume(TokenKind::LeftBrace);
-	
+
 	TryBody = parseTryBlock();
-	
+
 	if (stream.peek().type != TokenKind::RightBrace)
 		throw std::runtime_error("Expected RightBrace token");
 	stream.consume(TokenKind::RightBrace);
@@ -1195,9 +1337,9 @@ Node* Parser::parseCatchBlock() {
 }
 
 Node* Parser::parseAccess() {
-	
+
 	stream.consume(TokenKind::Access);
-	
+
 	if (stream.peek().type != TokenKind::IdentifierLiteral)
 		throw std::runtime_error("Expected IdentifierLiteral token");
 
@@ -1218,7 +1360,7 @@ Node* Parser::parseAccess() {
 };
 
 Node* Parser::parseUsing() {
-	
+
 	stream.consume(TokenKind::Using);
 
 	if (stream.peek().type != TokenKind::IdentifierLiteral)
@@ -1239,106 +1381,6 @@ Node* Parser::parseUsing() {
 	// Temporary stub
 	return new NodeUsing(Name, Path);
 };
-
-Node* Parser::parseGenericParametrsConcretic() {
-	std::vector<Node*> genericParametrsConcretic;
-	genericParametrsConcretic.push_back(parsePrimary());
-	while (stream.peek().type == TokenKind::Comma) {
-		stream.consume(TokenKind::Comma);
-		genericParametrsConcretic.push_back(parsePrimary());
-	}
-	return new NodeGenericParamsConcretic(genericParametrsConcretic);
-}
-
-Node* Parser::parseClass() {
-	// assume current token is Class
-	stream.consume(TokenKind::Class);
-
-	Node* genericParams = nullptr;
-	if (stream.peek().type == TokenKind::Less)
-		genericParams = parseTemplateParametrDeclarationList();
-
-	std::string name;
-	if (stream.peek().type == TokenKind::IdentifierLiteral)
-		name = stream.consume(TokenKind::IdentifierLiteral).value;
-	else
-		throw std::runtime_error("Expected class name");
-
-	// Поддержка generic-конкретизации: [int, std::string]
-	Node* genericParamsConcretic = nullptr;
-	std::string baseClass;
-	NodeClass::INHERITANCE_TYPE inheritanceType = NodeClass::INHERITANCE_TYPE::PRIVATE;
-
-	if (stream.match(TokenKind::Colon)) {
-		// Проверяем public/private
-		if (stream.peek().type == TokenKind::Public) {
-			inheritanceType = NodeClass::INHERITANCE_TYPE::PUBLIC;
-			stream.consume(TokenKind::Public);
-		}
-		else if (stream.peek().type == TokenKind::Private) {
-			inheritanceType = NodeClass::INHERITANCE_TYPE::PRIVATE;
-			stream.consume(TokenKind::Private);
-		}
-
-		// Имя базового класса
-		if (stream.peek().type == TokenKind::IdentifierLiteral) {
-			baseClass = stream.consume(TokenKind::IdentifierLiteral).value;
-		}
-		else {
-			throw std::runtime_error("Expected base class name");
-		}
-
-		if (stream.match(TokenKind::Less))
-		{
-			if (stream.peek().type != TokenKind::Greater)
-				genericParamsConcretic = parseGenericParametrsConcretic();
-			if (stream.peek().type != TokenKind::Greater)
-				throw std::runtime_error("Expected Greater token");
-			stream.consume(TokenKind::Greater);
-		}
-	}
-
-	Node* body = nullptr;
-	
-	if (stream.peek().type == TokenKind::LeftBrace)
-	{
-		stream.consume(TokenKind::LeftBrace);
-		body = parseClassBlock();
-		if (stream.peek().type != TokenKind::RightBrace)
-			throw std::runtime_error("Expected '}' after class declaration");
-		stream.consume(TokenKind::RightBrace);
-	}
-	else
-	{
-		if (stream.peek().type != TokenKind::Semicolon)
-			throw std::runtime_error("Expected ';' after class forward declaration");
-	}
-
-	return new NodeClass(name, genericParams, genericParamsConcretic, baseClass, inheritanceType, body);
-}
-
-Node* Parser::parseClassBlock() {
-	
-	NodeBlock* block = new NodeBlock();
-
-	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
-		Node* stmt = nullptr;
-		switch (stream.peek().type) {
-		case TokenKind::Var:      stmt = parseVar(); break;
-		case TokenKind::Function: stmt = parseFunction(); break;
-		case TokenKind::Class:    stmt = parseClass(); break;
-		case TokenKind::Constructor: stmt = parseConstructor(); break;
-		case TokenKind::Destructor: stmt = parseDestructor(); break;
-		case TokenKind::Property: stmt = parseProperty(); break;
-		case TokenKind::Struct:   stmt = parseStruct(); break;
-		default:
-			stream.consume(stream.peek().type);
-			break;
-		}
-		if (stmt) block->add(stmt);
-	}
-	return block;
-}
 
 Node* Parser::parseStruct() {
 	// assume current token is Struct

@@ -448,10 +448,10 @@ public:
 };
 
 // Generic parameter list concretic: <int, 5, std::string>
-class NodeGenericParamsConcretic : public Node {
+class NodeTemplateParameterList : public Node {
     std::vector<Node*> Params;
 public:
-    NodeGenericParamsConcretic(std::vector<Node*> params) : Params(params) {};
+    NodeTemplateParameterList(std::vector<Node*> params) : Params(params) {};
 
     std::string print() override {
         std::string fprint;
@@ -462,51 +462,83 @@ public:
         return fprint;
     }
 
-    ~NodeGenericParamsConcretic() override {
+    ~NodeTemplateParameterList() override {
         for (auto* p : Params) delete p;
+    }
+};
+
+class NodeBaseClass : public Node {
+public:
+    enum class InheritanceType { NONE, PUBLIC, PRIVATE };
+private:
+    Node* Identifier = nullptr;
+    Node* GenericConcretic = nullptr;
+    InheritanceType Type = InheritanceType::NONE;
+    std::string getSymbol() {
+        switch (Type)
+        {
+        case NodeBaseClass::InheritanceType::NONE: return "";
+        case NodeBaseClass::InheritanceType::PUBLIC: return "public";
+        case NodeBaseClass::InheritanceType::PRIVATE: return "privte";
+        default: return "";
+        }
+    }
+public:
+    NodeBaseClass(
+        Node* identifier,
+        Node* genericsConcretic,
+        InheritanceType type = InheritanceType::NONE
+    )
+        : Identifier(identifier), GenericConcretic(genericsConcretic), Type(type) {
+    }
+
+    std::string print() override {
+
+        if (!Identifier) return "";
+
+        std::string fprint = getSymbol() + " " + Identifier->print();
+        if (GenericConcretic) fprint += "<" + GenericConcretic->print() + ">";
+        return fprint;
+    }
+
+    ~NodeBaseClass() override {
+        delete Identifier;
+        delete GenericConcretic;
     }
 };
 
 class NodeClass : public Node {
 public:
-    enum class INHERITANCE_TYPE { PUBLIC, PRIVATE, STATIC };
-
+    enum class FIELD_TYPE { PUBLIC, PRIVATE, STATIC };
 private:
-    std::string Name;
+    Node* Identifier = nullptr;
     Node* GenericParams = nullptr;
-    Node* GenericConcretic = nullptr;
-    std::string BaseClass;
-    INHERITANCE_TYPE Type = INHERITANCE_TYPE::PRIVATE;
+    Node* BaseClass = nullptr;
     Node* Body = nullptr;
 public:
     NodeClass(
-        const std::string& name,
-        Node* generics = nullptr,
-        Node* genericsConcretic = nullptr,
-        const std::string& baseClass = "",
-        INHERITANCE_TYPE type = INHERITANCE_TYPE::PRIVATE,
-        Node* body = nullptr
+        Node* identifier,
+        Node* generics,
+        Node* baseClass,
+        Node* body
     )
-        : Name(name), GenericParams(generics), GenericConcretic(genericsConcretic), BaseClass(baseClass), Type(type), Body(body) {
+        : Identifier(identifier), GenericParams(generics), BaseClass(baseClass), Body(body) {
     }
 
     std::string print() override {
+        if (!Identifier) return "";
         std::string fprint = "class";
         if (GenericParams) fprint += "<" + GenericParams->print() + ">";
-        fprint += " " + Name;
-        if (!BaseClass.empty()) {
-            std::string type = (Type == INHERITANCE_TYPE::PRIVATE ? "" : "public ");
-            fprint += " : " + type + BaseClass;
-            if (GenericConcretic) fprint += "<" + GenericConcretic->print() + ">";
-        }
+        fprint += " " + Identifier->print();
+        if (BaseClass) fprint += BaseClass->print();
         if (Body) fprint += " " + Body->print();
-
         return fprint;
     }
 
     ~NodeClass() override {
-        delete GenericConcretic;
+        delete Identifier;
         delete GenericParams;
+        delete BaseClass;
         delete Body;
     }
 };
