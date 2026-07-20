@@ -106,6 +106,7 @@ public:
 
         // Всё по умолчанию по ссылке. Всё.
         lambda[int] _LocalRead(var[int] Type) { }
+        lambda<T, R>[int] _LocalRead(var[int] Type) { }
     };
     function[string] Cache(var[string] Link);
     function[void] Stop(var[string] RequestTag = "");

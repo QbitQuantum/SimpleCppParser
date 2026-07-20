@@ -105,7 +105,16 @@ private:
 	Node* parseFunctionBody();
 	Node* parseFunctionBlock();
 
+	// Парсинг лямбды
 	Node* parseLambda();
+	Node* parseLambdaTemplateParameterDeclarationList();
+	Node* parseLambdaReturnType();
+	Node* parseLambdaName();
+	Node* parseLambdaParameter();
+	Node* parseLambdaParameterList();
+	Node* parseLambdaBody();
+	Node* parseLambdaBlock();
+
 	Node* parseWhile();
 	Node* parseStruct();
 	Node* parseConstructor();
@@ -1116,6 +1125,51 @@ Node* Parser::parseFunctionParameterList() {
 	return new NodeParameterList(ArgumentList);
 }
 
+Node* Parser::parseLambda() {
+
+	stream.consume(TokenKind::Lambda);
+
+	Node* LambdaTemplateParametrDeclarationList = parseLambdaTemplateParameterDeclarationList();
+
+	Node* LambdaType = parseLambdaReturnType();
+
+	Node* LambdaName = parseLambdaName();
+
+	Node* LambdaParameterList = parseLambdaParameterList();
+
+	Node* LambdaBody = parseLambdaBody();
+
+	return new NodeLambda(LambdaType, LambdaTemplateParametrDeclarationList, LambdaName, LambdaParameterList, LambdaBody);
+}
+
+Node* Parser::parseLambdaName() {
+	return parseFunctionName();
+}
+
+Node* Parser::parseLambdaTemplateParameterDeclarationList() {
+	return parseFunctionTemplateParameterDeclarationList();
+}
+
+Node* Parser::parseLambdaReturnType() {
+	return parseFunctionReturnType();
+}
+
+Node* Parser::parseLambdaBody() {
+	return parseFunctionBody();
+}
+
+Node* Parser::parseLambdaBlock() {
+	return parseFunctionBlock();
+}
+
+Node* Parser::parseLambdaParameter() {
+	return parseFunctionParameter();
+}
+
+Node* Parser::parseLambdaParameterList() {
+	return parseFunctionParameterList();
+}
+
 Node* Parser::parseConstructor() {
 
 	stream.consume(TokenKind::Constructor);
@@ -1176,45 +1230,6 @@ Node* Parser::parseDestructor() {
 	}
 
 	return new NodeDestructor(body);
-}
-
-Node* Parser::parseLambda() {
-
-	stream.consume(TokenKind::Lambda);
-
-	auto Type = parseTypeBracket();
-
-	if (!Type)
-		return nullptr;
-
-	// Имя лямбды
-	if (stream.peek().type != TokenKind::IdentifierLiteral) {
-		return nullptr;
-	}
-
-	Node* LambdaName = parseIdeitfierScope();
-
-	Node* ParameterList = parseFunctionParameterList();
-
-	// Тело лямбды или ';'
-	Node* body = nullptr;
-
-	switch (stream.peek().type) {
-	case TokenKind::LeftBrace:
-		stream.consume(TokenKind::LeftBrace);
-		body = parseFunctionBlock();
-		if (stream.peek().type != TokenKind::RightBrace)
-			throw std::runtime_error("Expected RightBrace token");
-		stream.consume(TokenKind::RightBrace);
-		break;
-	case TokenKind::Semicolon:
-		stream.consume(TokenKind::Semicolon);
-		// Прототип функции
-		break;
-	default:
-		throw std::runtime_error("not expected Semicolon or LeftBrace");
-	}
-	return new NodeLambda(Type, LambdaName, ParameterList, body);
 }
 
 Node* Parser::parseWhile() {

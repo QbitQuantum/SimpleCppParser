@@ -260,6 +260,38 @@ public:
     };
 };
 
+class NodeLambda : public Node
+{
+    Node* Type = nullptr;
+    Node* TemplateParametrDeclarationList = nullptr;
+    Node* Identifier = nullptr;
+    Node* ParameterList = nullptr;
+    Node* Body = nullptr;
+public:
+    NodeLambda(
+        Node* type, Node* templateParametrDeclarationList, Node* name, Node* parameterList, Node* body) :
+        Type(type), TemplateParametrDeclarationList(templateParametrDeclarationList), Identifier(name), ParameterList(parameterList), Body(body) {
+    };
+
+    std::string print() override {
+        if (!Type || !Identifier || !ParameterList) return "";
+
+        std::string fprint = "lambda";
+        if (TemplateParametrDeclarationList) fprint += "<" + TemplateParametrDeclarationList->print() + ">";
+        fprint += (Type->print()) + " " + Identifier->print() + ParameterList->print();
+        fprint += Body ? Body->print() : "";
+        return fprint;
+    };
+
+    ~NodeLambda() {
+        delete Type; Type = nullptr;
+        delete TemplateParametrDeclarationList; TemplateParametrDeclarationList = nullptr;
+        delete Identifier; Identifier = nullptr;
+        delete ParameterList; ParameterList = nullptr;
+        delete Body; Body = nullptr;
+    };
+};
+
 
 class NodeConstructor : public Node {
 private:
@@ -297,35 +329,6 @@ public:
     ~NodeDestructor() override {
         delete Body;
     }
-};
-
-class NodeLambda : public Node
-{
-    Node* Type = nullptr;
-    Node* Identifier = nullptr;
-    Node* ParameterList = nullptr;
-    Node* Body = nullptr;
-public:
-    NodeLambda(
-        Node* type, Node* identifier, Node* parameterList, Node* body = nullptr) :
-        Type(type), Identifier(identifier), ParameterList(parameterList), Body(body) {
-    };
-
-    std::string print() override {
-        
-        if (!Identifier) return "";
-        std::string fprint = "lambda";
-        fprint += (Type->print()) + " " + Identifier->print() + ParameterList->print();
-        fprint += Body ? Body->print() : "";
-        return fprint;
-    };
-
-    ~NodeLambda() {
-        delete Type; Type = nullptr;
-        delete Identifier; Identifier = nullptr;
-        delete ParameterList; ParameterList = nullptr;
-        delete Body; Body = nullptr;
-    };
 };
 
 class NodeNew : public Node
