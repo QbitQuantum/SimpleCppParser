@@ -428,10 +428,10 @@ public:
 };
 
 // Generic parameter list: <T, K = [int], W = int()>
-class NodeTemplateParametrList : public Node {
+class NodeTemplateParametrDeclartionList : public Node {
     std::vector<Node*> Params;
 public:
-    NodeTemplateParametrList(std::vector<Node*> params) : Params(params) { };
+    NodeTemplateParametrDeclartionList(std::vector<Node*> params) : Params(params) { };
 
     std::string print() override {
         std::string fprint;
@@ -442,7 +442,7 @@ public:
         return fprint;
     }
 
-    ~NodeTemplateParametrList() override {
+    ~NodeTemplateParametrDeclartionList() override {
         for (auto* p : Params) delete p;
     }
 };

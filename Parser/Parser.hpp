@@ -816,7 +816,7 @@ Node* Parser::parseTemplateParametrDeclarationList() {
 		throw std::runtime_error("Expected Greater token");
 	stream.consume(TokenKind::Greater);
 
-	return new NodeTemplateParametrList(TemplateParametrList);
+	return new NodeTemplateParametrDeclartionList(TemplateParametrList);
 }
 
 Node* Parser::parseFunction() {
