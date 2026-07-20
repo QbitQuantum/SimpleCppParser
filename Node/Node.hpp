@@ -518,7 +518,7 @@ public:
     enum class InheritanceType { NONE, PUBLIC, PRIVATE };
 private:
     Node* Identifier = nullptr;
-    Node* GenericConcretic = nullptr;
+    Node* TemplateParameterList = nullptr;
     InheritanceType Type = InheritanceType::NONE;
     std::string getSymbol() {
         switch (Type)
@@ -532,10 +532,10 @@ private:
 public:
     NodeBaseClass(
         Node* identifier,
-        Node* genericsConcretic,
+        Node* templateParameterList,
         InheritanceType type = InheritanceType::NONE
     )
-        : Identifier(identifier), GenericConcretic(genericsConcretic), Type(type) {
+        : Identifier(identifier), TemplateParameterList(templateParameterList), Type(type) {
     }
 
     std::string print() override {
@@ -543,13 +543,13 @@ public:
         if (!Identifier) return "";
 
         std::string fprint = getSymbol() + " " + Identifier->print();
-        if (GenericConcretic) fprint += "<" + GenericConcretic->print() + ">";
+        if (TemplateParameterList) fprint += "<" + TemplateParameterList->print() + ">";
         return fprint;
     }
 
     ~NodeBaseClass() override {
         delete Identifier;
-        delete GenericConcretic;
+        delete TemplateParameterList;
     }
 };
 

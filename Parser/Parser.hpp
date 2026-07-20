@@ -927,10 +927,10 @@ Node* Parser::parseClassBaseClass() {
 			Type = ClassInheritanceType::NONE; break;
 		}
 
-		Node* Identifier = parseClassName();
-		Node* genericParamsConcretic = parseClassTemplateParameterList();
+		Node* ClassName = parseClassName();
+		Node* ClassTemplateParameterList = parseClassTemplateParameterList();
 
-		BaseClass = new NodeBaseClass(Identifier, genericParamsConcretic, Type);
+		BaseClass = new NodeBaseClass(ClassName, ClassTemplateParameterList, Type);
 	}
 	return BaseClass;
 }
