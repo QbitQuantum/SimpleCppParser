@@ -941,7 +941,7 @@ Node* Parser::parseClassBaseClass() {
 }
 
 Node* Parser::parseClassBlock() {
-	
+
 	// Ужас. Надо будет переделать
 	using ClassFieldType = NodeBlockClass::FieldType;
 	std::vector<Node*> Statements;
@@ -966,8 +966,10 @@ Node* Parser::parseClassBlock() {
 		case TokenKind::Static:
 		{
 			TokenKind Scope = stream.peek().type;
-			FieldStatements.push_back({ Type, Statements });
-			Statements.clear();
+			if (!Statements.empty() || Type != ClassFieldType::NONE) {
+				FieldStatements.push_back({ Type, Statements });
+				Statements.clear();
+			}
 			Type = getClassFieldType(Scope);
 			stream.consume(Scope);
 			break;
@@ -985,6 +987,11 @@ Node* Parser::parseClassBlock() {
 		}
 		if (stmt) Statements.push_back(stmt);
 	}
+
+	if (!Statements.empty() || Type != ClassFieldType::NONE) {
+		FieldStatements.push_back({ Type, Statements });
+	}
+
 	return new NodeBlockClass(FieldStatements);
 }
 
@@ -1050,20 +1057,17 @@ Node* Parser::parseStructBody() {
 }
 
 Node* Parser::parseStructBlock() {
-
-	// Ужас. Надо будет переделать
 	using StructFieldType = NodeBlockStruct::FieldType;
 	std::vector<Node*> Statements;
 	std::vector<std::pair<StructFieldType, std::vector<Node*>>> FieldStatements;
 	StructFieldType Type = StructFieldType::NONE;
 
-	auto getStructFieldType = [](TokenKind op) -> StructFieldType
-		{
-			switch (op) {
-			case TokenKind::Public: return StructFieldType::PUBLIC;
-			case TokenKind::Static: return StructFieldType::STATIC;
-			default: return StructFieldType::NONE;
-			}
+	auto getStructFieldType = [](TokenKind op) -> StructFieldType {
+		switch (op) {
+		case TokenKind::Public: return StructFieldType::PUBLIC;
+		case TokenKind::Static: return StructFieldType::STATIC;
+		default: return StructFieldType::NONE;
+		}
 		};
 
 	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
@@ -1073,8 +1077,10 @@ Node* Parser::parseStructBlock() {
 		case TokenKind::Static:
 		{
 			TokenKind Scope = stream.peek().type;
-			FieldStatements.push_back({ Type, Statements });
-			Statements.clear();
+			if (!Statements.empty() || Type != StructFieldType::NONE) {
+				FieldStatements.push_back({ Type, Statements });
+				Statements.clear();
+			}
 			Type = getStructFieldType(Scope);
 			stream.consume(Scope);
 			break;
@@ -1092,6 +1098,11 @@ Node* Parser::parseStructBlock() {
 		}
 		if (stmt) Statements.push_back(stmt);
 	}
+
+	if (!Statements.empty() || Type != StructFieldType::NONE) {
+		FieldStatements.push_back({ Type, Statements });
+	}
+
 	return new NodeBlockStruct(FieldStatements);
 }
 
