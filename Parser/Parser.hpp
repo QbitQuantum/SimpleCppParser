@@ -1003,11 +1003,6 @@ Node* Parser::parseFunction() {
 		}
 	}
 
-	// Имя функции
-	if (stream.peek().type != TokenKind::IdentifierLiteral) {
-		throw std::runtime_error("Expected IdentifierLiteral token");
-	}
-
 	Node* FunctionName = parseFunctionName();
 
 	Node* FunctionParameterList = parseFunctionParameterList();
@@ -1019,6 +1014,8 @@ Node* Parser::parseFunction() {
 }
 
 Node* Parser::parseFunctionName() {
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected IdentifierLiteral token");
 	return parseIdeitfierScope();
 }
 
