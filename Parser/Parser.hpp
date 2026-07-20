@@ -925,12 +925,37 @@ Node* Parser::parseClassBaseClass() {
 }
 
 Node* Parser::parseClassBlock() {
+	
+	// Ужас. Надо будет переделать
+	using ClassFieldType = NodeBlockClass::FieldType;
+	std::vector<Node*> Statements;
+	std::vector<std::pair<ClassFieldType, std::vector<Node*>>> FieldStatements;
+	ClassFieldType Type = ClassFieldType::NONE;
 
-	NodeBlock* block = new NodeBlock();
+	auto getClassFieldType = [](TokenKind op) -> ClassFieldType
+		{
+			switch (op) {
+			case TokenKind::Private: return ClassFieldType::PRIVATE;
+			case TokenKind::Public: return ClassFieldType::PUBLIC;
+			case TokenKind::Static: return ClassFieldType::STATIC;
+			default: return ClassFieldType::NONE;
+			}
+		};
 
 	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
 		Node* stmt = nullptr;
 		switch (stream.peek().type) {
+		case TokenKind::Private:
+		case TokenKind::Public:
+		case TokenKind::Static:
+		{
+			TokenKind Scope = stream.peek().type;
+			FieldStatements.push_back({ Type, Statements });
+			Statements.clear();
+			Type = getClassFieldType(Scope);
+			stream.consume(Scope);
+			break;
+		}
 		case TokenKind::Var:      stmt = parseVar(); break;
 		case TokenKind::Function: stmt = parseFunction(); break;
 		case TokenKind::Class:    stmt = parseClass(); break;
@@ -942,9 +967,9 @@ Node* Parser::parseClassBlock() {
 			stream.consume(stream.peek().type);
 			break;
 		}
-		if (stmt) block->add(stmt);
+		if (stmt) Statements.push_back(stmt);
 	}
-	return block;
+	return new NodeBlockClass(FieldStatements);
 }
 
 Node* Parser::parseClassTemplateParameterList() {

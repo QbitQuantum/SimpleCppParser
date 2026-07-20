@@ -467,6 +467,49 @@ public:
     }
 };
 
+class NodeBlockClass : public Node
+{
+public:
+    // NONE - значит по умолчаниб небыло установлено
+    enum class FieldType { NONE, PUBLIC, PRIVATE, STATIC };
+private:
+
+    std::vector<std::pair<FieldType, std::vector<Node*>>> FieldStatements;
+    std::string getSymbol(FieldType Type) {
+        switch (Type)
+        {
+        case NodeBlockClass::FieldType::NONE: return "";
+        case NodeBlockClass::FieldType::PUBLIC: return "public:";
+        case NodeBlockClass::FieldType::PRIVATE: return "private:";
+        case NodeBlockClass::FieldType::STATIC: return "static:";
+        default: return "";
+        }
+    }
+public:
+    NodeBlockClass(std::vector<std::pair<FieldType, std::vector<Node*>>> fieldStatements)
+        : FieldStatements(fieldStatements) {
+    };
+
+    std::string print() override {
+        std::string fprint = "{\n";
+        for (auto& Statement : FieldStatements)
+        {
+            fprint += getSymbol(Statement.first) + "\n";
+            for (auto& field : Statement.second)
+                fprint += field->print() + "\n";
+        }
+        fprint += "\n}";
+        return fprint;
+    }
+
+    ~NodeBlockClass() override {
+        for (auto& Statement : FieldStatements) {
+            for (auto& field : Statement.second)
+                delete field;
+        }
+    }
+};
+
 class NodeBaseClass : public Node {
 public:
     enum class InheritanceType { NONE, PUBLIC, PRIVATE };
