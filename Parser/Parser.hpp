@@ -80,7 +80,10 @@ private:
 	Node* parseUsing();
 	Node* parseVar();
 	Node* parseIdentifier();
-	
+
+	Node* parseTemplateParametrDeclaration();
+	Node* parseTemplateParametrDeclarationList();
+
 	// Парсинг функций
 	Node* parseFunction();
 	Node* parseFunctionName();
@@ -88,11 +91,10 @@ private:
 	Node* parseFunctionBlock();
 	Node* parseFunctionParameter();
 	Node* parseFunctionParameterList();
+	Node* parseFunctionTemplateParameterDeclarationList();
 
 	Node* parseLambda();
 	Node* parseWhile();
-	Node* parseGenericParametr();
-	Node* parseGenericParametrs();
 	Node* parseGenericParametrsConcretic();
 	Node* parseClass();
 	Node* parseStruct();
@@ -779,21 +781,49 @@ Node* Parser::parseNodeCall(Node* Func, const std::vector<Node*>& TemplateArgs) 
 
 }
 
+Node* Parser::parseTemplateParametrDeclaration() {
+
+	Node* genericParams = nullptr;
+
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected generic parameter name");
+	Node* paramName = parseIdeitfierScope();
+
+	Node* defaultExpr = nullptr;
+
+	if (stream.match(TokenKind::Equals)) {
+		defaultExpr = stream.peek().type == TokenKind::LeftBracket ?
+			parseTypeBracket() : parsePrimary();
+	}
+	return new NodeDeclaration(paramName, defaultExpr);
+}
+
+Node* Parser::parseTemplateParametrDeclarationList() {
+
+	// Template-параметры: <T, K = [int]>
+	stream.consume(TokenKind::Less);
+	
+	std::vector<Node*> TemplateParametrList;
+	if (stream.peek().type != TokenKind::Greater)
+	{
+		TemplateParametrList.push_back(parseTemplateParametrDeclaration());
+		while (stream.peek().type == TokenKind::Comma) {
+			stream.consume(TokenKind::Comma);
+			TemplateParametrList.push_back(parseTemplateParametrDeclaration());
+		}
+	}
+	if (stream.peek().type != TokenKind::Greater)
+		throw std::runtime_error("Expected Greater token");
+	stream.consume(TokenKind::Greater);
+
+	return new NodeTemplateParametrList(TemplateParametrList);
+}
+
 Node* Parser::parseFunction() {
 
 	stream.consume(TokenKind::Function);
 
-	Node* FunctionGenericParametrs = nullptr;
-
-	// Generic-параметры: <T, K = [int]>
-	if (stream.match(TokenKind::Less))
-	{
-		if (stream.peek().type != TokenKind::Greater)
-			FunctionGenericParametrs = parseGenericParametrs();
-		if (stream.peek().type != TokenKind::Greater)
-			throw std::runtime_error("Expected Greater token");
-		stream.consume(TokenKind::Greater);
-	}
+	Node* FunctionTemplateParametrDeclarationList = parseFunctionTemplateParameterDeclarationList();
 
 	Node* FunctionType = parseTypeBracket();
 
@@ -818,7 +848,7 @@ Node* Parser::parseFunction() {
 	// Тело функции или ';'
 	Node* FunctionBody = parseFunctionBody();
 
-	return new NodeFunction(FunctionType, FunctionGenericParametrs, FunctionName, FunctionParameterList, FunctionBody);
+	return new NodeFunction(FunctionType, FunctionTemplateParametrDeclarationList, FunctionName, FunctionParameterList, FunctionBody);
 }
 
 Node* Parser::parseFunctionName() {
@@ -903,6 +933,13 @@ Node* Parser::parseFunctionParameterList() {
 	stream.consume(TokenKind::RightParen);
 
 	return new NodeParameterList(ArgumentList);
+}
+
+Node* Parser::parseFunctionTemplateParameterDeclarationList() {
+	Node* FunctionTemplateParametrDeclarationList = nullptr;
+	if (stream.peek().type == TokenKind::Less)
+		FunctionTemplateParametrDeclarationList = parseTemplateParametrDeclarationList();
+	return FunctionTemplateParametrDeclarationList;
 }
 
 Node* Parser::parseConstructor() {
@@ -1203,34 +1240,6 @@ Node* Parser::parseUsing() {
 	return new NodeUsing(Name, Path);
 };
 
-Node* Parser::parseGenericParametr() {
-
-	Node* genericParams = nullptr;
-
-	if (stream.peek().type != TokenKind::IdentifierLiteral)
-		throw std::runtime_error("Expected generic parameter name");
-	Node* paramName = parseIdeitfierScope();
-
-	Node* defaultExpr = nullptr;
-
-	if (stream.match(TokenKind::Equals)) {
-		defaultExpr = stream.peek().type == TokenKind::LeftBracket ?
-			parseTypeBracket() : parsePrimary();
-	}
-	return new NodeDeclaration(paramName, defaultExpr);
-}
-
-Node* Parser::parseGenericParametrs() {
-
-	std::vector<Node*> genericParam;
-	genericParam.push_back(parseGenericParametr());
-	while (stream.peek().type == TokenKind::Comma) {
-		stream.consume(TokenKind::Comma);
-		genericParam.push_back(parseGenericParametr());
-	}
-	return new NodeGenericParams(genericParam);
-}
-
 Node* Parser::parseGenericParametrsConcretic() {
 	std::vector<Node*> genericParametrsConcretic;
 	genericParametrsConcretic.push_back(parsePrimary());
@@ -1246,16 +1255,8 @@ Node* Parser::parseClass() {
 	stream.consume(TokenKind::Class);
 
 	Node* genericParams = nullptr;
-
-	// Generic-параметры: <T, K = [int]>
-	if (stream.match(TokenKind::Less))
-	{
-		if (stream.peek().type != TokenKind::Greater)
-			genericParams = parseGenericParametrs();
-		if (stream.peek().type != TokenKind::Greater)
-			throw std::runtime_error("Expected Greater token");
-		stream.consume(TokenKind::Greater);
-	}
+	if (stream.peek().type == TokenKind::Less)
+		genericParams = parseTemplateParametrDeclarationList();
 
 	std::string name;
 	if (stream.peek().type == TokenKind::IdentifierLiteral)
@@ -1344,16 +1345,8 @@ Node* Parser::parseStruct() {
 	stream.consume(TokenKind::Struct);
 
 	Node* genericParams = nullptr;
-
-	// Generic-параметры: <T, K = [int]>
-	if (stream.match(TokenKind::Less))
-	{
-		if (stream.peek().type != TokenKind::Greater)
-			genericParams = parseGenericParametrs();
-		if (stream.peek().type != TokenKind::Greater)
-			throw std::runtime_error("Expected Greater token");
-		stream.consume(TokenKind::Greater);
-	}
+	if (stream.peek().type == TokenKind::Less)
+		genericParams = parseTemplateParametrDeclarationList();
 
 	std::string name;
 	if (stream.peek().type == TokenKind::IdentifierLiteral)

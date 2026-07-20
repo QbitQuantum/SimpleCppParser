@@ -232,20 +232,20 @@ public:
 class NodeFunction : public Node
 {
     Node* Type = nullptr;
-    Node* GenericParametrs = nullptr;
+    Node* TemplateParametrDeclarationList = nullptr;
     Node* Identifier = nullptr;
     Node* ParameterList = nullptr;
     Node* Body = nullptr;
 public:
     NodeFunction(
-        Node* type, Node* genericParametrs, Node* name, Node* parameterList, Node* body) :
-        Type(type), GenericParametrs(genericParametrs), Identifier(name), ParameterList(parameterList), Body(body){ };
+        Node* type, Node* templateParametrDeclarationList, Node* name, Node* parameterList, Node* body) :
+        Type(type), TemplateParametrDeclarationList(templateParametrDeclarationList), Identifier(name), ParameterList(parameterList), Body(body){ };
 
     std::string print() override {  
         if (!Type || !Identifier || !ParameterList) return "";
 
         std::string fprint = "function";
-        if (GenericParametrs) fprint += "<" + GenericParametrs->print() + ">";
+        if (TemplateParametrDeclarationList) fprint += "<" + TemplateParametrDeclarationList->print() + ">";
         fprint += (Type->print()) + " " + Identifier->print() + ParameterList->print();
         fprint += Body ? Body->print() : "";
         return fprint;
@@ -253,7 +253,7 @@ public:
 
     ~NodeFunction() {
         delete Type; Type = nullptr;
-        delete GenericParametrs; GenericParametrs = nullptr;
+        delete TemplateParametrDeclarationList; TemplateParametrDeclarationList = nullptr;
         delete Identifier; Identifier = nullptr;
         delete ParameterList; ParameterList = nullptr;
         delete Body; Body = nullptr;
@@ -427,11 +427,11 @@ public:
     }
 };
 
-// Generic parameter list: <T, K = int, W>
-class NodeGenericParams : public Node {
+// Generic parameter list: <T, K = [int], W = int()>
+class NodeTemplateParametrList : public Node {
     std::vector<Node*> Params;
 public:
-    NodeGenericParams(std::vector<Node*> params) : Params(params) { };
+    NodeTemplateParametrList(std::vector<Node*> params) : Params(params) { };
 
     std::string print() override {
         std::string fprint;
@@ -442,9 +442,7 @@ public:
         return fprint;
     }
 
-    const std::vector<Node*>& getParams() const { return Params; }
-
-    ~NodeGenericParams() override {
+    ~NodeTemplateParametrList() override {
         for (auto* p : Params) delete p;
     }
 };
