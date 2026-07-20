@@ -858,7 +858,7 @@ Node* Parser::parseClass() {
 	// assume current token is Class
 	stream.consume(TokenKind::Class);
 
-	Node* genericParams = parseClassTemplateParameterDeclarationList();
+	Node* ClassTemplateParameterDeclarationList = parseClassTemplateParameterDeclarationList();
 
 	Node* ClassName = parseClassName();
 
@@ -866,7 +866,7 @@ Node* Parser::parseClass() {
 
 	Node* ClassBody = parseClassBody();
 
-	return new NodeClass(ClassName, genericParams, ClassBaseClass, ClassBody);
+	return new NodeClass(ClassName, ClassTemplateParameterDeclarationList, ClassBaseClass, ClassBody);
 }
 
 Node* Parser::parseClassName() {

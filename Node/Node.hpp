@@ -555,23 +555,23 @@ public:
     enum class FIELD_TYPE { PUBLIC, PRIVATE, STATIC };
 private:
     Node* Identifier = nullptr;
-    Node* GenericParams = nullptr;
+    Node* TemplateParameterDeclarationList = nullptr;
     Node* BaseClass = nullptr;
     Node* Body = nullptr;
 public:
     NodeClass(
         Node* identifier,
-        Node* generics,
+        Node* templateParameterDeclarationList,
         Node* baseClass,
         Node* body
     )
-        : Identifier(identifier), GenericParams(generics), BaseClass(baseClass), Body(body) {
+        : Identifier(identifier), TemplateParameterDeclarationList(templateParameterDeclarationList), BaseClass(baseClass), Body(body) {
     }
 
     std::string print() override {
         if (!Identifier) return "";
         std::string fprint = "class";
-        if (GenericParams) fprint += "<" + GenericParams->print() + ">";
+        if (TemplateParameterDeclarationList) fprint += "<" + TemplateParameterDeclarationList->print() + ">";
         fprint += " " + Identifier->print();
         if (BaseClass) fprint += BaseClass->print();
         if (Body) fprint += " " + Body->print();
@@ -580,7 +580,7 @@ public:
 
     ~NodeClass() override {
         delete Identifier;
-        delete GenericParams;
+        delete TemplateParameterDeclarationList;
         delete BaseClass;
         delete Body;
     }
