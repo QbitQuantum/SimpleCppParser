@@ -10,7 +10,7 @@
 class Node
 {
 protected:
-    int Type = -1;
+    int NodeType = -1;
     Node() {};
 public:
     virtual std::string print() = 0;
