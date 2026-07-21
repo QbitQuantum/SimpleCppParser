@@ -121,8 +121,15 @@ private:
 	Node* parseLambdaBody();
 	Node* parseLambdaBlock();
 
-	Node* parseWhile();
 	Node* parseConstructor();
+	Node* parseConstructorTemplateParameterDeclarationList();
+	Node* parseConstructorQulifier();
+	Node* parseConstructorParameter();
+	Node* parseConstructorParameterList();
+	Node* parseConstructorBody();
+	Node* parseConstructorBlock();
+
+	Node* parseWhile();
 	Node* parseDestructor();
 	Node* parseExpression(int priory = 0);
 	Node* parseDeclaration();
@@ -1283,28 +1290,47 @@ Node* Parser::parseConstructor() {
 
 	stream.consume(TokenKind::Constructor);
 
-	Node* ParameterList = parseFunctionParameterList();
+	Node* ConstructorTemplateParametrDeclarationList = parseConstructorTemplateParameterDeclarationList();
 
-	// Тело функции или ';'
-	Node* body = nullptr;
+	Node* ConstructorQulifier = parseConstructorQulifier();
 
-	switch (stream.peek().type) {
-	case TokenKind::LeftBrace:
-		stream.consume(TokenKind::LeftBrace);
-		body = parseFunctionBlock();
-		if (stream.peek().type != TokenKind::RightBrace)
-			throw std::runtime_error("Expected RightBrace token");
-		stream.consume(TokenKind::RightBrace);
-		break;
-	case TokenKind::Semicolon:
-		stream.consume(TokenKind::Semicolon);
-		// Прототип функции
-		break;
-	default:
-		throw std::runtime_error("not expected Semicolon or LeftBrace");
+	Node* ConstructorParameterList = parseConstructorParameterList();
+
+	Node* ConstructorBody = parseConstructorBody();
+
+	return new NodeConstructor(ConstructorTemplateParametrDeclarationList, ConstructorParameterList, ConstructorBody);
+}
+
+Node* Parser::parseConstructorTemplateParameterDeclarationList() {
+	return parseFunctionTemplateParameterDeclarationList();
+}
+
+Node* Parser::parseConstructorQulifier() {
+	if (!stream.match(TokenKind::LeftBracket)) {
+		// Необязательный — если нет, пропускаем
 	}
+	else {
+		while (!stream.match(TokenKind::RightBracket)) {
+			stream.consume(stream.peek().type);
+		}
+	}
+	return nullptr;
+}
 
-	return new NodeConstructor(ParameterList, body);
+Node* Parser::parseConstructorParameter() {
+	return parseFunctionParameter();
+}
+
+Node* Parser::parseConstructorParameterList() {
+	return parseFunctionParameterList();
+}
+
+Node* Parser::parseConstructorBody() {
+	return parseFunctionBody();
+}
+
+Node* Parser::parseConstructorBlock() {
+	return parseFunctionBlock();
 }
 
 Node* Parser::parseDestructor() {

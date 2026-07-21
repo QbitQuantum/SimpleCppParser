@@ -293,27 +293,32 @@ public:
 };
 
 
-class NodeConstructor : public Node {
-private:
+class NodeConstructor : public Node 
+{
+    Node* TemplateParametrDeclarationList = nullptr;
     Node* ParameterList = nullptr;
     Node* Body = nullptr;
 public:
-    NodeConstructor(Node* parameterList, Node* body) :
-        ParameterList(parameterList), Body(body) {
+    NodeConstructor(
+        Node* templateParametrDeclarationList, Node* parameterList, Node* body) :
+        TemplateParametrDeclarationList(templateParametrDeclarationList), ParameterList(parameterList), Body(body) {
     };
 
     std::string print() override {
         if (!ParameterList) return "";
-        
-        std::string fprint = "contructor" + ParameterList->print();
+
+        std::string fprint = "constructor";
+        if (TemplateParametrDeclarationList) fprint += "<" + TemplateParametrDeclarationList->print() + ">";
+        fprint += ParameterList->print();
         fprint += Body ? Body->print() : "";
         return fprint;
-    }
+    };
 
-    ~NodeConstructor() override {
-        delete ParameterList;
-        delete Body;
-    }
+    ~NodeConstructor() {
+        delete TemplateParametrDeclarationList; TemplateParametrDeclarationList = nullptr;
+        delete ParameterList; ParameterList = nullptr;
+        delete Body; Body = nullptr;
+    };
 };
 
 class NodeDestructor : public Node {
