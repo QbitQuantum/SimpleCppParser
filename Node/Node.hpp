@@ -322,18 +322,27 @@ public:
 };
 
 class NodeDestructor : public Node {
+    Node* ParameterList = nullptr;
     Node* Body = nullptr;
 public:
-    NodeDestructor(Node* body) : Body(body) {};
+    NodeDestructor(
+        Node* parameterList, Node* body) :
+        ParameterList(parameterList), Body(body) {
+    };
 
     std::string print() override {
-        std::string fprint = "destructor()";
-        return fprint;
-    }
+        if (!ParameterList) return "";
 
-    ~NodeDestructor() override {
-        delete Body;
-    }
+        std::string fprint = "destructor";
+        fprint += ParameterList->print();
+        fprint += Body ? Body->print() : "";
+        return fprint;
+    };
+
+    ~NodeDestructor() {
+        delete ParameterList; ParameterList = nullptr;
+        delete Body; Body = nullptr;
+    };
 };
 
 class NodeNew : public Node

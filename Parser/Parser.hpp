@@ -130,8 +130,14 @@ private:
 	Node* parseConstructorBody();
 	Node* parseConstructorBlock();
 
-	Node* parseWhile();
+	// Парсинг деструктора
 	Node* parseDestructor();
+	Node* parseDestructorQulifier();
+	Node* parseDestructorParameterList();
+	Node* parseDestructorBody();
+	Node* parseDestructorBlock();
+
+	Node* parseWhile();
 	Node* parseExpression(int priory = 0);
 	Node* parseDeclaration();
 	Node* parseProperty();
@@ -1338,6 +1344,29 @@ Node* Parser::parseDestructor() {
 
 	stream.consume(TokenKind::Destructor);
 
+	Node* DestructorQulifier = parseDestructorQulifier();
+
+	Node* DestructorParameterList = parseDestructorParameterList();
+
+	Node* DestructorBody = parseDestructorBody();
+
+	return new NodeDestructor(DestructorParameterList, DestructorBody);
+}
+
+Node* Parser::parseDestructorQulifier() {
+	if (!stream.match(TokenKind::LeftBracket)) {
+		// Необязательный — если нет, пропускаем
+	}
+	else {
+		while (!stream.match(TokenKind::RightBracket)) {
+			stream.consume(stream.peek().type);
+		}
+	}
+	return nullptr;
+}
+
+Node* Parser::parseDestructorParameterList() {
+	
 	if (stream.peek().type != TokenKind::LeftParen)
 		throw std::runtime_error("Expected LeftParen token");
 	stream.consume(TokenKind::LeftParen);
@@ -1346,26 +1375,15 @@ Node* Parser::parseDestructor() {
 		throw std::runtime_error("Expected RightParen token");
 	stream.consume(TokenKind::RightParen);
 
-	// Тело функции или ';'
-	Node* body = nullptr;
+	return new NodeParameterList({});
+}
 
-	switch (stream.peek().type) {
-	case TokenKind::LeftBrace:
-		stream.consume(TokenKind::LeftBrace);
-		body = parseFunctionBlock();
-		if (stream.peek().type != TokenKind::RightBrace)
-			throw std::runtime_error("Expected RightBrace token");
-		stream.consume(TokenKind::RightBrace);
-		break;
-	case TokenKind::Semicolon:
-		stream.consume(TokenKind::Semicolon);
-		// Прототип функции
-		break;
-	default:
-		throw std::runtime_error("not expected Semicolon or LeftBrace");
-	}
+Node* Parser::parseDestructorBody() {
+	return parseFunctionBody();
+}
 
-	return new NodeDestructor(body);
+Node* Parser::parseDestructorBlock() {
+	return parseDestructorBlock();
 }
 
 Node* Parser::parseWhile() {

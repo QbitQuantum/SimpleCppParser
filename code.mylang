@@ -61,7 +61,7 @@ private:
 
         constructor<T>[virtual, ovveride const, noexcept](var[T*], var[string] RequestTag, var[string] Link, var[ERequestObtainData], var[int] Argument = INDEX_INVALID);
         constructor(var[OctetBaseLink*]);
-        destructor();
+        destructor[virtual]();
     };
 
 protected:
