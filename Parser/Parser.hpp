@@ -121,6 +121,7 @@ private:
 	Node* parseLambdaBody();
 	Node* parseLambdaBlock();
 
+	// Парсинг конструктора
 	Node* parseConstructor();
 	Node* parseConstructorTemplateParameterDeclarationList();
 	Node* parseConstructorQulifier();
