@@ -74,7 +74,6 @@ private:
 	Node* parseTryBlock();
 	Node* parseCatchBlock();
 
-	Node* parseAccess();
 	Node* parseIdentifier();
 
 	Node* parseDeclaration();
@@ -88,6 +87,10 @@ private:
 	Node* parseUsingTemplateParameterDeclarationList();
 	Node* parseUsingName();
 	Node* parseUsingScopeType();
+		
+	Node* parseAccess();
+	Node* parseAccessName();
+	Node* parseAccessScope();
 
 	Node* parseVar();
 	Node* parseVarTemplateParameterDeclarationList();
@@ -668,6 +671,37 @@ Node* Parser::parseUsingScopeType() {
 		throw std::runtime_error("Expected Equals token");
 
 	return parseIdeitfierScope();
+};
+
+Node* Parser::parseAccess() {
+
+	stream.consume(TokenKind::Access);
+
+	Node* AccessName = parseAccessName();
+
+	Node* AccessScope = parseAccessScope();
+
+	// Temporary stub
+	return new NodeAccess(AccessName, AccessScope);
+};
+
+Node* Parser::parseAccessName() {
+
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected IdentifierLiteral token");
+	return parseIdeitfierScope();
+};
+
+Node* Parser::parseAccessScope() {
+
+	if (stream.peek().type != TokenKind::Equals)
+		throw std::runtime_error("Expected Equals token");
+	stream.consume(TokenKind::Equals);
+
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected Equals token");
+
+	return parseScope();
 };
 
 Node* Parser::parseVar() {
@@ -1595,29 +1629,6 @@ Node* Parser::parseCatchBlock() {
 	}
 	return block;
 }
-
-Node* Parser::parseAccess() {
-
-	stream.consume(TokenKind::Access);
-
-	if (stream.peek().type != TokenKind::IdentifierLiteral)
-		throw std::runtime_error("Expected IdentifierLiteral token");
-
-	std::string Name = stream.consume(TokenKind::IdentifierLiteral).value;
-
-	if (stream.peek().type != TokenKind::Equals)
-		throw std::runtime_error("Expected Equals token");
-	stream.consume(TokenKind::Equals);
-
-	Node* Scope = parseScope();
-
-	if (stream.peek().type != TokenKind::Semicolon)
-		throw std::runtime_error("Expected Equals token");
-	stream.consume(TokenKind::Semicolon);
-
-	// Temporary stub
-	return new NodeAccess(Name, Scope);
-};
 
 Parser::~Parser()
 {

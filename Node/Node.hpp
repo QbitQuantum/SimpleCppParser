@@ -198,13 +198,17 @@ public:
 
 class NodeAccess : public Node
 {
-    std::string Name;
+    Node* Name = nullptr;
     Node* Scope = nullptr;
 public:
-    NodeAccess(const std::string& name, Node* scope) :
+    NodeAccess(Node* name, Node* scope) :
         Name(name), Scope(scope) {};
-    std::string print() override { return "access " + Name + " = " + Scope->print(); };
+    std::string print() override { 
+        if (!Name || !Scope) return "";
+        return "access " + Name->print() + " = " + Scope->print(); 
+    };
     ~NodeAccess() {
+        delete Name;
         delete Scope;
     };
 };
