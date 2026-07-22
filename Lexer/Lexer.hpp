@@ -12,7 +12,7 @@ using Callback = void(*)(std::string);
 Callback LexError;
 
 #define DEF_GENERATION_BASE(X) \
-Token Token{ TokenKind::##X, std::string(1, constexprToChar(TokenKind::##X)), CurrentLine, CurrentColumn}; \
+Token Token{ TokenKind::##X, std::string(1, tok::constexprToChar(TokenKind::##X)), CurrentLine, CurrentColumn}; \
 BufferToken.push_back(Token); \
 UpdatePosition(); \
 
@@ -125,9 +125,9 @@ private:
 
     // Обновляем проверку идентификаторов:
     bool is_unicode_identifier_start(char32_t c) {
-        if (((c >= constexprToChar(TokenKind::A) && c <= constexprToChar(TokenKind::Z)) ||
-            (c >= constexprToChar(TokenKind::a) && c <= constexprToChar(TokenKind::z)) ||
-            c == constexprToChar(TokenKind::Underscore)))
+        if (((c >= tok::constexprToChar(TokenKind::A) && c <= tok::constexprToChar(TokenKind::Z)) ||
+            (c >= tok::constexprToChar(TokenKind::a) && c <= tok::constexprToChar(TokenKind::z)) ||
+            c == tok::constexprToChar(TokenKind::Underscore)))
             return true;
         return (c >= 0xC0); // Все символы выше ASCII
     }
@@ -271,7 +271,7 @@ char Lexer::GetChar() const {
 }
 
 void Lexer::LineFeed() {
-    Token Token{ TokenKind::LineFeed, std::string(1, constexprToChar(TokenKind::LineFeed)), CurrentLine, CurrentColumn };
+    Token Token{ TokenKind::LineFeed, std::string(1, tok::constexprToChar(TokenKind::LineFeed)), CurrentLine, CurrentColumn };
     BufferToken.push_back(Token);
     CurrentColumn = 1;
     CurrentLine++;

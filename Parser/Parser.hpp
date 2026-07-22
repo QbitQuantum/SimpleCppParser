@@ -675,7 +675,7 @@ Node* Parser::parsePrimary() {
 			}
 		};
 
-	if (IsUnaryOperator(stream.peek().type))
+	if (tok::IsUnaryOperator(stream.peek().type))
 	{
 		UnaryOp = getUnaryOperand(stream.peek().type);
 		stream.consume(stream.peek().type);
@@ -746,7 +746,7 @@ Node* Parser::parseExpression(int MinPrec) {
 
 	while (true) {
 		TokenKind op = stream.peek().type;
-		if (!IsBinaryOperator(op))
+		if (!tok::IsBinaryOperator(op))
 			break;
 		int currentPriority = GetBinaryOperatorPriority(op);
 		if (currentPriority < MinPrec)

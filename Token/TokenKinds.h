@@ -231,329 +231,332 @@ enum class TokenKind : unsigned short {
     Arrow,     // ->
 };
 
-// Вспомогательная функция для преобразования enum в char
-constexpr char constexprToChar(TokenKind s) {
-    return static_cast<char>(s);
-}
-
-// Вспомогательная функция для преобразования char в enum
-constexpr TokenKind constexprToTTokenID(char s) {
-    return static_cast<TokenKind>(s);
-}
-
-bool static IsBinaryOperator(TokenKind Kind) {
-    switch (Kind)
-    {
-        // Арифметические
-    case TokenKind::Minus:
-    case TokenKind::Plus:
-    case TokenKind::Asterisk:
-    case TokenKind::Slash:
-    case TokenKind::Percent:
-        // Операции сравнения
-    case TokenKind::Equal:
-    case TokenKind::NotEqual:
-    case TokenKind::Less:
-    case TokenKind::Greater:
-    case TokenKind::LessEqual:
-    case TokenKind::GreaterEqual:
-        // <=>	Трёхстороннее сравнение
-        // Побитовые (для целых чисел)
-    case TokenKind::Ampersand:
-    case TokenKind::Pipe:
-    case TokenKind::Caret:
-    case TokenKind::Shl:
-    case TokenKind::Shr:
-        // Логические
-    case TokenKind::And:
-    case TokenKind::Or:
-        //Операции присваивания
-    case TokenKind::Assign:
-    case TokenKind::PlusAssign:
-    case TokenKind::MinusAssign:
-    case TokenKind::MultAssign:
-    case TokenKind::DivAssign:
-    case TokenKind::ModAssign:
-    case TokenKind::AndAssign:
-    case TokenKind::OrAssign:
-    case TokenKind::XorAssign:
-    case TokenKind::ShlAssign:
-    case TokenKind::ShrAssign:
-        return true;
+namespace tok
+{
+    // Вспомогательная функция для преобразования enum в char
+    constexpr char constexprToChar(TokenKind s) {
+        return static_cast<char>(s);
     }
-    return false;
-}
 
-bool static IsUnaryOperator(TokenKind Kind) {
-    switch (Kind)
-    {
-    case TokenKind::Minus:
-    case TokenKind::Plus:
-    case TokenKind::Dec:
-    case TokenKind::Inc:
-    case TokenKind::Asterisk:
-    case TokenKind::Exclamation:
-    case TokenKind::Tilde:
-        return true;
+    // Вспомогательная функция для преобразования char в enum
+    constexpr TokenKind constexprToTTokenID(char s) {
+        return static_cast<TokenKind>(s);
     }
-    return false;
-}
+
+    bool static IsBinaryOperator(TokenKind Kind) {
+        switch (Kind)
+        {
+            // Арифметические
+        case TokenKind::Minus:
+        case TokenKind::Plus:
+        case TokenKind::Asterisk:
+        case TokenKind::Slash:
+        case TokenKind::Percent:
+            // Операции сравнения
+        case TokenKind::Equal:
+        case TokenKind::NotEqual:
+        case TokenKind::Less:
+        case TokenKind::Greater:
+        case TokenKind::LessEqual:
+        case TokenKind::GreaterEqual:
+            // <=>	Трёхстороннее сравнение
+            // Побитовые (для целых чисел)
+        case TokenKind::Ampersand:
+        case TokenKind::Pipe:
+        case TokenKind::Caret:
+        case TokenKind::Shl:
+        case TokenKind::Shr:
+            // Логические
+        case TokenKind::And:
+        case TokenKind::Or:
+            //Операции присваивания
+        case TokenKind::Assign:
+        case TokenKind::PlusAssign:
+        case TokenKind::MinusAssign:
+        case TokenKind::MultAssign:
+        case TokenKind::DivAssign:
+        case TokenKind::ModAssign:
+        case TokenKind::AndAssign:
+        case TokenKind::OrAssign:
+        case TokenKind::XorAssign:
+        case TokenKind::ShlAssign:
+        case TokenKind::ShrAssign:
+            return true;
+        }
+        return false;
+    }
+
+    bool static IsUnaryOperator(TokenKind Kind) {
+        switch (Kind)
+        {
+        case TokenKind::Minus:
+        case TokenKind::Plus:
+        case TokenKind::Dec:
+        case TokenKind::Inc:
+        case TokenKind::Asterisk:
+        case TokenKind::Exclamation:
+        case TokenKind::Tilde:
+            return true;
+        }
+        return false;
+    }
 
 #define GENERATE_NAME(name) \
 case TokenKind::name: return #name; \
 
-std::string getTokenName(TokenKind kind) {
+    std::string getTokenName(TokenKind kind) {
 
-    switch (kind)
-    {
-    GENERATE_NAME(A);
-    GENERATE_NAME(B);
-    GENERATE_NAME(C);
-    GENERATE_NAME(D);
-    GENERATE_NAME(E);
-    GENERATE_NAME(F);
-    GENERATE_NAME(G);
-    GENERATE_NAME(H);
-    GENERATE_NAME(I);
-    GENERATE_NAME(J);
-    GENERATE_NAME(K);
-    GENERATE_NAME(L);
-    GENERATE_NAME(M);
-    GENERATE_NAME(N);
-    GENERATE_NAME(O);
-    GENERATE_NAME(P);
-    GENERATE_NAME(Q);
-    GENERATE_NAME(R);
-    GENERATE_NAME(S);
-    GENERATE_NAME(T);
-    GENERATE_NAME(U);
-    GENERATE_NAME(V);
-    GENERATE_NAME(W);
-    GENERATE_NAME(X);
-    GENERATE_NAME(Y);
-    GENERATE_NAME(Z);
+        switch (kind)
+        {
+            GENERATE_NAME(A);
+            GENERATE_NAME(B);
+            GENERATE_NAME(C);
+            GENERATE_NAME(D);
+            GENERATE_NAME(E);
+            GENERATE_NAME(F);
+            GENERATE_NAME(G);
+            GENERATE_NAME(H);
+            GENERATE_NAME(I);
+            GENERATE_NAME(J);
+            GENERATE_NAME(K);
+            GENERATE_NAME(L);
+            GENERATE_NAME(M);
+            GENERATE_NAME(N);
+            GENERATE_NAME(O);
+            GENERATE_NAME(P);
+            GENERATE_NAME(Q);
+            GENERATE_NAME(R);
+            GENERATE_NAME(S);
+            GENERATE_NAME(T);
+            GENERATE_NAME(U);
+            GENERATE_NAME(V);
+            GENERATE_NAME(W);
+            GENERATE_NAME(X);
+            GENERATE_NAME(Y);
+            GENERATE_NAME(Z);
 
-    GENERATE_NAME(a);
-    GENERATE_NAME(b);
-    GENERATE_NAME(c);
-    GENERATE_NAME(d);
-    GENERATE_NAME(e);
-    GENERATE_NAME(f);
-    GENERATE_NAME(g);
-    GENERATE_NAME(h);
-    GENERATE_NAME(i);
-    GENERATE_NAME(j);
-    GENERATE_NAME(k);
-    GENERATE_NAME(l);
-    GENERATE_NAME(m);
-    GENERATE_NAME(n);
-    GENERATE_NAME(o);
-    GENERATE_NAME(p);
-    GENERATE_NAME(q);
-    GENERATE_NAME(r);
-    GENERATE_NAME(s);
-    GENERATE_NAME(t);
-    GENERATE_NAME(u);
-    GENERATE_NAME(v);
-    GENERATE_NAME(w);
-    GENERATE_NAME(x);
-    GENERATE_NAME(y);
-    GENERATE_NAME(z);
+            GENERATE_NAME(a);
+            GENERATE_NAME(b);
+            GENERATE_NAME(c);
+            GENERATE_NAME(d);
+            GENERATE_NAME(e);
+            GENERATE_NAME(f);
+            GENERATE_NAME(g);
+            GENERATE_NAME(h);
+            GENERATE_NAME(i);
+            GENERATE_NAME(j);
+            GENERATE_NAME(k);
+            GENERATE_NAME(l);
+            GENERATE_NAME(m);
+            GENERATE_NAME(n);
+            GENERATE_NAME(o);
+            GENERATE_NAME(p);
+            GENERATE_NAME(q);
+            GENERATE_NAME(r);
+            GENERATE_NAME(s);
+            GENERATE_NAME(t);
+            GENERATE_NAME(u);
+            GENERATE_NAME(v);
+            GENERATE_NAME(w);
+            GENERATE_NAME(x);
+            GENERATE_NAME(y);
+            GENERATE_NAME(z);
 
-    GENERATE_NAME(Zero);
-    GENERATE_NAME(One);
-    GENERATE_NAME(Two);
-    GENERATE_NAME(Three);
-    GENERATE_NAME(Four);
-    GENERATE_NAME(Five);
-    GENERATE_NAME(Six);
-    GENERATE_NAME(Seven);
-    GENERATE_NAME(Eight);
-    GENERATE_NAME(Nine);
+            GENERATE_NAME(Zero);
+            GENERATE_NAME(One);
+            GENERATE_NAME(Two);
+            GENERATE_NAME(Three);
+            GENERATE_NAME(Four);
+            GENERATE_NAME(Five);
+            GENERATE_NAME(Six);
+            GENERATE_NAME(Seven);
+            GENERATE_NAME(Eight);
+            GENERATE_NAME(Nine);
 
-    GENERATE_NAME(Space);
-    GENERATE_NAME(Exclamation);
-    GENERATE_NAME(Quotation);
-    GENERATE_NAME(Hash);
-    GENERATE_NAME(Dollar);
-    GENERATE_NAME(Percent);
-    GENERATE_NAME(Ampersand);
-    GENERATE_NAME(Apostrophe);
-    GENERATE_NAME(LeftParen);
-    GENERATE_NAME(RightParen);
-    GENERATE_NAME(LeftBrace);
-    GENERATE_NAME(RightBrace);
-    GENERATE_NAME(LeftBracket);
-    GENERATE_NAME(RightBracket);
-    GENERATE_NAME(Asterisk);
-    GENERATE_NAME(Plus);
-    GENERATE_NAME(Comma);
-    GENERATE_NAME(Minus);
-    GENERATE_NAME(Dot);
-    GENERATE_NAME(Slash);
-    GENERATE_NAME(Colon);
-    GENERATE_NAME(Semicolon);
-    GENERATE_NAME(Less);
-    GENERATE_NAME(Equals);
-    GENERATE_NAME(Greater);
-    GENERATE_NAME(Question);
-    GENERATE_NAME(At);
-    GENERATE_NAME(Backslash);
-    GENERATE_NAME(Caret);
-    GENERATE_NAME(Underscore);
-    GENERATE_NAME(Backtick);
-    GENERATE_NAME(Pipe);
-    GENERATE_NAME(Tilde);
-    GENERATE_NAME(Null);
-    GENERATE_NAME(StartOfHeading);
-    GENERATE_NAME(StartOfText);
-    GENERATE_NAME(EndOfText);
-    GENERATE_NAME(EndOfTransmission);
-    GENERATE_NAME(Enquiry);
-    GENERATE_NAME(Acknowledge);
-    GENERATE_NAME(Bell);
-    GENERATE_NAME(Backspace);
-    GENERATE_NAME(Tab);
-    GENERATE_NAME(LineFeed);
-    GENERATE_NAME(VerticalTab);
-    GENERATE_NAME(FormFeed);
-    GENERATE_NAME(CarriageReturn);
-    GENERATE_NAME(ShiftOut);
-    GENERATE_NAME(ShiftIn);
-    GENERATE_NAME(DataLinkEscape);
-    GENERATE_NAME(DeviceControl1);
-    GENERATE_NAME(DeviceControl2);
-    GENERATE_NAME(DeviceControl3);
-    GENERATE_NAME(DeviceControl4);
-    GENERATE_NAME(NegativeAcknowledge);
-    GENERATE_NAME(SynchronousIdle);
-    GENERATE_NAME(EndOfTransmissionBlock);
-    GENERATE_NAME(Cancel);
-    GENERATE_NAME(EndOfMedium);
-    GENERATE_NAME(Substitute);
-    GENERATE_NAME(Escape);
-    GENERATE_NAME(FileSeparator);
-    GENERATE_NAME(GroupSeparator);
-    GENERATE_NAME(RecordSeparator);
-    GENERATE_NAME(UnitSeparator);
-    GENERATE_NAME(Delete);
-    GENERATE_NAME(FirstSpecialToken);
-    GENERATE_NAME(neof);
+            GENERATE_NAME(Space);
+            GENERATE_NAME(Exclamation);
+            GENERATE_NAME(Quotation);
+            GENERATE_NAME(Hash);
+            GENERATE_NAME(Dollar);
+            GENERATE_NAME(Percent);
+            GENERATE_NAME(Ampersand);
+            GENERATE_NAME(Apostrophe);
+            GENERATE_NAME(LeftParen);
+            GENERATE_NAME(RightParen);
+            GENERATE_NAME(LeftBrace);
+            GENERATE_NAME(RightBrace);
+            GENERATE_NAME(LeftBracket);
+            GENERATE_NAME(RightBracket);
+            GENERATE_NAME(Asterisk);
+            GENERATE_NAME(Plus);
+            GENERATE_NAME(Comma);
+            GENERATE_NAME(Minus);
+            GENERATE_NAME(Dot);
+            GENERATE_NAME(Slash);
+            GENERATE_NAME(Colon);
+            GENERATE_NAME(Semicolon);
+            GENERATE_NAME(Less);
+            GENERATE_NAME(Equals);
+            GENERATE_NAME(Greater);
+            GENERATE_NAME(Question);
+            GENERATE_NAME(At);
+            GENERATE_NAME(Backslash);
+            GENERATE_NAME(Caret);
+            GENERATE_NAME(Underscore);
+            GENERATE_NAME(Backtick);
+            GENERATE_NAME(Pipe);
+            GENERATE_NAME(Tilde);
+            GENERATE_NAME(Null);
+            GENERATE_NAME(StartOfHeading);
+            GENERATE_NAME(StartOfText);
+            GENERATE_NAME(EndOfText);
+            GENERATE_NAME(EndOfTransmission);
+            GENERATE_NAME(Enquiry);
+            GENERATE_NAME(Acknowledge);
+            GENERATE_NAME(Bell);
+            GENERATE_NAME(Backspace);
+            GENERATE_NAME(Tab);
+            GENERATE_NAME(LineFeed);
+            GENERATE_NAME(VerticalTab);
+            GENERATE_NAME(FormFeed);
+            GENERATE_NAME(CarriageReturn);
+            GENERATE_NAME(ShiftOut);
+            GENERATE_NAME(ShiftIn);
+            GENERATE_NAME(DataLinkEscape);
+            GENERATE_NAME(DeviceControl1);
+            GENERATE_NAME(DeviceControl2);
+            GENERATE_NAME(DeviceControl3);
+            GENERATE_NAME(DeviceControl4);
+            GENERATE_NAME(NegativeAcknowledge);
+            GENERATE_NAME(SynchronousIdle);
+            GENERATE_NAME(EndOfTransmissionBlock);
+            GENERATE_NAME(Cancel);
+            GENERATE_NAME(EndOfMedium);
+            GENERATE_NAME(Substitute);
+            GENERATE_NAME(Escape);
+            GENERATE_NAME(FileSeparator);
+            GENERATE_NAME(GroupSeparator);
+            GENERATE_NAME(RecordSeparator);
+            GENERATE_NAME(UnitSeparator);
+            GENERATE_NAME(Delete);
+            GENERATE_NAME(FirstSpecialToken);
+            GENERATE_NAME(neof);
 
-    GENERATE_NAME(Unknown);
+            GENERATE_NAME(Unknown);
 
-    GENERATE_NAME(Literal);
-    GENERATE_NAME(IntegerLiteral);
-    GENERATE_NAME(FloatLiteral);
-    GENERATE_NAME(DoubleLiteral);
-    GENERATE_NAME(LongDoubleLiteral);
-    GENERATE_NAME(CharLiteral);
-    GENERATE_NAME(WCharLiteral);
-    GENERATE_NAME(StringLiteral);
-    GENERATE_NAME(WStringLiteral);
-    GENERATE_NAME(IdentifierLiteral);
-    GENERATE_NAME(HexLiteral);
-    GENERATE_NAME(BinaryLiteral);
-    GENERATE_NAME(TrueLiteral);
-    GENERATE_NAME(FalseLiteral);
-    GENERATE_NAME(NullptrLiteral);
-    
-    GENERATE_NAME(Char);
-    GENERATE_NAME(WChar_t);
-    GENERATE_NAME(Short);
-    GENERATE_NAME(Int);
-    GENERATE_NAME(Long);
-    GENERATE_NAME(Double);
-    GENERATE_NAME(Float);
-    GENERATE_NAME(Void);
-    GENERATE_NAME(Signed);
-    GENERATE_NAME(Unsigned);
+            GENERATE_NAME(Literal);
+            GENERATE_NAME(IntegerLiteral);
+            GENERATE_NAME(FloatLiteral);
+            GENERATE_NAME(DoubleLiteral);
+            GENERATE_NAME(LongDoubleLiteral);
+            GENERATE_NAME(CharLiteral);
+            GENERATE_NAME(WCharLiteral);
+            GENERATE_NAME(StringLiteral);
+            GENERATE_NAME(WStringLiteral);
+            GENERATE_NAME(IdentifierLiteral);
+            GENERATE_NAME(HexLiteral);
+            GENERATE_NAME(BinaryLiteral);
+            GENERATE_NAME(TrueLiteral);
+            GENERATE_NAME(FalseLiteral);
+            GENERATE_NAME(NullptrLiteral);
 
-    GENERATE_NAME(Assign);
-    GENERATE_NAME(PlusAssign);
-    GENERATE_NAME(MinusAssign);
-    GENERATE_NAME(MultAssign);
-    GENERATE_NAME(DivAssign);
-    GENERATE_NAME(ModAssign);
-    GENERATE_NAME(AndAssign);
-    GENERATE_NAME(OrAssign);
-    GENERATE_NAME(XorAssign);
-    GENERATE_NAME(ShlAssign);
-    GENERATE_NAME(ShrAssign);
-    GENERATE_NAME(Equal);
-    GENERATE_NAME(NotEqual);
-    GENERATE_NAME(LessEqual);
-    GENERATE_NAME(GreaterEqual);
+            GENERATE_NAME(Char);
+            GENERATE_NAME(WChar_t);
+            GENERATE_NAME(Short);
+            GENERATE_NAME(Int);
+            GENERATE_NAME(Long);
+            GENERATE_NAME(Double);
+            GENERATE_NAME(Float);
+            GENERATE_NAME(Void);
+            GENERATE_NAME(Signed);
+            GENERATE_NAME(Unsigned);
 
-    GENERATE_NAME(If);
-    GENERATE_NAME(Else);
-    GENERATE_NAME(While);
-    GENERATE_NAME(Do);
-    GENERATE_NAME(For);
-    GENERATE_NAME(Try);
-    GENERATE_NAME(Catch);
-    GENERATE_NAME(Case);
-    GENERATE_NAME(Return);
-    GENERATE_NAME(Break);
-    GENERATE_NAME(Continue);
-    GENERATE_NAME(Switch);
-    GENERATE_NAME(Default);
-    GENERATE_NAME(New);
-    GENERATE_NAME(Delete_);
+            GENERATE_NAME(Assign);
+            GENERATE_NAME(PlusAssign);
+            GENERATE_NAME(MinusAssign);
+            GENERATE_NAME(MultAssign);
+            GENERATE_NAME(DivAssign);
+            GENERATE_NAME(ModAssign);
+            GENERATE_NAME(AndAssign);
+            GENERATE_NAME(OrAssign);
+            GENERATE_NAME(XorAssign);
+            GENERATE_NAME(ShlAssign);
+            GENERATE_NAME(ShrAssign);
+            GENERATE_NAME(Equal);
+            GENERATE_NAME(NotEqual);
+            GENERATE_NAME(LessEqual);
+            GENERATE_NAME(GreaterEqual);
 
-    GENERATE_NAME(Class);
-    GENERATE_NAME(Struct);
-    GENERATE_NAME(Namespace);
-    GENERATE_NAME(Enum);
-    GENERATE_NAME(Override);
-    GENERATE_NAME(Virtual);
-    GENERATE_NAME(Constructor);
-    GENERATE_NAME(Destructor);
+            GENERATE_NAME(If);
+            GENERATE_NAME(Else);
+            GENERATE_NAME(While);
+            GENERATE_NAME(Do);
+            GENERATE_NAME(For);
+            GENERATE_NAME(Try);
+            GENERATE_NAME(Catch);
+            GENERATE_NAME(Case);
+            GENERATE_NAME(Return);
+            GENERATE_NAME(Break);
+            GENERATE_NAME(Continue);
+            GENERATE_NAME(Switch);
+            GENERATE_NAME(Default);
+            GENERATE_NAME(New);
+            GENERATE_NAME(Delete_);
 
-    GENERATE_NAME(Const);
+            GENERATE_NAME(Class);
+            GENERATE_NAME(Struct);
+            GENERATE_NAME(Namespace);
+            GENERATE_NAME(Enum);
+            GENERATE_NAME(Override);
+            GENERATE_NAME(Virtual);
+            GENERATE_NAME(Constructor);
+            GENERATE_NAME(Destructor);
 
-    GENERATE_NAME(Private);
-    GENERATE_NAME(Protected);
-    GENERATE_NAME(Public);
-    GENERATE_NAME(Static);
-    GENERATE_NAME(Final);
-    GENERATE_NAME(Auto);
-    GENERATE_NAME(Operator);
+            GENERATE_NAME(Const);
 
-    GENERATE_NAME(Property);
-    GENERATE_NAME(Read);
-    GENERATE_NAME(Write);
-    GENERATE_NAME(Delegate);
-    GENERATE_NAME(Var);
-    GENERATE_NAME(Function);
-    GENERATE_NAME(Lambda);
+            GENERATE_NAME(Private);
+            GENERATE_NAME(Protected);
+            GENERATE_NAME(Public);
+            GENERATE_NAME(Static);
+            GENERATE_NAME(Final);
+            GENERATE_NAME(Auto);
+            GENERATE_NAME(Operator);
 
-    GENERATE_NAME(Access);
-    GENERATE_NAME(Using);
-    GENERATE_NAME(Pointer);
+            GENERATE_NAME(Property);
+            GENERATE_NAME(Read);
+            GENERATE_NAME(Write);
+            GENERATE_NAME(Delegate);
+            GENERATE_NAME(Var);
+            GENERATE_NAME(Function);
+            GENERATE_NAME(Lambda);
 
-    GENERATE_NAME(LineComment);
-    GENERATE_NAME(BlockComment);
+            GENERATE_NAME(Access);
+            GENERATE_NAME(Using);
+            GENERATE_NAME(Pointer);
 
-    GENERATE_NAME(DefineDirective);
-    GENERATE_NAME(IfDefDirective);
-    GENERATE_NAME(IfNDefDirective);
-    GENERATE_NAME(EndIfDirective);
-    GENERATE_NAME(UndefDirective);
-    GENERATE_NAME(IfDirective);
-    GENERATE_NAME(ElseDirective);
-    GENERATE_NAME(IncludeDirective);
+            GENERATE_NAME(LineComment);
+            GENERATE_NAME(BlockComment);
 
-    GENERATE_NAME(Inc);
-    GENERATE_NAME(Dec);
-    GENERATE_NAME(And);
-    GENERATE_NAME(Or);
-    GENERATE_NAME(Shl);
-    GENERATE_NAME(Shr);
-    GENERATE_NAME(ScResOp);
-    GENERATE_NAME(Arrow);
-    default:
-        return "Unknow Token Name";
+            GENERATE_NAME(DefineDirective);
+            GENERATE_NAME(IfDefDirective);
+            GENERATE_NAME(IfNDefDirective);
+            GENERATE_NAME(EndIfDirective);
+            GENERATE_NAME(UndefDirective);
+            GENERATE_NAME(IfDirective);
+            GENERATE_NAME(ElseDirective);
+            GENERATE_NAME(IncludeDirective);
+
+            GENERATE_NAME(Inc);
+            GENERATE_NAME(Dec);
+            GENERATE_NAME(And);
+            GENERATE_NAME(Or);
+            GENERATE_NAME(Shl);
+            GENERATE_NAME(Shr);
+            GENERATE_NAME(ScResOp);
+            GENERATE_NAME(Arrow);
+        default:
+            return "Unknow Token Name";
+        }
     }
 }
 
