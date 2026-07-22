@@ -128,7 +128,7 @@ public:
         if (!Type) return "";
         std::string fprint = "var";
         if (TemplateParametrDeclarationList) fprint += TemplateParametrDeclarationList->print();
-        fprint += Type->print();
+        fprint += "[" + Type->print() + "]";
         if (DeclarationList) fprint += DeclarationList->print();
         return fprint;
     };
