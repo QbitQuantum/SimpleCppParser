@@ -212,15 +212,26 @@ public:
 class NodeUsing : public Node
 {
 public:
-    std::string Name;
-    Node* Path = nullptr;
+    Node* TemplateParametrDeclarationList = nullptr;
+    Node* Name = nullptr;
+    Node* ScopeType = nullptr;
 public:
-    NodeUsing(const std::string& name, Node* path) :
-        Name(name), Path(path) {
+    NodeUsing(Node* templateParametrDeclarationList, Node* name, Node* scopeType) :
+        TemplateParametrDeclarationList(templateParametrDeclarationList), Name(name), ScopeType(scopeType) {
     };
-    std::string print() override { return "using " + Name + " = " + Path->print() + ";"; };
+
+    std::string print() override {
+        if (!Name || !ScopeType) return "";
+        std::string fprint = "using";
+        if (TemplateParametrDeclarationList) fprint += "<" + TemplateParametrDeclarationList->print() + ">";
+        fprint += " " + Name->print() + " = " + ScopeType->print() + ";";
+        return fprint;
+    }
+    
     ~NodeUsing() {
-        delete Path;
+        delete TemplateParametrDeclarationList;
+        delete Name;
+        delete ScopeType;
     };
 };
 

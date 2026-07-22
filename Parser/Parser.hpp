@@ -75,7 +75,6 @@ private:
 	Node* parseCatchBlock();
 
 	Node* parseAccess();
-	Node* parseUsing();
 	Node* parseIdentifier();
 
 	Node* parseDeclaration();
@@ -84,6 +83,11 @@ private:
 	Node* parseTemplateParameterList();
 	Node* parseTemplateParametrDeclaration();
 	Node* parseTemplateParametrDeclarationList();
+
+	Node* parseUsing();
+	Node* parseUsingTemplateParameterDeclarationList();
+	Node* parseUsingName();
+	Node* parseUsingScopeType();
 
 	Node* parseVar();
 	Node* parseVarTemplateParameterDeclarationList();
@@ -626,6 +630,44 @@ Node* Parser::parseTypeBracket() {
 		throw std::runtime_error("Expected RightBracket token");
 
 	return Type;
+};
+
+Node* Parser::parseUsing() {
+
+	stream.consume(TokenKind::Using);
+
+	Node* UsingTemplateParameterDeclarationList = parseUsingTemplateParameterDeclarationList();
+
+	Node* UsingName = parseUsingName();
+
+	Node* UsingScopeType = parseUsingScopeType();
+
+	return new NodeUsing(UsingTemplateParameterDeclarationList, UsingName, UsingScopeType);
+};
+
+Node* Parser::parseUsingTemplateParameterDeclarationList() {
+	Node* UsingTemplateParameterDeclarationList = nullptr;
+	if (stream.peek().type == TokenKind::Less)
+		UsingTemplateParameterDeclarationList = parseTemplateParametrDeclarationList();
+	return UsingTemplateParameterDeclarationList;
+};
+
+Node* Parser::parseUsingName() {
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected Equals token");
+	return parseIdeitfierScope();
+};
+
+Node* Parser::parseUsingScopeType() {
+	
+	if (stream.peek().type != TokenKind::Equals)
+		throw std::runtime_error("Expected Equals token");
+	stream.consume(TokenKind::Equals);
+	
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected Equals token");
+
+	return parseIdeitfierScope();
 };
 
 Node* Parser::parseVar() {
@@ -1575,29 +1617,6 @@ Node* Parser::parseAccess() {
 
 	// Temporary stub
 	return new NodeAccess(Name, Scope);
-};
-
-Node* Parser::parseUsing() {
-
-	stream.consume(TokenKind::Using);
-
-	if (stream.peek().type != TokenKind::IdentifierLiteral)
-		throw std::runtime_error("Expected IdentifierLiteral token");
-
-	std::string Name = stream.consume(TokenKind::IdentifierLiteral).value;
-
-	if (stream.peek().type != TokenKind::Equals)
-		throw std::runtime_error("Expected Equals token");
-	stream.consume(TokenKind::Equals);
-
-	Node* Path = parseIdeitfierScope();
-
-	if (stream.peek().type != TokenKind::Semicolon)
-		throw std::runtime_error("Expected Equals token");
-	stream.consume(TokenKind::Semicolon);
-
-	// Temporary stub
-	return new NodeUsing(Name, Path);
 };
 
 Parser::~Parser()
