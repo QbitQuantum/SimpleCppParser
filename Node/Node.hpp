@@ -19,14 +19,18 @@ public:
 
 class NodeIdentifier : public Node
 {
+    Node* TemplateParameterInstantiationList = nullptr;
     std::string Name = "";
     Node* Scope = nullptr;
 public:
-    NodeIdentifier(const std::string& name, Node* scope) :
-        Name(name), Scope(scope) {
+    NodeIdentifier(Node* templateParameterInstantiationList, const std::string& name, Node* scope) :
+        TemplateParameterInstantiationList(templateParameterInstantiationList), Name(name), Scope(scope) {
     };
+
     std::string print() override {
-        return (Scope ? Scope->print() : "") + Name;
+        std::string fprint = (Scope ? Scope->print() : "") + Name;
+        if (TemplateParameterInstantiationList) return fprint += "<" + TemplateParameterInstantiationList->print() + ">";
+        return fprint;
     };
     ~NodeIdentifier() override {
         delete Scope;
@@ -41,9 +45,7 @@ public:
         NONE, POINTER, REF, RVALUE
     };
     Node* Type = nullptr;
-    std::vector<Node*> TemplateArgs;
     bool IsConst = false;
-    bool IsTemplate = false;
     EType eType = EType::NONE;
     std::string getSymbol() const {
         switch (eType)
@@ -55,29 +57,16 @@ public:
         }
     }
 public:
-    NodeType(Node* type, bool isTemplate, bool isConst, EType etype, const std::vector<Node*>& templateArgv = {}) :
-        Type(type), IsTemplate(isTemplate), IsConst(isConst), eType(etype), TemplateArgs(templateArgv) {};
+    NodeType(Node* type, bool isConst, EType etype) :
+        Type(type), IsConst(isConst), eType(etype) {};
 
     std::string print() override {
-        
-        std::string TemplateArg;
-        if (!TemplateArgs.empty())
-        {
-            TemplateArg += "<";
-            int size = TemplateArgs.size();
-            for (size_t i = 0; i < size; i++)
-                TemplateArg += TemplateArgs[i]->print() + (i == size - 1 ? "" : ", ");
-            TemplateArg += ">";
-        }
-        const std::string& OpenBracket = IsTemplate ? "" : "[";
-        const std::string& CloseBracket = IsTemplate ? "" : "]";
-        std::string fprint = OpenBracket + (IsConst ? std::string("const ") : std::string("")) + Type->print() + TemplateArg +
-            getSymbol() + CloseBracket;
+        std::string fprint = (IsConst ? std::string("const ") : std::string("")) + Type->print() +
+            getSymbol();
         return fprint;
     };
 
     ~NodeType() {
-        for (auto& i : TemplateArgs) delete i;
         delete Type;
     }
 };
@@ -411,25 +400,15 @@ class NodeCall : public Node
 {
     Node* Name = nullptr;
     std::vector<Node*> ArgumentConcreticList;
-    std::vector<Node*> TemplateArgs;
 public:
     NodeCall(
-        Node* name, const std::vector<Node*> argumentConcreticList, const std::vector<Node*>& templateArgs) :
-        Name(name), ArgumentConcreticList(argumentConcreticList), TemplateArgs(templateArgs) {
+        Node* name, const std::vector<Node*> argumentConcreticList) :
+        Name(name), ArgumentConcreticList(argumentConcreticList) {
     };
 
     std::string print() override {
         if (!Name) return "";
         std::string fprint = Name->print();
-        int Args = TemplateArgs.size();
-        if (Args)
-        {
-            fprint += "<";
-            for (size_t i = 0; i < Args; i++)
-                if (auto Decl = TemplateArgs[i]; Decl)
-                    fprint += Decl->print() + (i == Args - 1 ? "" : ", ");
-            fprint += ">";
-        }
         fprint += "(";
         int size = ArgumentConcreticList.size();
         for (size_t i = 0; i < size; i++)
@@ -443,7 +422,6 @@ public:
     ~NodeCall() {
         delete Name;
         for (auto& i : ArgumentConcreticList) delete i;
-        for (auto& i : TemplateArgs) delete i;
     };
 };
 
@@ -497,10 +475,10 @@ public:
 };
 
 // Generic parameter list concretic: <int, 5, std::string>
-class NodeTemplateParameterList : public Node {
+class NodeTemplateParameterInstantiationList : public Node {
     std::vector<Node*> Params;
 public:
-    NodeTemplateParameterList(std::vector<Node*> params) : Params(params) {};
+    NodeTemplateParameterInstantiationList(std::vector<Node*> params) : Params(params) {};
 
     std::string print() override {
         std::string fprint;
@@ -511,7 +489,7 @@ public:
         return fprint;
     }
 
-    ~NodeTemplateParameterList() override {
+    ~NodeTemplateParameterInstantiationList() override {
         for (auto* p : Params) delete p;
     }
 };
@@ -564,7 +542,6 @@ public:
     enum class InheritanceType { NONE, PUBLIC, PRIVATE };
 private:
     Node* Identifier = nullptr;
-    Node* TemplateParameterList = nullptr;
     InheritanceType Type = InheritanceType::NONE;
     std::string getSymbol() {
         switch (Type)
@@ -578,24 +555,19 @@ private:
 public:
     NodeBaseClass(
         Node* identifier,
-        Node* templateParameterList,
         InheritanceType type = InheritanceType::NONE
     )
-        : Identifier(identifier), TemplateParameterList(templateParameterList), Type(type) {
+        : Identifier(identifier), Type(type) {
     }
 
     std::string print() override {
 
         if (!Identifier) return "";
-
-        std::string fprint = getSymbol() + " " + Identifier->print();
-        if (TemplateParameterList) fprint += "<" + TemplateParameterList->print() + ">";
-        return fprint;
+        return getSymbol() + " " + Identifier->print();
     }
 
     ~NodeBaseClass() override {
         delete Identifier;
-        delete TemplateParameterList;
     }
 };
 

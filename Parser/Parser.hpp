@@ -77,10 +77,11 @@ private:
 
 	Node* parseDeclaration();
 	Node* parseDeclarationList();
-	Node* parseTemplateParameter();
-	Node* parseTemplateParameterList();
+
 	Node* parseTemplateParametrDeclaration();
 	Node* parseTemplateParametrDeclarationList();
+	Node* parseTemplateParameterInstantiation();
+	Node* parseTemplateParameterInstantiationList();
 
 	// Парсинг объяление типов
 	Node* parseUsing();
@@ -106,7 +107,6 @@ private:
 	Node* parseClassBody();
 	Node* parseClassBaseClass();
 	Node* parseClassBlock();
-	Node* parseClassTemplateParameterList();
 	Node* parseClassTemplateParameterDeclarationList();
 
 	// Парсинг структур (POD-типы)
@@ -161,7 +161,7 @@ private:
 	Node* parseWhileBody();
 	Node* parseWhileBlock();
 
-	Node* parseNodeCall(Node* Func, const std::vector<Node*>& TemplateArgs = {});
+	Node* parseNodeCall(Node* Func);
 	Node* parseNamespace();
 	Node* parseTryCatch();
 
@@ -178,15 +178,7 @@ private:
 	Node* parseNodeString();
 	Node* parseNodeCharacter();
 
-	std::vector<Node*> parseTemplateList();
-	Node* parseTemplate();
-
-	// Проблема в том, что если это убрать, то получится 
-	// var[pair<[int], [vector<[int]>]>] Temporary
-	// Что с точки зрения собственного синтаксиса корректно
-	// Но нам надо нормальный вид
-	Node* parseType(bool IsTemplate = false);
-	Node* parseTypeBracket();
+	Node* parseType();
 
 	Node* parseIdeitfierScope();
 	Node* parseScope();
@@ -292,6 +284,7 @@ Node* Parser::parseNamespaceBlock() {
 Node* Parser::parseIdeitfierScope() {
 	std::string Identifier = "";
 	std::vector<std::string> Scope;
+	Node* IdentifierTemplateParameterInstantiationList = nullptr;
 	while (true) {
 		switch (stream.peek().type) {
 		case TokenKind::IdentifierLiteral:
@@ -304,8 +297,12 @@ Node* Parser::parseIdeitfierScope() {
 			Scope.push_back(Identifier);
 			Identifier = "";
 			break;
+		case TokenKind::Less:
+			IdentifierTemplateParameterInstantiationList = parseTemplateParameterInstantiationList();
+			return new NodeIdentifier(IdentifierTemplateParameterInstantiationList, Identifier, new NodeScope(Scope));
+			break;
 		default:
-			return new NodeIdentifier(Identifier, new NodeScope(Scope));
+			return new NodeIdentifier(IdentifierTemplateParameterInstantiationList, Identifier, new NodeScope(Scope));
 		}
 	}
 }
@@ -328,7 +325,7 @@ Node* Parser::parseScope() {
 	}
 }
 
-Node* Parser::parseType(bool IsTemplate) {
+Node* Parser::parseType() {
 
 	/*
 	Допустимые вариации типов
@@ -339,6 +336,9 @@ Node* Parser::parseType(bool IsTemplate) {
 	T&&         // rvalue-ссылка (move)
 	const T&&   // - бессмысленно, но для простоты парсинга
 	*/
+
+
+	stream.consume(TokenKind::LeftBracket);
 
 	Node* Type = nullptr;
 	bool IsConst = false;
@@ -355,12 +355,6 @@ Node* Parser::parseType(bool IsTemplate) {
 	// Парсим имя типа
 	Type = parseIdeitfierScope();
 
-	std::vector<Node*> TemplateArgs;
-
-	if (stream.peek().type == TokenKind::Less)
-	{
-		TemplateArgs = parseTemplateList();
-	}
 	// Проверяем семантику 
 	switch (stream.peek().type)
 	{
@@ -379,56 +373,11 @@ Node* Parser::parseType(bool IsTemplate) {
 	default:
 		break;
 	}
-	return new NodeType(Type, IsTemplate, IsConst, eType, TemplateArgs);
-};
 
-std::vector<Node*> Parser::parseTemplateList() {
+	if (!stream.match(TokenKind::RightBracket))
+		throw std::runtime_error("Expected RightBracket token");
 
-	stream.consume(TokenKind::Less);
-
-	std::vector<Node*> TemplateList;
-	if (stream.peek().type == TokenKind::Greater)
-		return TemplateList;
-
-	TemplateList.push_back(parseTemplate());
-	while (stream.peek().type == TokenKind::Comma) {
-		stream.consume(TokenKind::Comma);
-		TemplateList.push_back(parseTemplate());
-	}
-
-	if (stream.peek().type != TokenKind::Greater)
-		throw std::runtime_error("Expected Greater token");
-	stream.consume(TokenKind::Greater);
-
-	return TemplateList;
-};
-
-Node* Parser::parseTemplate() {
-	switch (stream.peek().type)
-	{
-	case TokenKind::NullptrLiteral:
-		return parseNullptr();
-	case TokenKind::IdentifierLiteral:
-		return parseType(true);
-	case TokenKind::IntegerLiteral:
-	case TokenKind::HexLiteral:
-	case TokenKind::BinaryLiteral:
-		return parseNodeInteger();
-	case TokenKind::FloatLiteral:
-	case TokenKind::DoubleLiteral:
-	case TokenKind::LongDoubleLiteral:
-		return parseNodeFloating();
-	case TokenKind::TrueLiteral:
-	case TokenKind::FalseLiteral:
-		return parseNodeBoolean();
-	case TokenKind::StringLiteral:
-	case TokenKind::WStringLiteral:
-		return parseNodeString();
-	case TokenKind::CharLiteral:
-	case TokenKind::WCharLiteral:
-		return parseNodeBoolean();
-	}
-	throw std::runtime_error("Not corrected token");
+	return new NodeType(Type, IsConst, eType);
 };
 
 Node* Parser::parseDeclaration() {
@@ -472,18 +421,6 @@ Node* Parser::parseDeclarationList() {
 
 	return new NodeDeclaration(Identifier, Exptression);
 }
-
-Node* Parser::parseTypeBracket() {
-
-	stream.consume(TokenKind::LeftBracket);
-
-	Node* Type = parseType();
-
-	if (!stream.match(TokenKind::RightBracket))
-		throw std::runtime_error("Expected RightBracket token");
-
-	return Type;
-};
 
 Node* Parser::parseUsing() {
 
@@ -577,7 +514,7 @@ Node* Parser::parseVarTemplateParameterDeclarationList() {
 Node* Parser::parseVarType() {
 	if (!stream.match(TokenKind::LeftBracket))
 		throw std::runtime_error("Expected LeftBracket token");
-	return parseTypeBracket();
+	return parseType();
 }
 
 Node* Parser::parseVarDeclaration() {
@@ -742,11 +679,6 @@ Node* Parser::parseIdentifier() {
 	{
 	case TokenKind::LeftParen:
 		return parseNodeCall(Identifier);
-	case TokenKind::Less:
-	{
-		std::vector<Node*> TemplateArgs = parseTemplateList();
-		return parseNodeCall(Identifier, TemplateArgs);
-	}
 	case TokenKind::Equals:
 		stream.consume(stream.peek().type);
 		return new NodeDeclaration(Identifier, parseExpression());
@@ -759,7 +691,7 @@ Node* Parser::parseIdentifier() {
 	return Identifier;
 }
 
-Node* Parser::parseNodeCall(Node* Func, const std::vector<Node*>& TemplateArgs) {
+Node* Parser::parseNodeCall(Node* Func) {
 
 	if (stream.peek().type != TokenKind::LeftParen)
 		throw std::runtime_error("Expected LeftParen token");
@@ -780,33 +712,8 @@ Node* Parser::parseNodeCall(Node* Func, const std::vector<Node*>& TemplateArgs) 
 		throw std::runtime_error("Expected RightParen token");
 	stream.consume(TokenKind::RightParen);
 
-	return new NodeCall(Func, ArgumentConcreticList, TemplateArgs);
+	return new NodeCall(Func, ArgumentConcreticList);
 
-}
-
-Node* Parser::parseTemplateParameter() {
-	return parsePrimary();
-}
-
-Node* Parser::parseTemplateParameterList() {
-
-	// Concretic-параметры: <int, 5, std::string>
-	stream.consume(TokenKind::Less);
-
-	std::vector<Node*> TemplateParameterList;
-
-	if (stream.peek().type != TokenKind::Greater)
-	{
-		TemplateParameterList.push_back(parseTemplateParameter());
-		while (stream.peek().type == TokenKind::Comma) {
-			stream.consume(TokenKind::Comma);
-			TemplateParameterList.push_back(parseTemplateParameter());
-		}
-	}
-	if (stream.peek().type != TokenKind::Greater)
-		throw std::runtime_error("Expected Greater token");
-	stream.consume(TokenKind::Greater);
-	return new NodeTemplateParameterList(TemplateParameterList);
 }
 
 Node* Parser::parseTemplateParametrDeclaration() {
@@ -821,7 +728,7 @@ Node* Parser::parseTemplateParametrDeclaration() {
 
 	if (stream.match(TokenKind::Equals)) {
 		defaultExpr = stream.peek().type == TokenKind::LeftBracket ?
-			parseTypeBracket() : parsePrimary();
+			parseType() : parsePrimary();
 	}
 	return new NodeDeclaration(paramName, defaultExpr);
 }
@@ -845,6 +752,31 @@ Node* Parser::parseTemplateParametrDeclarationList() {
 	stream.consume(TokenKind::Greater);
 
 	return new NodeTemplateParametrDeclartionList(TemplateParametrList);
+}
+
+Node* Parser::parseTemplateParameterInstantiation() {
+	return parsePrimary();
+}
+
+Node* Parser::parseTemplateParameterInstantiationList() {
+
+	// Instantiation-параметры: PublicMethodBase<int, std::vector<int>>
+	stream.consume(TokenKind::Less);
+
+	std::vector<Node*> TemplateParameterInstantiationList;
+	if (stream.peek().type != TokenKind::Greater)
+	{
+		TemplateParameterInstantiationList.push_back(parseTemplateParameterInstantiation());
+		while (stream.peek().type == TokenKind::Comma) {
+			stream.consume(TokenKind::Comma);
+			TemplateParameterInstantiationList.push_back(parseTemplateParameterInstantiation());
+		}
+	}
+	if (stream.peek().type != TokenKind::Greater)
+		throw std::runtime_error("Expected Greater token");
+	stream.consume(TokenKind::Greater);
+
+	return new NodeTemplateParameterInstantiationList(TemplateParameterInstantiationList);
 }
 
 Node* Parser::parseClass() {
@@ -912,9 +844,8 @@ Node* Parser::parseClassBaseClass() {
 		}
 
 		Node* ClassName = parseClassName();
-		Node* ClassTemplateParameterList = parseClassTemplateParameterList();
 
-		BaseClass = new NodeBaseClass(ClassName, ClassTemplateParameterList, Type);
+		BaseClass = new NodeBaseClass(ClassName, Type);
 	}
 	return BaseClass;
 }
@@ -972,13 +903,6 @@ Node* Parser::parseClassBlock() {
 	}
 
 	return new NodeBlockClass(FieldStatements);
-}
-
-Node* Parser::parseClassTemplateParameterList() {
-	Node* ClassTemplateParameterList = nullptr;
-	if (stream.peek().type == TokenKind::Less)
-		ClassTemplateParameterList = parseTemplateParameterList();
-	return ClassTemplateParameterList;
 }
 
 Node* Parser::parseClassTemplateParameterDeclarationList() {
@@ -1120,7 +1044,7 @@ Node* Parser::parseFunctionTemplateParameterDeclarationList() {
 Node* Parser::parseFunctionReturnType() {
 	if (!stream.match(TokenKind::LeftBracket))
 		throw std::runtime_error("Expected LeftBracket token");
-	return parseTypeBracket();
+	return parseType();
 }
 
 Node* Parser::parseFunctionQulifier() {
@@ -1183,7 +1107,7 @@ Node* Parser::parseFunctionParameter() {
 		throw std::runtime_error("Expected Var token");
 	stream.consume(TokenKind::Var);
 
-	Node* FunctionVar = parseTypeBracket();
+	Node* FunctionVar = parseType();
 
 	Node* FunctionDeclartion = parseDeclaration();
 
@@ -1348,7 +1272,7 @@ Node* Parser::parseProperty() {
 Node* Parser::parsePropertyReturnType() {
 	if (!stream.match(TokenKind::LeftBracket))
 		throw std::runtime_error("Expected LeftBracket token");
-	return parseTypeBracket();
+	return parseType();
 }
 
 Node* Parser::parsePropertyName() {
