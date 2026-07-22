@@ -1270,6 +1270,8 @@ Node* Parser::parseFunctionTemplateParameterDeclarationList() {
 }
 
 Node* Parser::parseFunctionReturnType() {
+	if (!stream.match(TokenKind::LeftBracket))
+		throw std::runtime_error("Expected LeftBracket token");
 	return parseTypeBracket();
 }
 
