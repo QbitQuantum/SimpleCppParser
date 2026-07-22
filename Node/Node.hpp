@@ -594,7 +594,7 @@ public:
         std::string fprint = "class";
         if (TemplateParameterDeclarationList) fprint += "<" + TemplateParameterDeclarationList->print() + ">";
         fprint += " " + Identifier->print();
-        if (BaseClass) fprint += BaseClass->print();
+        if (BaseClass) fprint += " : " + BaseClass->print();
         if (Body) fprint += " " + Body->print();
         return fprint;
     }
