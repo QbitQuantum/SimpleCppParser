@@ -188,64 +188,6 @@ private:
 	Node* parseIdeitfierScope();
 	Node* parseScope();
 
-	bool static IsBinaryOperator(TokenKind Kind) {
-		switch (Kind)
-		{
-			// Арифметические
-		case TokenKind::Minus:
-		case TokenKind::Plus:
-		case TokenKind::Asterisk:
-		case TokenKind::Slash:
-		case TokenKind::Percent:
-			// Операции сравнения
-		case TokenKind::Equal:
-		case TokenKind::NotEqual:
-		case TokenKind::Less:
-		case TokenKind::Greater:
-		case TokenKind::LessEqual:
-		case TokenKind::GreaterEqual:
-			// <=>	Трёхстороннее сравнение
-			// Побитовые (для целых чисел)
-		case TokenKind::Ampersand:
-		case TokenKind::Pipe:
-		case TokenKind::Caret:
-		case TokenKind::Shl:
-		case TokenKind::Shr:
-			// Логические
-		case TokenKind::And:
-		case TokenKind::Or:
-			//Операции присваивания
-		case TokenKind::Assign:
-		case TokenKind::PlusAssign:
-		case TokenKind::MinusAssign:
-		case TokenKind::MultAssign:
-		case TokenKind::DivAssign:
-		case TokenKind::ModAssign:
-		case TokenKind::AndAssign:
-		case TokenKind::OrAssign:
-		case TokenKind::XorAssign:
-		case TokenKind::ShlAssign:
-		case TokenKind::ShrAssign:
-			return true;
-		}
-		return false;
-	}
-
-	bool static IsUnaryOperator(TokenKind Kind) {
-		switch (Kind)
-		{
-		case TokenKind::Minus:
-		case TokenKind::Plus:
-		case TokenKind::Dec:
-		case TokenKind::Inc:
-		case TokenKind::Asterisk:
-		case TokenKind::Exclamation:
-		case TokenKind::Tilde:
-			return true;
-		}
-		return false;
-	}
-
 	// Для бинарных операторов
 	int static GetBinaryOperatorPriority(TokenKind Kind) {
 		switch (Kind) {
