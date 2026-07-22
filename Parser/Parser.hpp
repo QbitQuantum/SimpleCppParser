@@ -83,15 +83,18 @@ private:
 	Node* parseTemplateParametrDeclaration();
 	Node* parseTemplateParametrDeclarationList();
 
+	// Парсинг объяление типов
 	Node* parseUsing();
 	Node* parseUsingTemplateParameterDeclarationList();
 	Node* parseUsingName();
 	Node* parseUsingScopeType();
-		
+	
+	// Парсинг объяление пространства имён
 	Node* parseAccess();
 	Node* parseAccessName();
 	Node* parseAccessScope();
 
+	// Парсинг объяление переменных
 	Node* parseVar();
 	Node* parseVarTemplateParameterDeclarationList();
 	Node* parseVarType();
