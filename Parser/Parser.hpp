@@ -70,7 +70,6 @@ private:
 
 	Node* parseTopLevel();
 	Node* parseNamespaceBlock();
-	Node* parseWhileBlock();
 	Node* parseTryBlock();
 	Node* parseCatchBlock();
 
@@ -157,6 +156,11 @@ private:
 	Node* parsePropertyBlock();
 
 	Node* parseWhile();
+	Node* parseWhileCondition();
+	Node* parseWhileBody();
+	Node* parseWhileBlock();
+
+
 	Node* parseExpression(int priory = 0);
 	Node* parseNew();
 	Node* parseDelete();
@@ -1501,42 +1505,45 @@ Node* Parser::parseWhile() {
 
 	stream.consume(TokenKind::While);
 
+	Node* WhileCondition = parseWhileCondition();
+
+	bool IsDoWhile = false;
+	if (stream.match(TokenKind::Do))
+		IsDoWhile = true;
+
+	Node* WhileBody = parseWhileBody();
+
+	return new NodeWhile(WhileCondition, WhileBody, IsDoWhile);
+}
+
+Node* Parser::parseWhileCondition() {
+
 	if (stream.peek().type != TokenKind::LeftParen)
 		throw std::runtime_error("Expected LeftParen token");
 	stream.consume(TokenKind::LeftParen);
 
-	Node* Condition = nullptr;
-	Node* Body = nullptr;
-	bool IsDoWhile = false;
-
-	switch (stream.peek().type)
-	{
-	case TokenKind::Var:
-		Condition = parseVar(); break;
-	case TokenKind::IdentifierLiteral:
-		Condition = parseIdentifier(); break;
-	default:
-		throw std::runtime_error("not correct token");
-	}
+	Node* WhileCondition = parseExpression();
 
 	if (stream.peek().type != TokenKind::RightParen)
 		throw std::runtime_error("Expected RightParen token");
 	stream.consume(TokenKind::RightParen);
 
-	if (stream.match(TokenKind::Do))
-		IsDoWhile = true;
+	return WhileCondition;
+}
+
+Node* Parser::parseWhileBody() {
 
 	if (stream.peek().type != TokenKind::LeftBrace)
 		throw std::runtime_error("Expected '{' after while declaration");
 	stream.consume(TokenKind::LeftBrace);
 
-	Body = parseWhileBlock();
+	Node* WhileBlock = parseWhileBlock();
 
 	if (stream.peek().type != TokenKind::RightBrace)
 		throw std::runtime_error("Expected '}' after while declaration");
 	stream.consume(TokenKind::RightBrace);
 
-	return new NodeWhile(Condition, Body, IsDoWhile);
+	return WhileBlock;
 }
 
 Node* Parser::parseWhileBlock() {

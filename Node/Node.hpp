@@ -849,16 +849,19 @@ class NodeWhile : public Node {
 public:
     NodeWhile(Node* condition, Node* body, bool isDoWhile) :
         Condition(condition), Body(body), IsDoWhile(isDoWhile) {}
+    
     std::string print() override {
+        if (!Condition || !Body) return "";
         std::string fprint = "while ";
+        fprint += "(" + Condition->print() + ") ";
         fprint += (IsDoWhile ? "do " : "");
-        fprint += "(" + (Condition ? Condition->print() : "") + ")";
-        fprint += (Body ? Body->print() : "");
+        fprint += Body->print();
         return fprint;
     }
     ~NodeWhile() {
         delete Body;
         delete Condition;
+        IsDoWhile = false;
     }
 };
 
