@@ -301,6 +301,76 @@ namespace tok
         return false;
     }
 
+    // Для бинарных операторов
+    int static GetBinaryOperatorPriority(TokenKind Kind) {
+        switch (Kind) {
+            // Уровень 1: Присваивание (самый низкий приоритет)
+        case TokenKind::Assign:
+        case TokenKind::PlusAssign:
+        case TokenKind::MinusAssign:
+        case TokenKind::MultAssign:
+        case TokenKind::DivAssign:
+        case TokenKind::ModAssign:
+        case TokenKind::AndAssign:
+        case TokenKind::OrAssign:
+        case TokenKind::XorAssign:
+        case TokenKind::ShlAssign:
+        case TokenKind::ShrAssign:
+            return 1;
+
+            // Уровень 2: Логическое ИЛИ
+        case TokenKind::Or:
+            return 2;
+
+            // Уровень 3: Логическое И
+        case TokenKind::And:
+            return 3;
+
+            // Уровень 4: Побитовое ИЛИ
+        case TokenKind::Pipe:
+            return 4;
+
+            // Уровень 5: Побитовое XOR
+        case TokenKind::Caret:
+            return 5;
+
+            // Уровень 6: Побитовое И
+        case TokenKind::Ampersand:
+            return 6;
+
+            // Уровень 7: Равенство
+        case TokenKind::Equal:
+        case TokenKind::NotEqual:
+            return 7;
+
+            // Уровень 8: Сравнения
+        case TokenKind::Less:
+        case TokenKind::Greater:
+        case TokenKind::LessEqual:
+        case TokenKind::GreaterEqual:
+            return 8;
+
+            // Уровень 9: Сдвиги
+        case TokenKind::Shl:
+        case TokenKind::Shr:
+            return 9;
+
+            // Уровень 10: Сложение/вычитание
+        case TokenKind::Plus:
+        case TokenKind::Minus:
+            return 10;
+
+            // Уровень 11: Умножение/деление
+        case TokenKind::Asterisk:
+        case TokenKind::Slash:
+        case TokenKind::Percent:
+            return 11;
+
+        default:
+            return 0; // Нет приоритета
+        }
+    }
+
 #define GENERATE_NAME(name) \
 case TokenKind::name: return #name; \
 
