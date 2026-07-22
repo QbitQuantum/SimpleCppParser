@@ -149,9 +149,15 @@ private:
 	Node* parseDestructorParameterList();
 	Node* parseDestructorBody();
 
+	// Парсинг проперти-методов
+	Node* parseProperty();
+	Node* parsePropertyReturnType();
+	Node* parsePropertyName();
+	Node* parsePropertyBody();
+	Node* parsePropertyBlock();
+
 	Node* parseWhile();
 	Node* parseExpression(int priory = 0);
-	Node* parseProperty();
 	Node* parseNew();
 	Node* parseDelete();
 	Node* parseNullptr();
@@ -406,40 +412,6 @@ Node* Parser::parseNamespaceBlock() {
 		if (stmt) block->add(stmt);
 	}
 	return block;
-}
-
-Node* Parser::parseProperty() {
-	stream.consume(TokenKind::Property); // __property
-
-	// тип (int)
-	Node* Type = parseTypeBracket();
-	if (!Type) throw std::runtime_error("Expected type in __property");
-
-	// имя (Value)
-	std::string name = stream.consume(TokenKind::IdentifierLiteral).value;
-
-	// {
-	if (!stream.match(TokenKind::LeftBrace))
-		throw std::runtime_error("Expected '{' in __property");
-
-	Node *getter = nullptr, *setter = nullptr;
-	while (!stream.match(TokenKind::RightBrace)) {
-		if (stream.match(TokenKind::Read)) {
-			if (!stream.match(TokenKind::Equals))
-				throw std::runtime_error("Expected '=' after 'read'");
-			getter = parseIdeitfierScope(); // __getValue
-		}
-		else if (stream.match(TokenKind::Write)) {
-			if (!stream.match(TokenKind::Equals))
-				throw std::runtime_error("Expected '=' after 'write'");
-			setter = parseIdeitfierScope(); // __setValue
-		}
-		else {
-			stream.consume(stream.peek().type);
-		}
-	}
-
-	return new NodeProperty(name, Type, getter, setter);
 }
 
 Node* Parser::parseIdeitfierScope() {
@@ -1482,6 +1454,105 @@ Node* Parser::parseDestructorParameterList() {
 
 Node* Parser::parseDestructorBody() {
 	return parseFunctionBody();
+}
+
+Node* Parser::parseProperty() {
+	
+	stream.consume(TokenKind::Property);
+
+	Node* PropertyReturnType = parsePropertyReturnType();
+
+	Node* PropertyName = parsePropertyName();
+
+	Node* PropertyBody = parsePropertyBody();
+
+	return new NodeProperty(PropertyReturnType, PropertyName, PropertyBody);
+}
+
+Node* Parser::parsePropertyReturnType() {
+	if (!stream.match(TokenKind::LeftBracket))
+		throw std::runtime_error("Expected LeftBracket token");
+	return parseTypeBracket();
+}
+
+Node* Parser::parsePropertyName() {
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected IdentifierLiteral token");
+	return parseIdeitfierScope();
+}
+
+Node* Parser::parsePropertyBody() {
+	if (!stream.match(TokenKind::LeftBrace))
+		throw std::runtime_error("Expected '{' in __property");
+	stream.consume(TokenKind::LeftBrace);
+
+	Node* Block = parsePropertyBlock();
+
+	if (!stream.match(TokenKind::RightBrace))
+		throw std::runtime_error("Expected '}' in __property");
+	stream.consume(TokenKind::RightBrace);
+
+	return Block;
+}
+
+Node* Parser::parsePropertyBlock() {
+	Node* getter = nullptr, * setter = nullptr;
+
+	switch (stream.peek().type)
+	{
+	case TokenKind::Read:
+	{
+		stream.consume(TokenKind::Read);
+		if (!stream.match(TokenKind::Equals))
+			throw std::runtime_error("Expected '{' in __property");
+		getter = parseIdeitfierScope();
+		break;
+	}
+	case TokenKind::Write:
+	{
+		stream.consume(TokenKind::Write);
+		if (!stream.match(TokenKind::Equals))
+			throw std::runtime_error("Expected '{' in __property");
+		setter = parseIdeitfierScope();
+		break;
+	}
+	default:
+		break;
+	}
+
+	if (stream.match(TokenKind::Comma))
+	{
+		switch (stream.peek().type)
+		{
+		case TokenKind::Read:
+		{
+			if (getter)
+				throw std::runtime_error("getter duplicate");
+			
+			stream.consume(TokenKind::Read);
+			if (!stream.match(TokenKind::Equals))
+				throw std::runtime_error("Expected '{' in __property");
+			getter = parseIdeitfierScope();
+
+			break;
+		}
+		case TokenKind::Write:
+		{
+			if (setter)
+				throw std::runtime_error("setter duplicate");
+			
+			stream.consume(TokenKind::Write);
+			if (!stream.match(TokenKind::Equals))
+				throw std::runtime_error("Expected '{' in __property");
+			setter = parseIdeitfierScope();
+
+			break;
+		}
+		default:
+			break;
+		}
+	}
+	return new NodePropertyBlock(getter, setter);
 }
 
 Node* Parser::parseWhile() {

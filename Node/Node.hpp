@@ -711,6 +711,47 @@ public:
     }
 };
 
+class NodePropertyBlock : public Node {
+    Node* Getter = nullptr, * Setter = nullptr;
+public:
+    NodePropertyBlock(
+        Node* getter,
+        Node* setter) :
+        Getter(getter), Setter(setter) {
+    }
+
+    std::string print() override {
+        return "{\n" +
+            (!Getter ? "" : "write = " + Getter->print() + ",") +
+            (!Setter ? "" : "read = " + Setter->print()) + "\n}";
+    }
+    ~NodePropertyBlock() {
+        delete Setter;
+        delete Getter;
+    }
+};
+
+class NodeProperty : public Node {
+    Node* Name = nullptr;
+    Node* Type = nullptr;
+    Node* Block = nullptr;
+public:
+    NodeProperty(Node* name, Node* type, Node* block) :
+        Name(name), Type(type), Block(block) {
+    }
+
+    std::string print() override {
+        if (!Name || !Type || !Block) return "";
+        return "__property" + Type->print() + " " + Name->print() + " " + Block->print() + ";";
+    }
+    ~NodeProperty() {
+        delete Block;
+        delete Type;
+        delete Name;
+    }
+};
+
+
 class NodeNamespace : public Node {
 private:
     Node* Name = nullptr;
@@ -729,30 +770,6 @@ public:
     ~NodeNamespace() override {
         delete Body;
         delete Name;
-    }
-};
-
-class NodeProperty : public Node {
-    std::string Name;
-    Node* Type = nullptr;
-    Node* Getter = nullptr, * Setter = nullptr;
-public:
-    NodeProperty(
-        const std::string& name,
-        Node* type,
-        Node* getter,
-        Node* setter) :
-        Name(name), Type(type), Getter(getter), Setter(setter) {}
-
-    std::string print() override {
-        return "__property" + 
-            Type->print() + " " + Name + " " + "{\n" +
-            (!Getter ? "" : "write = " + Getter->print() + ",") +
-            (!Setter ? "" : "read = " + Setter->print()) +
-            "\n}";
-    }
-    ~NodeProperty() {
-        delete Type;
     }
 };
 
