@@ -1426,7 +1426,7 @@ Node* Parser::parseDestructorBody() {
 }
 
 Node* Parser::parseDestructorBlock() {
-	return parseDestructorBlock();
+	return parseFunctionBlock();
 }
 
 Node* Parser::parseWhile() {
