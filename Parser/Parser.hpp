@@ -1256,9 +1256,9 @@ Node* Parser::parseFunctionParameter() {
 
 	Node* FunctionVar = parseTypeBracket();
 
-	Node* FunctionDeclrtion = parseDeclaration();
+	Node* FunctionDeclartion = parseDeclaration();
 
-	return new NodeVarDeclarationList(nullptr, FunctionVar, FunctionDeclrtion);
+	return new NodeVarDeclarationList(nullptr, FunctionVar, FunctionDeclartion);
 }
 
 Node* Parser::parseFunctionParameterList() {
