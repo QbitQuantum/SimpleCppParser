@@ -123,26 +123,21 @@ private:
 	Node* parseLambdaTemplateParameterDeclarationList();
 	Node* parseLambdaReturnType();
 	Node* parseLambdaName();
-	Node* parseLambdaParameter();
 	Node* parseLambdaParameterList();
 	Node* parseLambdaBody();
-	Node* parseLambdaBlock();
 
 	// Парсинг конструктора
 	Node* parseConstructor();
 	Node* parseConstructorTemplateParameterDeclarationList();
 	Node* parseConstructorQulifier();
-	Node* parseConstructorParameter();
 	Node* parseConstructorParameterList();
 	Node* parseConstructorBody();
-	Node* parseConstructorBlock();
 
 	// Парсинг деструктора
 	Node* parseDestructor();
 	Node* parseDestructorQulifier();
 	Node* parseDestructorParameterList();
 	Node* parseDestructorBody();
-	Node* parseDestructorBlock();
 
 	Node* parseWhile();
 	Node* parseExpression(int priory = 0);
@@ -1324,14 +1319,6 @@ Node* Parser::parseLambdaBody() {
 	return parseFunctionBody();
 }
 
-Node* Parser::parseLambdaBlock() {
-	return parseFunctionBlock();
-}
-
-Node* Parser::parseLambdaParameter() {
-	return parseFunctionParameter();
-}
-
 Node* Parser::parseLambdaParameterList() {
 	return parseFunctionParameterList();
 }
@@ -1367,20 +1354,12 @@ Node* Parser::parseConstructorQulifier() {
 	return nullptr;
 }
 
-Node* Parser::parseConstructorParameter() {
-	return parseFunctionParameter();
-}
-
 Node* Parser::parseConstructorParameterList() {
 	return parseFunctionParameterList();
 }
 
 Node* Parser::parseConstructorBody() {
 	return parseFunctionBody();
-}
-
-Node* Parser::parseConstructorBlock() {
-	return parseFunctionBlock();
 }
 
 Node* Parser::parseDestructor() {
@@ -1423,10 +1402,6 @@ Node* Parser::parseDestructorParameterList() {
 
 Node* Parser::parseDestructorBody() {
 	return parseFunctionBody();
-}
-
-Node* Parser::parseDestructorBlock() {
-	return parseFunctionBlock();
 }
 
 Node* Parser::parseWhile() {
