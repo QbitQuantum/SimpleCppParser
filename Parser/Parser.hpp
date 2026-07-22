@@ -76,13 +76,20 @@ private:
 
 	Node* parseAccess();
 	Node* parseUsing();
-	Node* parseVar();
 	Node* parseIdentifier();
 
+	Node* parseDeclaration();
+	Node* parseDeclarationList();
 	Node* parseTemplateParameter();
 	Node* parseTemplateParameterList();
 	Node* parseTemplateParametrDeclaration();
 	Node* parseTemplateParametrDeclarationList();
+
+	Node* parseVar();
+	Node* parseVarTemplateParameterDeclarationList();
+	Node* parseVarType();
+	Node* parseVarDeclaration();
+	Node* parseVarDeclarationList();
 
 	// Парсинг класса
 	Node* parseClass();
@@ -139,7 +146,6 @@ private:
 
 	Node* parseWhile();
 	Node* parseExpression(int priory = 0);
-	Node* parseDeclaration();
 	Node* parseProperty();
 	Node* parseNew();
 	Node* parseDelete();
@@ -573,43 +579,6 @@ Node* Parser::parseTemplate() {
 	throw std::runtime_error("Not corrected token");
 };
 
-Node* Parser::parseTypeBracket() {
-
-	if (!stream.match(TokenKind::LeftBracket))
-		throw std::runtime_error("Expected LeftBracket token");
-
-	Node* Type = parseType();
-
-	if (!stream.match(TokenKind::RightBracket))
-		throw std::runtime_error("Expected RightBracket token");
-
-	return Type;
-};
-
-Node* Parser::parseVar() {
-
-	stream.consume(TokenKind::Var);
-
-	auto Type = parseTypeBracket();
-
-	if (!Type)
-		return nullptr;
-
-	std::vector<Node*> ContainerDeclarationList;
-
-	ContainerDeclarationList.push_back(parseDeclaration());
-
-	// Парсим аргументы: name = default
-	while (stream.peek().type == TokenKind::Comma) {
-		stream.consume(TokenKind::Comma);
-		ContainerDeclarationList.push_back(parseDeclaration());
-	}
-
-	stream.consume(TokenKind::Semicolon);
-
-	return new NodeDeclarationList(Type, ContainerDeclarationList);
-}
-
 Node* Parser::parseDeclaration() {
 
 	Node* Identifier = nullptr;
@@ -629,6 +598,80 @@ Node* Parser::parseDeclaration() {
 	}
 
 	return new NodeDeclaration(Identifier, Exptression);
+}
+
+Node* Parser::parseDeclarationList() {
+
+	Node* Identifier = nullptr;
+	Node* Exptression = nullptr;
+
+	// Имя может быть пустое. По хорошему исключить такую фигню
+	if (stream.peek().type == TokenKind::IdentifierLiteral)
+		// То что может быть Namespace::Name в имене идентикатора - работа семантера
+		Identifier = parseIdeitfierScope();
+
+	if (stream.peek().type == TokenKind::Equals)
+	{
+		if (!Identifier)
+			throw std::runtime_error("Expected identifier");
+		stream.consume(TokenKind::Equals);
+		Exptression = parseExpression();
+	}
+
+	return new NodeDeclaration(Identifier, Exptression);
+}
+
+Node* Parser::parseTypeBracket() {
+
+	stream.consume(TokenKind::LeftBracket);
+
+	Node* Type = parseType();
+
+	if (!stream.match(TokenKind::RightBracket))
+		throw std::runtime_error("Expected RightBracket token");
+
+	return Type;
+};
+
+Node* Parser::parseVar() {
+
+	stream.consume(TokenKind::Var);
+
+	Node* VarTemplateParameterDeclarationList = parseVarTemplateParameterDeclarationList();
+
+	Node* VarType = parseVarType();
+
+	Node* VarDeclarationList = parseVarDeclarationList();
+
+	return new NodeVarDeclarationList(VarTemplateParameterDeclarationList, VarType, VarDeclarationList);
+}
+
+Node* Parser::parseVarTemplateParameterDeclarationList() {
+	Node* VarTemplateParameterDeclarationList = nullptr;
+	if (stream.peek().type == TokenKind::Less)
+		VarTemplateParameterDeclarationList = parseTemplateParametrDeclarationList();
+	return VarTemplateParameterDeclarationList;
+}
+
+Node* Parser::parseVarType() {
+	if (!stream.match(TokenKind::LeftBracket))
+		throw std::runtime_error("Expected LeftBracket token");
+	return parseTypeBracket();
+}
+
+Node* Parser::parseVarDeclaration() {
+	return parseDeclaration();
+}
+
+Node* Parser::parseVarDeclarationList() {
+	std::vector<Node*> ContainerDeclarationList;
+	ContainerDeclarationList.push_back(parseDeclaration());
+	// Парсим аргументы: name = default
+	while (stream.peek().type == TokenKind::Comma) {
+		stream.consume(TokenKind::Comma);
+		ContainerDeclarationList.push_back(parseDeclaration());
+	}
+	return new NodeDeclarationList(ContainerDeclarationList);
 }
 
 Node* Parser::parsePrimary() {
@@ -1221,7 +1264,7 @@ Node* Parser::parseFunctionParameter() {
 
 	std::vector<Node*> ContainerDeclarationList;
 	ContainerDeclarationList.push_back(parseDeclaration());
-	return new NodeDeclarationList(Type, ContainerDeclarationList);
+	return new NodeVarDeclarationList(nullptr, Type, new NodeDeclarationList(ContainerDeclarationList));
 }
 
 Node* Parser::parseFunctionParameterList() {

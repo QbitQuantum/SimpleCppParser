@@ -17,6 +17,22 @@ public:
     virtual ~Node() = default;
 };
 
+class NodeIdentifier : public Node
+{
+    std::string Name = "";
+    Node* Scope = nullptr;
+public:
+    NodeIdentifier(const std::string& name, Node* scope) :
+        Name(name), Scope(scope) {
+    };
+    std::string print() override {
+        return (Scope ? Scope->print() : "") + Name;
+    };
+    ~NodeIdentifier() override {
+        delete Scope;
+    };
+};
+
 class NodeType : public Node
 {
 public:
@@ -66,22 +82,6 @@ public:
     }
 };
 
-class NodeIdentifier : public Node
-{
-    std::string Name = "";
-    Node* Scope = nullptr;
-public:
-    NodeIdentifier(const std::string& name, Node* scope) :
-        Name(name), Scope(scope) {
-    };
-    std::string print() override { 
-        return (Scope ? Scope->print() : "") + Name;
-    };
-    ~NodeIdentifier() override {
-        delete Scope;
-    };
-};
-
 class NodeDeclaration : public Node
 {
     Node* Identifier = nullptr;
@@ -107,33 +107,50 @@ public:
 
 class NodeDeclarationList : public Node
 {
-    Node* Type = nullptr;
     std::vector<Node*> DeclarationList;
 public:
     std::string print() override {
-        std::string fprint = "var";
-        if (Type)
-        {
-            int size = DeclarationList.size();
-            fprint += Type->print();
-            for (size_t i = 0; i < size; i++)
-                if (auto Decl = DeclarationList[i]; Decl)
-                {
-                    std::string DeclName = Decl->print();
-                    std::string separator = (i == size - 1 ? "" : ", ");
-                    fprint += (DeclName.empty() ? "" : " ") + DeclName + separator;
-                }
-        }
+        std::string fprint;
+        int size = DeclarationList.size();
+        for (size_t i = 0; i < size; i++)
+            if (auto Decl = DeclarationList[i]; Decl)
+            {
+                std::string DeclName = Decl->print();
+                fprint += (DeclName.empty() ? "" : " ") + DeclName + (i == size - 1 ? "" : ", ");
+            }
         return fprint;
     };
-    NodeDeclarationList(Node* type, const std::vector<Node*>& declarationList) :
-        Type(type), DeclarationList(declarationList) { };
+    NodeDeclarationList(const std::vector<Node*>& declarationList) : DeclarationList(declarationList) { };
 
     ~NodeDeclarationList() override {
-        delete Type;
         for (auto& decl : DeclarationList) {
             delete decl;
         }
+    };
+};
+
+class NodeVarDeclarationList : public Node
+{
+    Node* TemplateParametrDeclarationList = nullptr;
+    Node* Type = nullptr;
+    Node* DeclarationList = nullptr;
+public:
+    std::string print() override {
+        if (!Type) return "";
+        std::string fprint = "var";
+        if (TemplateParametrDeclarationList) fprint += TemplateParametrDeclarationList->print();
+        fprint += Type->print();
+        if (DeclarationList) fprint += DeclarationList->print();
+        return fprint;
+    };
+    NodeVarDeclarationList(Node* templateParametrDeclarationList, Node* type, Node* declarationList) :
+        TemplateParametrDeclarationList(templateParametrDeclarationList), Type(type), DeclarationList(declarationList) {
+    };
+
+    ~NodeVarDeclarationList() override {
+        delete TemplateParametrDeclarationList;
+        delete Type;
+        delete DeclarationList;
     };
 };
 
