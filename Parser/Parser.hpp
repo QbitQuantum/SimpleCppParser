@@ -1251,15 +1251,14 @@ Node* Parser::parseFunctionBlock() {
 Node* Parser::parseFunctionParameter() {
 
 	if (stream.peek().type != TokenKind::Var)
-		return nullptr;
+		throw std::runtime_error("Expected Var token");
 	stream.consume(TokenKind::Var);
 
-	auto Type = parseTypeBracket();
-	if (!Type) return nullptr;
+	Node* FunctionVar = parseTypeBracket();
 
-	std::vector<Node*> ContainerDeclarationList;
-	ContainerDeclarationList.push_back(parseDeclaration());
-	return new NodeVarDeclarationList(nullptr, Type, new NodeDeclarationList(ContainerDeclarationList));
+	Node* FunctionDeclrtion = parseDeclaration();
+
+	return new NodeVarDeclarationList(nullptr, FunctionVar, FunctionDeclrtion);
 }
 
 Node* Parser::parseFunctionParameterList() {
