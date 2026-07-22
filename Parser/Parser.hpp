@@ -155,6 +155,7 @@ private:
 	Node* parsePropertyBody();
 	Node* parsePropertyBlock();
 
+	// Парсинг while/while do-циклов
 	Node* parseWhile();
 	Node* parseWhileCondition();
 	Node* parseWhileBody();
