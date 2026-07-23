@@ -176,6 +176,9 @@ enum class TokenKind : unsigned short {
     Constructor, // constructor
     Destructor, // destructor
 
+    Template, // template
+    Typename, // typename
+
     // ===== квалификаторы =====
     Const, // const
 
@@ -581,6 +584,9 @@ case TokenKind::name: return #name; \
             GENERATE_NAME(Virtual);
             GENERATE_NAME(Constructor);
             GENERATE_NAME(Destructor);
+
+            GENERATE_NAME(Template);
+            GENERATE_NAME(Typename);
 
             GENERATE_NAME(Const);
 
