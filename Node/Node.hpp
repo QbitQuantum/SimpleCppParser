@@ -228,6 +228,54 @@ public:
     };
 };
 
+class NodePointerSignature : public Node
+{
+public:
+    Node* ReturnType = nullptr;
+    Node* ParameterList = nullptr;
+public:
+    NodePointerSignature(Node* returnType, Node* parameterList) :
+        ReturnType(returnType), ParameterList(parameterList) {
+    };
+
+    std::string print() override {
+        if (!ReturnType || !ParameterList) return "";
+        std::string fprint = "[" + ReturnType->print() + "]" + ParameterList->print();
+        return fprint;
+    }
+
+    ~NodePointerSignature() {
+        delete ParameterList;
+        delete ReturnType;
+    };
+};
+
+class NodePointer : public Node
+{
+public:
+    Node* TemplateParametrDeclarationList = nullptr;
+    Node* Name = nullptr;
+    Node* Signature = nullptr;
+public:
+    NodePointer(Node* templateParametrDeclarationList, Node* name, Node* signature) :
+        TemplateParametrDeclarationList(templateParametrDeclarationList), Name(name), Signature(signature) {
+    };
+
+    std::string print() override {
+        if (!Name || !Signature) return "";
+        std::string fprint = "pointer";
+        if (TemplateParametrDeclarationList) fprint += "<" + TemplateParametrDeclarationList->print() + ">";
+        fprint += " " + Name->print() + " = " + Signature->print() + ";";
+        return fprint;
+    }
+
+    ~NodePointer() {
+        delete Signature;
+        delete Name;
+        delete TemplateParametrDeclarationList;
+    };
+};
+
 class NodeParameterList : public Node
 {
     std::vector<Node*> ParameterList;

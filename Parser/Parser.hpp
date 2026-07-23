@@ -88,6 +88,14 @@ private:
 	Node* parseUsingTemplateParameterDeclarationList();
 	Node* parseUsingName();
 	Node* parseUsingScopeType();
+
+	// Парсинг объяление сигнатуры функций
+	Node* parsePointer();
+	Node* parsePointerTemplateParameterDeclarationList();
+	Node* parsePointerName();
+	Node* parsePointerSignature();
+	Node* parsePointerReturnType();
+	Node* parsePointerParameterList();
 	
 	// Парсинг объяление пространства имён
 	Node* parseAccess();
@@ -224,6 +232,7 @@ Node* Parser::parseTopLevel() {
 	switch (stream.peek().type) {
 	case TokenKind::Access:   return parseAccess();
 	case TokenKind::Using:    return parseUsing();
+	case TokenKind::Pointer:  return parsePointer();
 	case TokenKind::Var:      return parseVar();
 	case TokenKind::Function: return parseFunction();
 	case TokenKind::Class:    return parseClass();
@@ -458,6 +467,53 @@ Node* Parser::parseUsingScopeType() {
 		throw std::runtime_error("Expected Equals token");
 
 	return parseIdeitfierScope();
+};
+
+Node* Parser::parsePointer() {
+
+	stream.consume(TokenKind::Pointer);
+
+	Node* PointerTemplateParameterDeclarationList = parsePointerTemplateParameterDeclarationList();
+	
+	Node* PointerName = parsePointerName();
+
+	Node* PointerSignature = parsePointerSignature();
+
+	return new NodePointer(PointerTemplateParameterDeclarationList, PointerName, PointerSignature);
+};
+
+Node* Parser::parsePointerTemplateParameterDeclarationList() {
+	Node* PointerTemplateParameterDeclarationList = nullptr;
+	if (stream.peek().type == TokenKind::Less)
+		PointerTemplateParameterDeclarationList = parseTemplateParametrDeclarationList();
+	return PointerTemplateParameterDeclarationList;
+};
+
+Node* Parser::parsePointerName() {
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected IdentifierLiteral token");
+	return parseIdeitfierScope();
+};
+
+Node* Parser::parsePointerSignature() {
+	
+	if (stream.peek().type != TokenKind::Equals)
+		throw std::runtime_error("Expected Equals token");
+	stream.consume(TokenKind::Equals);
+
+	Node* PointerReturnType = parsePointerReturnType();
+
+	Node* PointerParameterList = parsePointerParameterList();
+
+	return new NodePointerSignature(PointerReturnType, PointerParameterList);
+};
+
+Node* Parser::parsePointerReturnType() {
+	return parseFunctionReturnType();
+};
+
+Node* Parser::parsePointerParameterList() {
+	return parseFunctionParameterList();
 };
 
 Node* Parser::parseAccess() {
