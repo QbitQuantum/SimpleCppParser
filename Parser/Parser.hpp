@@ -87,6 +87,7 @@ private:
 	Node* parseUsing();
 	Node* parseUsingTemplateParameterDeclarationList();
 	Node* parseUsingName();
+	Node* parseUsingIdentifier();
 	Node* parseUsingScopeType();
 
 	// Парсинг объяление сигнатуры функций
@@ -459,16 +460,17 @@ Node* Parser::parseUsingName() {
 	return parseIdeitfierScope();
 };
 
-Node* Parser::parseUsingScopeType() {
-	
-	if (stream.peek().type != TokenKind::Equals)
-		throw std::runtime_error("Expected Equals token");
-	stream.consume(TokenKind::Equals);
-	
+Node* Parser::parseUsingIdentifier() {
 	if (stream.peek().type != TokenKind::IdentifierLiteral)
-		throw std::runtime_error("Expected Equals token");
-
+		throw std::runtime_error("Expected IdentifierLiteral token");
 	return parseIdeitfierScope();
+};
+
+Node* Parser::parseUsingScopeType() {
+	Node* ParseScopeType = nullptr;
+	if (stream.match(TokenKind::Equals))
+		ParseScopeType = parseUsingIdentifier();
+	return ParseScopeType;
 };
 
 Node* Parser::parsePointer() {
