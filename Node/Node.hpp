@@ -29,7 +29,7 @@ public:
 
     std::string print() override {
         std::string fprint = (Scope ? Scope->print() : "") + Name;
-        if (TemplateParameterInstantiationList) return fprint += "<" + TemplateParameterInstantiationList->print() + ">";
+        if (TemplateParameterInstantiationList) return fprint += TemplateParameterInstantiationList->print();
         return fprint;
     };
     ~NodeIdentifier() override {
@@ -202,22 +202,47 @@ public:
     };
 };
 
+class NodeUsingSimple : public Node
+{
+public:
+    Node* Name = nullptr;
+    Node* ScopeType = nullptr;
+public:
+    NodeUsingSimple(Node* name, Node* scopeType) :
+        Name(name), ScopeType(scopeType) {
+    };
+
+    std::string print() override {
+        if (!Name) return "";
+        std::string fprint = Name->print();
+        if (ScopeType) fprint += " = " + ScopeType->print();
+        return fprint;
+    }
+
+    ~NodeUsingSimple() {
+        delete Name;
+        delete ScopeType;
+    };
+};
+
 class NodeUsing : public Node
 {
 public:
     Node* TemplateParametrDeclarationList = nullptr;
     Node* Name = nullptr;
     Node* ScopeType = nullptr;
+    bool Simple = false;
 public:
     NodeUsing(Node* templateParametrDeclarationList, Node* name, Node* scopeType) :
         TemplateParametrDeclarationList(templateParametrDeclarationList), Name(name), ScopeType(scopeType) {
     };
 
     std::string print() override {
-        if (!Name || !ScopeType) return "";
+        if (!Name) return "";
         std::string fprint = "using";
-        if (TemplateParametrDeclarationList) fprint += "<" + TemplateParametrDeclarationList->print() + ">";
-        fprint += " " + Name->print() + " = " + ScopeType->print() + ";";
+        if (TemplateParametrDeclarationList) fprint += TemplateParametrDeclarationList->print();
+        fprint += " " + Name->print();
+        if (ScopeType) fprint += " = " + ScopeType->print();
         return fprint;
     }
     
@@ -264,8 +289,8 @@ public:
     std::string print() override {
         if (!Name || !Declaration) return "";
         std::string fprint = "pointer";
-        if (TemplateParametrDeclarationList) fprint += "<" + TemplateParametrDeclarationList->print() + ">";
-        fprint += " " + Name->print() + " = " + Declaration->print() + ";";
+        if (TemplateParametrDeclarationList) fprint += TemplateParametrDeclarationList->print();
+        fprint += " " + Name->print() + " = " + Declaration->print();
         return fprint;
     }
 
@@ -314,7 +339,7 @@ public:
         if (!Type || !Identifier || !ParameterList) return "";
 
         std::string fprint = "function";
-        if (TemplateParametrDeclarationList) fprint += "<" + TemplateParametrDeclarationList->print() + ">";
+        if (TemplateParametrDeclarationList) fprint += TemplateParametrDeclarationList->print();
         fprint += (Type->print()) + " " + Identifier->print() + ParameterList->print();
         fprint += Body ? Body->print() : "";
         return fprint;
@@ -346,7 +371,7 @@ public:
         if (!Type || !Identifier || !ParameterList) return "";
 
         std::string fprint = "lambda";
-        if (TemplateParametrDeclarationList) fprint += "<" + TemplateParametrDeclarationList->print() + ">";
+        if (TemplateParametrDeclarationList) fprint += TemplateParametrDeclarationList->print();
         fprint += (Type->print()) + " " + Identifier->print() + ParameterList->print();
         fprint += Body ? Body->print() : "";
         return fprint;
@@ -377,7 +402,7 @@ public:
         if (!ParameterList) return "";
 
         std::string fprint = "constructor";
-        if (TemplateParametrDeclarationList) fprint += "<" + TemplateParametrDeclarationList->print() + ">";
+        if (TemplateParametrDeclarationList) fprint += TemplateParametrDeclarationList->print();
         fprint += ParameterList->print();
         fprint += Body ? Body->print() : "";
         return fprint;
@@ -411,6 +436,33 @@ public:
     ~NodeDestructor() {
         delete ParameterList; ParameterList = nullptr;
         delete Body; Body = nullptr;
+    };
+};
+
+class NodeTemplate : public Node
+{
+public:
+    Node* TemplateParametrDeclarationList = nullptr;
+    Node* Name = nullptr;
+    Node* Declaration = nullptr;
+public:
+    NodeTemplate(Node* templateParametrDeclarationList, Node* name, Node* declartion) :
+        TemplateParametrDeclarationList(templateParametrDeclarationList), Name(name), Declaration(declartion) {
+    };
+
+    std::string print() override {
+        if (!Name || !Declaration) return "";
+        std::string fprint = "template";
+        if (TemplateParametrDeclarationList) fprint += TemplateParametrDeclarationList->print();
+        fprint += " " + Name->print();
+        if (Declaration) fprint += " = " + Declaration->print();
+        return fprint;
+    }
+
+    ~NodeTemplate() {
+        delete Declaration;
+        delete Name;
+        delete TemplateParametrDeclarationList;
     };
 };
 
@@ -502,18 +554,18 @@ public:
     }
 };
 
-// Generic parameter list: <T, K = [int], W = int()>
 class NodeTemplateParametrDeclartionList : public Node {
     std::vector<Node*> Params;
 public:
     NodeTemplateParametrDeclartionList(std::vector<Node*> params) : Params(params) { };
 
     std::string print() override {
-        std::string fprint;
+        std::string fprint = "<";
         for (size_t i = 0; i < Params.size(); ++i) {
             fprint += Params[i]->print();
             if (i + 1 < Params.size()) fprint += ", ";
         }
+        fprint += ">";
         return fprint;
     }
 
@@ -529,11 +581,12 @@ public:
     NodeTemplateParameterInstantiationList(std::vector<Node*> params) : Params(params) {};
 
     std::string print() override {
-        std::string fprint;
+        std::string fprint = "<";
         for (size_t i = 0; i < Params.size(); ++i) {
             fprint += Params[i]->print();
             if (i + 1 < Params.size()) fprint += ", ";
         }
+        fprint += ">";
         return fprint;
     }
 
@@ -640,7 +693,7 @@ public:
     std::string print() override {
         if (!Identifier) return "";
         std::string fprint = "class";
-        if (TemplateParameterDeclarationList) fprint += "<" + TemplateParameterDeclarationList->print() + ">";
+        if (TemplateParameterDeclarationList) fprint += TemplateParameterDeclarationList->print();
         fprint += " " + Identifier->print();
         if (BaseClass) fprint += " : " + BaseClass->print();
         if (Body) fprint += " " + Body->print();
@@ -718,7 +771,7 @@ public:
         if (!Identifier) return "";
 
         std::string fprint = "struct";
-        if (TemplateParameterDeclarationList) fprint += "<" + TemplateParameterDeclarationList->print() + ">";
+        if (TemplateParameterDeclarationList) fprint += TemplateParameterDeclarationList->print();
         fprint += " " + Identifier->print();
         if (Body) fprint += " " + Body->print();
         return fprint;

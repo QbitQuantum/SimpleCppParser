@@ -21,6 +21,38 @@ namespace[inline] CL1::CD1
     }
 }
 
+// Пример шаблонного типа
+// Это шаблоны из C++
+// Где-то плачет разработчик на С++
+template 
+<
+    /*
+    // Я не уверен стоит ли поддерживать этот синтаксис
+	// Потому что писать постоянно
+	function<T, K, W, Z> проще, чем
+	function<using T, using K, using W, using Z>, хотя если сравнивать с С++
+	function<typename T, typename K, typename W, typename Z>
+	то у меня еще прилично я бы сказал
+	T, // только типы.
+    */
+
+    A, // // только тип
+    using B = w_string, // только тип
+    template C = <using A>, // шаблоны
+    pointer Delete = [void](var[T*] p), // только указатели
+    var[int] E = 0 // литералы
+>
+TemplateDescription =
+<
+    A,
+    using B = w_string,
+    template C = <using A>,
+    pointer Delete = [void](var[T*] p),
+    var[int] E = 0
+>;
+
+template TemplateTab = TemplateDescription<std::string, <using A, var[int] E = 0>, BaseTabDataCompare<int>, 0>;
+
 // Объявление переменной
 var[const int] INDEX_INVALID = -1;
 
@@ -30,7 +62,7 @@ var[const int] INDEX_INVALID = -1;
 // Либо иди пиши class и не страдай фигнёй
 // Может быть шаблонным
 struct StCacheName;
-struct<T, K = [int], W = int()> StCacheName
+struct<T, K> StCacheName
 {
 public:
     var[const K] public_INDEX_INVALID = -1;
@@ -140,8 +172,10 @@ static:
     var[int] StaticBasic;
 }
 // Это шаблоны из C++
-// [T /* По умолчанию имя типа */, K = int /* Имя типа по умолчанию */, W = int() /* значение, на это намекает () */]
-class<T, K = [Basic], W = int()> Base {
+// [T /* По умолчанию имя типа */, K = Basic /* Имя типа по умолчанию */, W = 0 /* значение */]
+class
+    <T, using K = Basic, var[int] W = 0>
+Base {
 public:
     // Здесь мы объявляем член данных (поле класса) с именем PublicBaseData типа T
     // В этом месте грамматика требует тип.

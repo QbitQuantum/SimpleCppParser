@@ -76,12 +76,23 @@ private:
 	Node* parseIdentifier();
 
 	Node* parseDeclaration();
-	Node* parseDeclarationList();
+	Node* parseDeclarationPrimary();
 
-	Node* parseTemplateParametrDeclaration();
-	Node* parseTemplateParametrDeclarationList();
 	Node* parseTemplateParameterInstantiation();
 	Node* parseTemplateParameterInstantiationList();
+	Node* parseTemplateParametrDeclaration();
+	Node* parseTemplateParametrDeclarationList();
+
+	// Парсинг объяление шаблонного типа
+	Node* parseTemplate();
+	Node* parseTemplateTemplateParameterDeclarationList();
+	Node* parseTemplateName();
+	Node* parseTemplateDeclration();
+
+	Node* ParseTemplateUsing();
+	Node* ParseTemplatePointer();
+	Node* ParseTemplateVar();
+	Node* ParseTemplateIdentifier();
 
 	// Парсинг объяление типов
 	Node* parseUsing();
@@ -242,6 +253,7 @@ Node* Parser::parseTopLevel() {
 	case TokenKind::Struct:    return parseStruct();
 	case TokenKind::IdentifierLiteral: return parseIdentifier();
 	case TokenKind::Namespace: return parseNamespace();
+	case TokenKind::Template: return parseTemplate();
 	default:
 		return nullptr;
 	}
@@ -413,7 +425,7 @@ Node* Parser::parseDeclaration() {
 	return new NodeDeclaration(Identifier, Exptression);
 }
 
-Node* Parser::parseDeclarationList() {
+Node* Parser::parseDeclarationPrimary() {
 
 	Node* Identifier = nullptr;
 	Node* Exptression = nullptr;
@@ -428,7 +440,7 @@ Node* Parser::parseDeclarationList() {
 		if (!Identifier)
 			throw std::runtime_error("Expected identifier");
 		stream.consume(TokenKind::Equals);
-		Exptression = parseExpression();
+		Exptression = parsePrimary();
 	}
 
 	return new NodeDeclaration(Identifier, Exptression);
@@ -682,7 +694,7 @@ Node* Parser::parseExpression(int MinPrec) {
 			default: return BinaryOperand::Unknown;
 			}
 		};
-
+	
 	Node* Left = parsePrimary();
 
 	while (true) {
@@ -787,46 +799,15 @@ Node* Parser::parseNodeCall(Node* Func) {
 
 }
 
-Node* Parser::parseTemplateParametrDeclaration() {
-
-	Node* genericParams = nullptr;
-
-	if (stream.peek().type != TokenKind::IdentifierLiteral)
-		throw std::runtime_error("Expected generic parameter name");
-	Node* paramName = parseIdeitfierScope();
-
-	Node* defaultExpr = nullptr;
-
-	if (stream.match(TokenKind::Equals)) {
-		defaultExpr = stream.peek().type == TokenKind::LeftBracket ?
-			parseType() : parsePrimary();
-	}
-	return new NodeDeclaration(paramName, defaultExpr);
-}
-
-Node* Parser::parseTemplateParametrDeclarationList() {
-
-	// Template-параметры: <T, K = [int]>
-	stream.consume(TokenKind::Less);
-
-	std::vector<Node*> TemplateParametrList;
-	if (stream.peek().type != TokenKind::Greater)
-	{
-		TemplateParametrList.push_back(parseTemplateParametrDeclaration());
-		while (stream.peek().type == TokenKind::Comma) {
-			stream.consume(TokenKind::Comma);
-			TemplateParametrList.push_back(parseTemplateParametrDeclaration());
-		}
-	}
-	if (stream.peek().type != TokenKind::Greater)
-		throw std::runtime_error("Expected Greater token");
-	stream.consume(TokenKind::Greater);
-
-	return new NodeTemplateParametrDeclartionList(TemplateParametrList);
-}
-
 Node* Parser::parseTemplateParameterInstantiation() {
-	return parsePrimary();
+	// TODO.1
+	switch (stream.peek().type)
+	{
+		// Некрасиво так парсить
+	case TokenKind::Less:			return parseTemplateTemplateParameterDeclarationList();
+	case TokenKind::LeftBracket:	return parsePointerSignature();
+	default:						return parsePrimary();
+	}
 }
 
 Node* Parser::parseTemplateParameterInstantiationList() {
@@ -849,6 +830,122 @@ Node* Parser::parseTemplateParameterInstantiationList() {
 
 	return new NodeTemplateParameterInstantiationList(TemplateParameterInstantiationList);
 }
+
+Node* Parser::parseTemplateParametrDeclaration() {
+	switch (stream.peek().type) {
+	case TokenKind::Using:				return ParseTemplateUsing();
+	case TokenKind::Template:			return parseTemplate();
+	case TokenKind::Pointer:			return ParseTemplatePointer();
+	case TokenKind::Var:				return ParseTemplateVar();
+	case TokenKind::IdentifierLiteral:	return ParseTemplateIdentifier();
+	default:
+		throw std::runtime_error("Expected stream.peek().type declaration");
+	}
+}
+
+Node* Parser::parseTemplateParametrDeclarationList() {
+	stream.consume(TokenKind::Less);
+
+	std::vector<Node*> TemplateParametrList;
+	if (stream.peek().type != TokenKind::Greater)
+	{
+		TemplateParametrList.push_back(parseTemplateParametrDeclaration());
+		while (stream.peek().type == TokenKind::Comma) {
+			stream.consume(TokenKind::Comma);
+			TemplateParametrList.push_back(parseTemplateParametrDeclaration());
+		}
+	}
+	
+	if (stream.peek().type != TokenKind::Greater)
+		throw std::runtime_error("Expected Greater token");
+	stream.consume(TokenKind::Greater);
+
+	return new NodeTemplateParametrDeclartionList(TemplateParametrList);
+}
+
+Node* Parser::parseTemplate() {
+
+	stream.consume(TokenKind::Template);
+
+	Node* TemplateTemplateParameterDeclarationList = parseUsingTemplateParameterDeclarationList();
+
+	Node* TemplateName = parseTemplateName();
+
+	Node* TemplateDeclaration = parseTemplateDeclration();
+
+	return new NodeTemplate(TemplateTemplateParameterDeclarationList, TemplateName, TemplateDeclaration);
+};
+
+Node* Parser::parseTemplateTemplateParameterDeclarationList() {
+	Node* TemplateTemplateParameterDeclarationList = nullptr;
+	if (stream.peek().type == TokenKind::Less)
+		TemplateTemplateParameterDeclarationList = parseTemplateParametrDeclarationList();
+	return TemplateTemplateParameterDeclarationList;
+};
+
+Node* Parser::parseTemplateName() {
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected IdentifierLiteral token");
+	return parseIdeitfierScope();
+};
+
+Node* Parser::parseTemplateDeclration() {
+	
+	Node* TemplateDeclration = nullptr;
+
+	if (stream.match(TokenKind::Equals))
+		TemplateDeclration = stream.peek().type == TokenKind::IdentifierLiteral ?
+			parsePointerIdentifier() : parseTemplateParametrDeclarationList();
+	return TemplateDeclration;
+};
+
+Node* Parser::ParseTemplateUsing() {
+	if (!stream.match(TokenKind::Using))
+		throw std::runtime_error("Expected IdentifierLiteral token");
+
+	Node* UsingName = parseUsingName();
+
+	Node* UsingScopeType = parseUsingScopeType();
+
+	return new NodeUsing(nullptr, UsingName, UsingScopeType);
+};
+
+Node* Parser::ParseTemplatePointer() {
+	if (!stream.match(TokenKind::Pointer))
+		throw std::runtime_error("Expected Pointer token");
+	stream.consume(TokenKind::Pointer);
+
+	Node* PointerName = parsePointerName();
+
+	Node* PointerDeclaration = parsePointerDeclration();
+
+	return new NodePointer(nullptr, PointerName, PointerDeclaration);
+};
+
+Node* Parser::ParseTemplateVar() {
+
+	if (stream.peek().type != TokenKind::Var)
+		throw std::runtime_error("Expected Var token");
+	stream.consume(TokenKind::Var);
+
+	Node* VarType = parseVarType();
+
+	Node* VarDeclarationList = parseDeclarationPrimary();
+
+	return new NodeVarDeclarationList(nullptr, VarType, VarDeclarationList);
+};
+
+Node* Parser::ParseTemplateIdentifier() {
+
+	if (stream.peek().type != TokenKind::IdentifierLiteral)
+		throw std::runtime_error("Expected Var token");
+
+	Node* UsingName = parseUsingName();
+
+	Node* UsingScopeType = parseUsingScopeType();
+
+	return new NodeUsingSimple(UsingName, UsingScopeType);
+};
 
 Node* Parser::parseClass() {
 	// assume current token is Class
