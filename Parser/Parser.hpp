@@ -93,8 +93,9 @@ private:
 	Node* parsePointer();
 	Node* parsePointerTemplateParameterDeclarationList();
 	Node* parsePointerName();
-	Node* parsePointerSignature();
+	Node* parsePointerDeclration();
 	Node* parsePointerReturnType();
+	Node* parsePointerSignature();
 	Node* parsePointerParameterList();
 	
 	// Парсинг объяление пространства имён
@@ -477,9 +478,9 @@ Node* Parser::parsePointer() {
 	
 	Node* PointerName = parsePointerName();
 
-	Node* PointerSignature = parsePointerSignature();
+	Node* PointerDeclaration = parsePointerDeclration();
 
-	return new NodePointer(PointerTemplateParameterDeclarationList, PointerName, PointerSignature);
+	return new NodePointer(PointerTemplateParameterDeclarationList, PointerName, PointerDeclaration);
 };
 
 Node* Parser::parsePointerTemplateParameterDeclarationList() {
@@ -495,11 +496,16 @@ Node* Parser::parsePointerName() {
 	return parseIdeitfierScope();
 };
 
-Node* Parser::parsePointerSignature() {
-	
+Node* Parser::parsePointerDeclration() {
 	if (stream.peek().type != TokenKind::Equals)
 		throw std::runtime_error("Expected Equals token");
 	stream.consume(TokenKind::Equals);
+
+	return stream.peek().type == TokenKind::IdentifierLiteral ?
+		parseIdeitfierScope() : parsePointerSignature();
+};
+
+Node* Parser::parsePointerSignature() {
 
 	Node* PointerReturnType = parsePointerReturnType();
 

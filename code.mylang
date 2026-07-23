@@ -5,6 +5,7 @@ using<T> w_string = System::WideString;
 
 pointer BaseTabDataCompare = [bool](var[BaseData&], var[BaseData&]);
 pointer<T> BaseTabAction = [T](var[OctetBaseNode*], var[string] KeyFieldValue, var[int] ElementIndex);
+pointer<T> EDataRead = BaseTabAction<BaseTabAction>;
 
 // Объявление псевднимов для пространств имён
 access BaseRequest = OctetBaseLink::OctetBaseLinkRequest;

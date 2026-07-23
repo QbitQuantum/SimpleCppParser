@@ -255,22 +255,22 @@ class NodePointer : public Node
 public:
     Node* TemplateParametrDeclarationList = nullptr;
     Node* Name = nullptr;
-    Node* Signature = nullptr;
+    Node* Declaration = nullptr;
 public:
-    NodePointer(Node* templateParametrDeclarationList, Node* name, Node* signature) :
-        TemplateParametrDeclarationList(templateParametrDeclarationList), Name(name), Signature(signature) {
+    NodePointer(Node* templateParametrDeclarationList, Node* name, Node* declartion) :
+        TemplateParametrDeclarationList(templateParametrDeclarationList), Name(name), Declaration(declartion) {
     };
 
     std::string print() override {
-        if (!Name || !Signature) return "";
+        if (!Name || !Declaration) return "";
         std::string fprint = "pointer";
         if (TemplateParametrDeclarationList) fprint += "<" + TemplateParametrDeclarationList->print() + ">";
-        fprint += " " + Name->print() + " = " + Signature->print() + ";";
+        fprint += " " + Name->print() + " = " + Declaration->print() + ";";
         return fprint;
     }
 
     ~NodePointer() {
-        delete Signature;
+        delete Declaration;
         delete Name;
         delete TemplateParametrDeclarationList;
     };
