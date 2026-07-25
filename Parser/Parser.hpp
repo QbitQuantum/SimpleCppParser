@@ -80,8 +80,8 @@ private:
 
 	Node* parseTemplateParameterInstantiation();
 	Node* parseTemplateParameterInstantiationList();
-	Node* parseTemplateParametrDeclaration();
-	Node* parseTemplateParametrDeclarationList();
+	Node* parseTemplateParameterDeclaration();
+	Node* parseTemplateParameterDeclarationList();
 
 	// Парсинг объяление шаблонного типа
 	Node* parseTemplate();
@@ -462,7 +462,7 @@ Node* Parser::parseUsing() {
 Node* Parser::parseUsingTemplateParameterDeclarationList() {
 	Node* UsingTemplateParameterDeclarationList = nullptr;
 	if (stream.peek().type == TokenKind::Less)
-		UsingTemplateParameterDeclarationList = parseTemplateParametrDeclarationList();
+		UsingTemplateParameterDeclarationList = parseTemplateParameterDeclarationList();
 	return UsingTemplateParameterDeclarationList;
 };
 
@@ -501,7 +501,7 @@ Node* Parser::parsePointer() {
 Node* Parser::parsePointerTemplateParameterDeclarationList() {
 	Node* PointerTemplateParameterDeclarationList = nullptr;
 	if (stream.peek().type == TokenKind::Less)
-		PointerTemplateParameterDeclarationList = parseTemplateParametrDeclarationList();
+		PointerTemplateParameterDeclarationList = parseTemplateParameterDeclarationList();
 	return PointerTemplateParameterDeclarationList;
 };
 
@@ -590,7 +590,7 @@ Node* Parser::parseVar() {
 Node* Parser::parseVarTemplateParameterDeclarationList() {
 	Node* VarTemplateParameterDeclarationList = nullptr;
 	if (stream.peek().type == TokenKind::Less)
-		VarTemplateParameterDeclarationList = parseTemplateParametrDeclarationList();
+		VarTemplateParameterDeclarationList = parseTemplateParameterDeclarationList();
 	return VarTemplateParameterDeclarationList;
 }
 
@@ -831,7 +831,7 @@ Node* Parser::parseTemplateParameterInstantiationList() {
 	return new NodeTemplateParameterInstantiationList(TemplateParameterInstantiationList);
 }
 
-Node* Parser::parseTemplateParametrDeclaration() {
+Node* Parser::parseTemplateParameterDeclaration() {
 	switch (stream.peek().type) {
 	case TokenKind::Using:				return ParseTemplateUsing();
 	case TokenKind::Template:			return parseTemplate();
@@ -846,16 +846,16 @@ Node* Parser::parseTemplateParametrDeclaration() {
 	}
 }
 
-Node* Parser::parseTemplateParametrDeclarationList() {
+Node* Parser::parseTemplateParameterDeclarationList() {
 	stream.consume(TokenKind::Less);
 
-	std::vector<Node*> TemplateParametrList;
+	std::vector<Node*> TemplateParameterList;
 	if (stream.peek().type != TokenKind::Greater)
 	{
-		TemplateParametrList.push_back(parseTemplateParametrDeclaration());
+		TemplateParameterList.push_back(parseTemplateParameterDeclaration());
 		while (stream.peek().type == TokenKind::Comma) {
 			stream.consume(TokenKind::Comma);
-			TemplateParametrList.push_back(parseTemplateParametrDeclaration());
+			TemplateParameterList.push_back(parseTemplateParameterDeclaration());
 		}
 	}
 	
@@ -863,7 +863,7 @@ Node* Parser::parseTemplateParametrDeclarationList() {
 		throw std::runtime_error("Expected Greater token");
 	stream.consume(TokenKind::Greater);
 
-	return new NodeTemplateParametrDeclartionList(TemplateParametrList);
+	return new NodeTemplateParameterDeclartionList(TemplateParameterList);
 }
 
 Node* Parser::parseTemplate() {
@@ -882,7 +882,7 @@ Node* Parser::parseTemplate() {
 Node* Parser::parseTemplateTemplateParameterDeclarationList() {
 	Node* TemplateTemplateParameterDeclarationList = nullptr;
 	if (stream.peek().type == TokenKind::Less)
-		TemplateTemplateParameterDeclarationList = parseTemplateParametrDeclarationList();
+		TemplateTemplateParameterDeclarationList = parseTemplateParameterDeclarationList();
 	return TemplateTemplateParameterDeclarationList;
 };
 
@@ -897,10 +897,10 @@ Node* Parser::parseTemplateParameterList() {
 	if (stream.match(TokenKind::Equals))
 	{
 		std::vector<Node*> TemplateParameterList;
-		TemplateParameterList.push_back(parseTemplateParametrDeclaration());
+		TemplateParameterList.push_back(parseTemplateParameterDeclaration());
 		while (stream.peek().type == TokenKind::Comma) {
 			stream.consume(TokenKind::Comma);
-			TemplateParameterList.push_back(parseTemplateParametrDeclaration());
+			TemplateParameterList.push_back(parseTemplateParameterDeclaration());
 		}
 		DeclarationList = new NodeDeclarationList(TemplateParameterList);
 	}
@@ -1082,10 +1082,10 @@ Node* Parser::parseClassBlock() {
 }
 
 Node* Parser::parseClassTemplateParameterDeclarationList() {
-	Node* ClassTemplateParametrDeclarationList = nullptr;
+	Node* ClassTemplateParameterDeclarationList = nullptr;
 	if (stream.peek().type == TokenKind::Less)
-		ClassTemplateParametrDeclarationList = parseTemplateParametrDeclarationList();
-	return ClassTemplateParametrDeclarationList;
+		ClassTemplateParameterDeclarationList = parseTemplateParameterDeclarationList();
+	return ClassTemplateParameterDeclarationList;
 }
 
 Node* Parser::parseStruct() {
@@ -1102,10 +1102,10 @@ Node* Parser::parseStruct() {
 }
 
 Node* Parser::parseStructTemplateParameterDeclarationList() {
-	Node* StructTemplateParametrDeclarationList = nullptr;
+	Node* StructTemplateParameterDeclarationList = nullptr;
 	if (stream.peek().type == TokenKind::Less)
-		StructTemplateParametrDeclarationList = parseTemplateParametrDeclarationList();
-	return StructTemplateParametrDeclarationList;
+		StructTemplateParameterDeclarationList = parseTemplateParameterDeclarationList();
+	return StructTemplateParameterDeclarationList;
 }
 
 Node* Parser::parseStructName() {
@@ -1189,7 +1189,7 @@ Node* Parser::parseFunction() {
 
 	stream.consume(TokenKind::Function);
 
-	Node* FunctionTemplateParametrDeclarationList = parseFunctionTemplateParameterDeclarationList();
+	Node* FunctionTemplateParameterDeclarationList = parseFunctionTemplateParameterDeclarationList();
 
 	Node* FunctionType = parseFunctionReturnType();
 
@@ -1201,7 +1201,7 @@ Node* Parser::parseFunction() {
 
 	Node* FunctionBody = parseFunctionBody();
 
-	return new NodeFunction(FunctionType, FunctionTemplateParametrDeclarationList, FunctionName, FunctionParameterList, FunctionBody);
+	return new NodeFunction(FunctionType, FunctionTemplateParameterDeclarationList, FunctionName, FunctionParameterList, FunctionBody);
 }
 
 Node* Parser::parseFunctionName() {
@@ -1211,10 +1211,10 @@ Node* Parser::parseFunctionName() {
 }
 
 Node* Parser::parseFunctionTemplateParameterDeclarationList() {
-	Node* FunctionTemplateParametrDeclarationList = nullptr;
+	Node* FunctionTemplateParameterDeclarationList = nullptr;
 	if (stream.peek().type == TokenKind::Less)
-		FunctionTemplateParametrDeclarationList = parseTemplateParametrDeclarationList();
-	return FunctionTemplateParametrDeclarationList;
+		FunctionTemplateParameterDeclarationList = parseTemplateParameterDeclarationList();
+	return FunctionTemplateParameterDeclarationList;
 }
 
 Node* Parser::parseFunctionReturnType() {
@@ -1318,7 +1318,7 @@ Node* Parser::parseLambda() {
 
 	stream.consume(TokenKind::Lambda);
 
-	Node* LambdaTemplateParametrDeclarationList = parseLambdaTemplateParameterDeclarationList();
+	Node* LambdaTemplateParameterDeclarationList = parseLambdaTemplateParameterDeclarationList();
 
 	Node* LambdaType = parseLambdaReturnType();
 
@@ -1328,7 +1328,7 @@ Node* Parser::parseLambda() {
 
 	Node* LambdaBody = parseLambdaBody();
 
-	return new NodeLambda(LambdaType, LambdaTemplateParametrDeclarationList, LambdaName, LambdaParameterList, LambdaBody);
+	return new NodeLambda(LambdaType, LambdaTemplateParameterDeclarationList, LambdaName, LambdaParameterList, LambdaBody);
 }
 
 Node* Parser::parseLambdaName() {
@@ -1355,7 +1355,7 @@ Node* Parser::parseConstructor() {
 
 	stream.consume(TokenKind::Constructor);
 
-	Node* ConstructorTemplateParametrDeclarationList = parseConstructorTemplateParameterDeclarationList();
+	Node* ConstructorTemplateParameterDeclarationList = parseConstructorTemplateParameterDeclarationList();
 
 	Node* ConstructorQulifier = parseConstructorQulifier();
 
@@ -1363,7 +1363,7 @@ Node* Parser::parseConstructor() {
 
 	Node* ConstructorBody = parseConstructorBody();
 
-	return new NodeConstructor(ConstructorTemplateParametrDeclarationList, ConstructorParameterList, ConstructorBody);
+	return new NodeConstructor(ConstructorTemplateParameterDeclarationList, ConstructorParameterList, ConstructorBody);
 }
 
 Node* Parser::parseConstructorTemplateParameterDeclarationList() {
