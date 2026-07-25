@@ -1,9 +1,9 @@
 
 // Объявение псевднимов для типов
-using string = System::UnicodeString;
+using string = [const System::UnicodeString];
 
 // SystemTemplate<WideString>
-using<T> SystemTemplate = System::T;
+using<T> SystemTemplate = [System::T];
 
 pointer BaseTabDataCompare = [bool](var[BaseData&], var[BaseData&]);
 pointer<T> BaseTabAction = [T](var[OctetBaseNode*], var[string] KeyFieldValue, var[int] ElementIndex);
@@ -35,15 +35,15 @@ function<typename T, typename K, typename W, typename Z>
 */
 template TemplateDescription =
     A, // // только тип
-    using B = string, // только тип
+    using B = [string], // только тип
     template C = using A, // шаблоны
     pointer Delete = [void](var[T*] p), // только указатели
     var[int] E = 0 // литералы
 ;
 
 template TemplateTab = TemplateTest;
-struct <TemplateTab> Tab {}; // struct <using B = string, var[int] E = 0> Tab {};
-struct <using B = string, var[int] E = 0> Tab2 {};
+struct <TemplateTab> Tab {}; // struct <using B = [string], var[int] E = 0> Tab {};
+struct <using B = [string], var[int] E = 0> Tab2 {};
 // Объявление переменной
 var[const int] INDEX_INVALID = -1;
 
@@ -165,7 +165,7 @@ static:
 // Это шаблоны из C++
 // [T /* По умолчанию имя типа */, K = Basic /* Имя типа по умолчанию */, W = 0 /* значение */]
 class
-    <T, using K = Basic, var[int] W = 0>
+    <T, using K = [Basic], var[int] W = 0>
 Base {
 public:
     // Здесь мы объявляем член данных (поле класса) с именем PublicBaseData типа T
