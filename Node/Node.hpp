@@ -61,8 +61,8 @@ public:
         Type(type), IsConst(isConst), eType(etype) {};
 
     std::string print() override {
-        std::string fprint = (IsConst ? std::string("const ") : std::string("")) + Type->print() +
-            getSymbol();
+        std::string fprint = "[" + (IsConst ? std::string("const ") : std::string("")) + Type->print() +
+            getSymbol() + "]";
         return fprint;
     };
 
@@ -124,7 +124,7 @@ public:
         if (!Type) return "";
         std::string fprint = "var";
         if (TemplateParametrDeclarationList) fprint += TemplateParametrDeclarationList->print();
-        fprint += "[" + Type->print() + "]";
+        fprint += Type->print();
         if (DeclarationList)
         {
             std::string Declaration = DeclarationList->print();
@@ -265,7 +265,7 @@ public:
 
     std::string print() override {
         if (!ReturnType || !ParameterList) return "";
-        std::string fprint = "[" + ReturnType->print() + "]" + ParameterList->print();
+        std::string fprint = ReturnType->print() + ParameterList->print();
         return fprint;
     }
 
