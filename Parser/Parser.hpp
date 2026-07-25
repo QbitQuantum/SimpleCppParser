@@ -87,7 +87,7 @@ private:
 	Node* parseTemplate();
 	Node* parseTemplateTemplateParameterDeclarationList();
 	Node* parseTemplateName();
-	Node* parseTemplateDeclration();
+	Node* parseTemplateParameterList();
 
 	Node* ParseTemplateUsing();
 	Node* ParseTemplatePointer();
@@ -839,7 +839,10 @@ Node* Parser::parseTemplateParametrDeclaration() {
 	case TokenKind::Var:				return ParseTemplateVar();
 	case TokenKind::IdentifierLiteral:	return ParseTemplateIdentifier();
 	default:
+	{
+		std::cout << "stream.peek().value: " + stream.peek().value << "\n";
 		throw std::runtime_error("Expected stream.peek().type declaration");
+	}
 	}
 }
 
@@ -871,9 +874,9 @@ Node* Parser::parseTemplate() {
 
 	Node* TemplateName = parseTemplateName();
 
-	Node* TemplateDeclaration = parseTemplateDeclration();
+	Node* TemplatePrameterList = parseTemplateParameterList();
 
-	return new NodeTemplate(TemplateTemplateParameterDeclarationList, TemplateName, TemplateDeclaration);
+	return new NodeTemplate(TemplateTemplateParameterDeclarationList, TemplateName, TemplatePrameterList);
 };
 
 Node* Parser::parseTemplateTemplateParameterDeclarationList() {
@@ -889,14 +892,19 @@ Node* Parser::parseTemplateName() {
 	return parseIdeitfierScope();
 };
 
-Node* Parser::parseTemplateDeclration() {
-	
-	Node* TemplateDeclration = nullptr;
-
+Node* Parser::parseTemplateParameterList() {
+	Node* DeclarationList = nullptr;
 	if (stream.match(TokenKind::Equals))
-		TemplateDeclration = stream.peek().type == TokenKind::IdentifierLiteral ?
-			parsePointerIdentifier() : parseTemplateParametrDeclarationList();
-	return TemplateDeclration;
+	{
+		std::vector<Node*> TemplateParameterList;
+		TemplateParameterList.push_back(parseTemplateParametrDeclaration());
+		while (stream.peek().type == TokenKind::Comma) {
+			stream.consume(TokenKind::Comma);
+			TemplateParameterList.push_back(parseTemplateParametrDeclaration());
+		}
+		DeclarationList = new NodeDeclarationList(TemplateParameterList);
+	}
+	return DeclarationList;
 };
 
 Node* Parser::ParseTemplateUsing() {

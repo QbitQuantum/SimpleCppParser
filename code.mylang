@@ -24,35 +24,24 @@ namespace[inline] CL1::CD1
 // Пример шаблонного типа
 // Это шаблоны из C++
 // Где-то плачет разработчик на С++
-template 
-<
-    /*
-    // Я не уверен стоит ли поддерживать этот синтаксис
-	// Потому что писать постоянно
-	function<T, K, W, Z> проще, чем
-	function<using T, using K, using W, using Z>, хотя если сравнивать с С++
-	function<typename T, typename K, typename W, typename Z>
-	то у меня еще прилично я бы сказал
-	T, // только типы.
-    */
-
+/*
+Я не уверен стоит ли поддерживать синтаксис function<T>
+Но писать function<T, K, W, Z> проще, чем
+function<using T, using K, using W, using Z>, хотя если сравнивать с С++
+function<typename T, typename K, typename W, typename Z>
+то у меня еще прилично я бы сказал
+*/
+template TemplateDescription =
     A, // // только тип
     using B = w_string, // только тип
-    template C = <using A>, // шаблоны
+    template C = using A, // шаблоны
     pointer Delete = [void](var[T*] p), // только указатели
     var[int] E = 0 // литералы
->
-TemplateDescription =
-<
-    A,
-    using B = w_string,
-    template C = <using A>,
-    pointer Delete = [void](var[T*] p),
-    var[int] E = 0
->;
+;
 
-template TemplateTab = TemplateDescription<std::string, <using A, var[int] E = 0>, BaseTabDataCompare<int>, 0>;
-
+template TemplateTab = TemplateTest;
+struct <TemplateTab> Tab {}; // struct <using B = w_string, var[int] E = 0> Tab {};
+struct <using B = w_string, var[int] E = 0> Tab2 {};
 // Объявление переменной
 var[const int] INDEX_INVALID = -1;
 
