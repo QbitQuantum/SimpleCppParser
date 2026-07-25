@@ -551,7 +551,6 @@ Node* Parser::parseAccess() {
 
 	Node* AccessScope = parseAccessScope();
 
-	// Temporary stub
 	return new NodeAccess(AccessName, AccessScope);
 };
 
