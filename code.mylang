@@ -1,7 +1,9 @@
 
 // Объявение псевднимов для типов
 using string = System::UnicodeString;
-using<T> w_string = System::WideString;
+
+// SystemTemplate<WideString>
+using<T> SystemTemplate = System::T;
 
 pointer BaseTabDataCompare = [bool](var[BaseData&], var[BaseData&]);
 pointer<T> BaseTabAction = [T](var[OctetBaseNode*], var[string] KeyFieldValue, var[int] ElementIndex);
@@ -33,15 +35,15 @@ function<typename T, typename K, typename W, typename Z>
 */
 template TemplateDescription =
     A, // // только тип
-    using B = w_string, // только тип
+    using B = string, // только тип
     template C = using A, // шаблоны
     pointer Delete = [void](var[T*] p), // только указатели
     var[int] E = 0 // литералы
 ;
 
 template TemplateTab = TemplateTest;
-struct <TemplateTab> Tab {}; // struct <using B = w_string, var[int] E = 0> Tab {};
-struct <using B = w_string, var[int] E = 0> Tab2 {};
+struct <TemplateTab> Tab {}; // struct <using B = string, var[int] E = 0> Tab {};
+struct <using B = string, var[int] E = 0> Tab2 {};
 // Объявление переменной
 var[const int] INDEX_INVALID = -1;
 
