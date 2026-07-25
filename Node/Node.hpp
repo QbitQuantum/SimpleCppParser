@@ -77,9 +77,8 @@ class NodeDeclaration : public Node
     Node* Initializer = nullptr;
 public:
     std::string print() override {
-        std::string fprint = "";
-        if (Identifier)
-            fprint += Identifier->print();
+        if (!Identifier) return "";
+        std::string fprint = Identifier->print();
         if (Initializer)
             fprint += " = " + Initializer->print();
         return fprint;
@@ -103,10 +102,7 @@ public:
         int size = DeclarationList.size();
         for (size_t i = 0; i < size; i++)
             if (auto Decl = DeclarationList[i]; Decl)
-            {
-                std::string DeclName = Decl->print();
-                fprint += (DeclName.empty() ? "" : " ") + DeclName + (i == size - 1 ? "" : ", ");
-            }
+                fprint += Decl->print() + (i == size - 1 ? "" : ", ");
         return fprint;
     };
     NodeDeclarationList(const std::vector<Node*>& declarationList) : DeclarationList(declarationList) { };
@@ -129,7 +125,11 @@ public:
         std::string fprint = "var";
         if (TemplateParametrDeclarationList) fprint += TemplateParametrDeclarationList->print();
         fprint += "[" + Type->print() + "]";
-        if (DeclarationList) fprint += DeclarationList->print();
+        if (DeclarationList)
+        {
+            std::string Declaration = DeclarationList->print();
+            fprint += Declaration.empty() ? "" : " " + DeclarationList->print();
+        }
         return fprint;
     };
     NodeVarDeclarationList(Node* templateParametrDeclarationList, Node* type, Node* declarationList) :
