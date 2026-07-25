@@ -838,11 +838,7 @@ Node* Parser::parseTemplateParameterDeclaration() {
 	case TokenKind::Pointer:			return ParseTemplatePointer();
 	case TokenKind::Var:				return ParseTemplateVar();
 	case TokenKind::IdentifierLiteral:	return ParseTemplateIdentifier();
-	default:
-	{
-		std::cout << "stream.peek().value: " + stream.peek().value << "\n";
-		throw std::runtime_error("Expected stream.peek().type declaration");
-	}
+	default: throw std::runtime_error("Expected stream.peek().type declaration");
 	}
 }
 
