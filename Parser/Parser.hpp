@@ -105,7 +105,7 @@ private:
 	Node* parsePointer();
 	Node* parsePointerTemplateParameterDeclarationList();
 	Node* parsePointerName();
-	Node* parsePointerDeclration();
+	Node* parsePointerDeclaration();
 	Node* parsePointerIdentifier();
 	Node* parsePointerSignature();
 	Node* parsePointerReturnType();
@@ -493,7 +493,7 @@ Node* Parser::parsePointer() {
 	
 	Node* PointerName = parsePointerName();
 
-	Node* PointerDeclaration = parsePointerDeclration();
+	Node* PointerDeclaration = parsePointerDeclaration();
 
 	return new NodePointer(PointerTemplateParameterDeclarationList, PointerName, PointerDeclaration);
 };
@@ -511,7 +511,7 @@ Node* Parser::parsePointerName() {
 	return parseIdeitfierScope();
 };
 
-Node* Parser::parsePointerDeclration() {
+Node* Parser::parsePointerDeclaration() {
 	if (stream.peek().type != TokenKind::Equals)
 		throw std::runtime_error("Expected Equals token");
 	stream.consume(TokenKind::Equals);
@@ -925,7 +925,7 @@ Node* Parser::ParseTemplatePointer() {
 
 	Node* PointerName = parsePointerName();
 
-	Node* PointerDeclaration = parsePointerDeclration();
+	Node* PointerDeclaration = parsePointerDeclaration();
 
 	return new NodePointer(nullptr, PointerName, PointerDeclaration);
 };
