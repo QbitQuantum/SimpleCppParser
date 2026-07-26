@@ -9,19 +9,39 @@ enum class TokenKind : unsigned short {
     
     /*************************** Токены лексера ***************************/
 
-    // Заглавные буквы A-Z
-    A = 'A', B = 'B', C = 'C', D = 'D', E = 'E', F = 'F', G = 'G', H = 'H', I = 'I', J = 'J',
-    K = 'K', L = 'L', M = 'M', N = 'N', O = 'O', P = 'P', Q = 'Q', R = 'R', S = 'S', T = 'T',
-    U = 'U', V = 'V', W = 'W', X = 'X', Y = 'Y', Z = 'Z',
-
-    // Строчные буквы a-z
-    a = 'a', b = 'b', c = 'c', d = 'd', e = 'e', f = 'f', g = 'g', h = 'h', i = 'i', j = 'j',
-    k = 'k', l = 'l', m = 'm', n = 'n', o = 'o', p = 'p', q = 'q', r = 'r', s = 's', t = 't',
-    u = 'u', v = 'v', w = 'w', x = 'x', y = 'y', z = 'z',
-
-    // Цифры 0-9
-    Zero = '0', One = '1', Two = '2', Three = '3', Four = '4',
-    Five = '5', Six = '6', Seven = '7', Eight = '8', Nine = '9',
+    // Управляющие символы (0–31, 127)
+    Null = '\0',  // 0
+    StartOfHeading = 1,     // SOH
+    StartOfText = 2,     // STX
+    EndOfText = 3,     // ETX
+    EndOfTransmission = 4,  // EOT
+    Enquiry = 5,     // ENQ
+    Acknowledge = 6,     // ACK
+    Bell = 7,     // '\a' (BEL)
+    Backspace = 8,     // '\b' (BS)
+    Tab = 9,     // '\t' (HT)
+    LineFeed = 10,    // '\n' (LF)
+    VerticalTab = 11,    // '\v' (VT)
+    FormFeed = 12,    // '\f' (FF)
+    CarriageReturn = 13,    // '\r' (CR)
+    ShiftOut = 14,    // SO
+    ShiftIn = 15,    // SI
+    DataLinkEscape = 16,    // DLE
+    DeviceControl1 = 17,    // DC1 (XON)
+    DeviceControl2 = 18,    // DC2
+    DeviceControl3 = 19,    // DC3 (XOFF)
+    DeviceControl4 = 20,    // DC4
+    NegativeAcknowledge = 21, // NAK
+    SynchronousIdle = 22,   // SYN
+    EndOfTransmissionBlock = 23, // ETB
+    Cancel = 24,    // CAN
+    EndOfMedium = 25,     // EM
+    Substitute = 26,     // SUB
+    Escape = 27,     // '\e' (ESC)
+    FileSeparator = 28,     // FS
+    GroupSeparator = 29,    // GS
+    RecordSeparator = 30,   // RS
+    UnitSeparator = 31,     // US
 
     // Знаки препинания и символы
     Space = ' ',
@@ -60,39 +80,6 @@ enum class TokenKind : unsigned short {
 
     Tilde = '~',   // ~
 
-    // Управляющие символы (0–31, 127)
-    Null = '\0',  // 0
-    StartOfHeading = 1,     // SOH
-    StartOfText = 2,     // STX
-    EndOfText = 3,     // ETX
-    EndOfTransmission = 4,  // EOT
-    Enquiry = 5,     // ENQ
-    Acknowledge = 6,     // ACK
-    Bell = 7,     // '\a' (BEL)
-    Backspace = 8,     // '\b' (BS)
-    Tab = 9,     // '\t' (HT)
-    LineFeed = 10,    // '\n' (LF)
-    VerticalTab = 11,    // '\v' (VT)
-    FormFeed = 12,    // '\f' (FF)
-    CarriageReturn = 13,    // '\r' (CR)
-    ShiftOut = 14,    // SO
-    ShiftIn = 15,    // SI
-    DataLinkEscape = 16,    // DLE
-    DeviceControl1 = 17,    // DC1 (XON)
-    DeviceControl2 = 18,    // DC2
-    DeviceControl3 = 19,    // DC3 (XOFF)
-    DeviceControl4 = 20,    // DC4
-    NegativeAcknowledge = 21, // NAK
-    SynchronousIdle = 22,   // SYN
-    EndOfTransmissionBlock = 23, // ETB
-    Cancel = 24,    // CAN
-    EndOfMedium = 25,     // EM
-    Substitute = 26,     // SUB
-    Escape = 27,     // '\e' (ESC)
-    FileSeparator = 28,     // FS
-    GroupSeparator = 29,    // GS
-    RecordSeparator = 30,   // RS
-    UnitSeparator = 31,     // US
     Delete = 127,    // DEL
     
     // ===== Специальные токены =====
@@ -235,6 +222,15 @@ enum class TokenKind : unsigned short {
 
 namespace tok
 {
+    bool static is_unicode_identifier_start(const char32_t& c) {
+        if ((c >= 'A' && c <= 'Z') ||
+            (c >= 'a' && c <= 'z') ||
+            c == '_')
+            return true;
+        // Unicode символы (выше ASCII)
+        return (c >= 0xC0);
+    }
+    
     // Вспомогательная функция для преобразования enum в char
     constexpr char constexprToChar(TokenKind s) {
         return static_cast<char>(s);
@@ -380,71 +376,6 @@ case TokenKind::name: return #name; \
 
         switch (kind)
         {
-            GENERATE_NAME(A);
-            GENERATE_NAME(B);
-            GENERATE_NAME(C);
-            GENERATE_NAME(D);
-            GENERATE_NAME(E);
-            GENERATE_NAME(F);
-            GENERATE_NAME(G);
-            GENERATE_NAME(H);
-            GENERATE_NAME(I);
-            GENERATE_NAME(J);
-            GENERATE_NAME(K);
-            GENERATE_NAME(L);
-            GENERATE_NAME(M);
-            GENERATE_NAME(N);
-            GENERATE_NAME(O);
-            GENERATE_NAME(P);
-            GENERATE_NAME(Q);
-            GENERATE_NAME(R);
-            GENERATE_NAME(S);
-            GENERATE_NAME(T);
-            GENERATE_NAME(U);
-            GENERATE_NAME(V);
-            GENERATE_NAME(W);
-            GENERATE_NAME(X);
-            GENERATE_NAME(Y);
-            GENERATE_NAME(Z);
-
-            GENERATE_NAME(a);
-            GENERATE_NAME(b);
-            GENERATE_NAME(c);
-            GENERATE_NAME(d);
-            GENERATE_NAME(e);
-            GENERATE_NAME(f);
-            GENERATE_NAME(g);
-            GENERATE_NAME(h);
-            GENERATE_NAME(i);
-            GENERATE_NAME(j);
-            GENERATE_NAME(k);
-            GENERATE_NAME(l);
-            GENERATE_NAME(m);
-            GENERATE_NAME(n);
-            GENERATE_NAME(o);
-            GENERATE_NAME(p);
-            GENERATE_NAME(q);
-            GENERATE_NAME(r);
-            GENERATE_NAME(s);
-            GENERATE_NAME(t);
-            GENERATE_NAME(u);
-            GENERATE_NAME(v);
-            GENERATE_NAME(w);
-            GENERATE_NAME(x);
-            GENERATE_NAME(y);
-            GENERATE_NAME(z);
-
-            GENERATE_NAME(Zero);
-            GENERATE_NAME(One);
-            GENERATE_NAME(Two);
-            GENERATE_NAME(Three);
-            GENERATE_NAME(Four);
-            GENERATE_NAME(Five);
-            GENERATE_NAME(Six);
-            GENERATE_NAME(Seven);
-            GENERATE_NAME(Eight);
-            GENERATE_NAME(Nine);
-
             GENERATE_NAME(Space);
             GENERATE_NAME(Exclamation);
             GENERATE_NAME(Quotation);

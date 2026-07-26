@@ -123,15 +123,6 @@ private:
         PosBuffer++;
     }
 
-    // Обновляем проверку идентификаторов:
-    bool is_unicode_identifier_start(char32_t c) {
-        if (((c >= tok::constexprToChar(TokenKind::A) && c <= tok::constexprToChar(TokenKind::Z)) ||
-            (c >= tok::constexprToChar(TokenKind::a) && c <= tok::constexprToChar(TokenKind::z)) ||
-            c == tok::constexprToChar(TokenKind::Underscore)))
-            return true;
-        return (c >= 0xC0); // Все символы выше ASCII
-    }
-
     bool neof() {
         return PosBuffer < SourceCode.size();
     }
@@ -164,7 +155,7 @@ void Lexer::LexerRun() {
         {
             // Обработка идентификаторов
             size_t start = PosBuffer;
-            while (neof() && (is_unicode_identifier_start(GetChar()) || isdigit(GetChar())))
+            while (neof() && (tok::is_unicode_identifier_start(GetChar()) || isdigit(GetChar())))
                 PosBuffer++;
 
             // sizeof(identifier)
