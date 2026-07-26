@@ -30,7 +30,7 @@ private:
 	{TokenKind::Minus, &PostLexer::Minus},           // -
 	{TokenKind::Colon, &PostLexer::Colon},           // :
 	{TokenKind::Less, &PostLexer::Less},             // <
-	{TokenKind::Equals, &PostLexer::Equals},         // =
+	{TokenKind::Equal, &PostLexer::Equal},           // =
 	{TokenKind::Pipe, &PostLexer::Pipe},             // |
 	{TokenKind::Apostrophe, &PostLexer::Apostrophe}, // '
 	{TokenKind::Exclamation,&PostLexer::Exclamation},// !
@@ -44,7 +44,7 @@ private:
 	Token Minus();
 	Token Colon();
 	Token Less();
-	Token Equals();
+	Token Equal();
 	Token Greater();
 	Token Pipe();
 	Token Asterisk();
@@ -235,7 +235,7 @@ Token PostLexer::Less() /* < */ {
 		return TLexToken;
 	}
 
-	if (MatchToken(TokenKind::Equals, 1))
+	if (MatchToken(TokenKind::Equal, 1))
 	{
 		TLexToken.type = TokenKind::LessEqual;
 		TLexToken.value = "<=";
@@ -246,14 +246,14 @@ Token PostLexer::Less() /* < */ {
 }
 
 // Обработка символа ровно
-Token PostLexer::Equals() /* = */ {
+Token PostLexer::Equal() /* = */ {
 
 	Token TLexToken = GetCurrentToken();
-	TLexToken.type = TokenKind::Equals;
+	TLexToken.type = TokenKind::Equal;
 
-	if (MatchToken(TokenKind::Equals, 1))
+	if (MatchToken(TokenKind::Equal, 1))
 	{
-		TLexToken.type = TokenKind::Equal;
+		TLexToken.type = TokenKind::Equals;
 		TLexToken.value = "==";
 		PosBuffer++;
 	}
@@ -308,7 +308,7 @@ Token PostLexer::Exclamation() /* ! */ {
 	Token TLexToken = GetCurrentToken();
 	TLexToken.type = TokenKind::Exclamation;
 
-	if (MatchToken(TokenKind::Equals, 1))
+	if (MatchToken(TokenKind::Equal, 1))
 	{
 		TLexToken.type = TokenKind::NotEqual;
 		TLexToken.value = "!=";

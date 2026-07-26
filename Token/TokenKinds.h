@@ -47,7 +47,7 @@ enum class TokenKind : unsigned short {
     Colon = ':',   // :
     Semicolon = ';',   // ;
     Less = '<',   // <
-    Equals = '=',   // =
+    Equal = '=',   // =
     Greater = '>',   // >
     Question = '?',   // ?
     At = '@',   // @
@@ -132,7 +132,6 @@ enum class TokenKind : unsigned short {
     Unsigned,
 
     // Присваивания
-    Assign,      // =
     PlusAssign,  // +=
     MinusAssign, // -=
     MultAssign,  // *=
@@ -145,7 +144,7 @@ enum class TokenKind : unsigned short {
     ShrAssign,   // Shr= аналог: >>=
 
     // Сравнения
-    Equal,       // ==
+    Equals,      // ==
     NotEqual,    // !=
     LessEqual,   // <=
     GreaterEqual,// >=
@@ -256,7 +255,7 @@ namespace tok
         case TokenKind::Slash:
         case TokenKind::Percent:
             // Операции сравнения
-        case TokenKind::Equal:
+        case TokenKind::Equals:
         case TokenKind::NotEqual:
         case TokenKind::Less:
         case TokenKind::Greater:
@@ -273,7 +272,7 @@ namespace tok
         case TokenKind::And:
         case TokenKind::Or:
             //Операции присваивания
-        case TokenKind::Assign:
+        case TokenKind::Equal:
         case TokenKind::PlusAssign:
         case TokenKind::MinusAssign:
         case TokenKind::MultAssign:
@@ -308,7 +307,7 @@ namespace tok
     int static GetBinaryOperatorPriority(TokenKind Kind) {
         switch (Kind) {
             // Уровень 1: Присваивание (самый низкий приоритет)
-        case TokenKind::Assign:
+        case TokenKind::Equal:
         case TokenKind::PlusAssign:
         case TokenKind::MinusAssign:
         case TokenKind::MultAssign:
@@ -342,7 +341,7 @@ namespace tok
             return 6;
 
             // Уровень 7: Равенство
-        case TokenKind::Equal:
+        case TokenKind::Equals:
         case TokenKind::NotEqual:
             return 7;
 
@@ -469,7 +468,7 @@ case TokenKind::name: return #name; \
             GENERATE_NAME(Colon);
             GENERATE_NAME(Semicolon);
             GENERATE_NAME(Less);
-            GENERATE_NAME(Equals);
+            GENERATE_NAME(Equal);
             GENERATE_NAME(Greater);
             GENERATE_NAME(Question);
             GENERATE_NAME(At);
@@ -544,7 +543,6 @@ case TokenKind::name: return #name; \
             GENERATE_NAME(Signed);
             GENERATE_NAME(Unsigned);
 
-            GENERATE_NAME(Assign);
             GENERATE_NAME(PlusAssign);
             GENERATE_NAME(MinusAssign);
             GENERATE_NAME(MultAssign);
@@ -555,7 +553,7 @@ case TokenKind::name: return #name; \
             GENERATE_NAME(XorAssign);
             GENERATE_NAME(ShlAssign);
             GENERATE_NAME(ShrAssign);
-            GENERATE_NAME(Equal);
+            GENERATE_NAME(Equals);
             GENERATE_NAME(NotEqual);
             GENERATE_NAME(LessEqual);
             GENERATE_NAME(GreaterEqual);

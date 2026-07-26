@@ -413,11 +413,11 @@ Node* Parser::parseDeclaration() {
 		// То что может быть Namespace::Name в имене идентикатора - работа семантера
 		Identifier = parseIdeitfierScope();
 
-	if (stream.peek().type == TokenKind::Equals)
+	if (stream.peek().type == TokenKind::Equal)
 	{
 		if (!Identifier)
 			throw std::runtime_error("Expected identifier");
-		stream.consume(TokenKind::Equals);
+		stream.consume(TokenKind::Equal);
 		Exptression = parseExpression();
 	}
 
@@ -434,11 +434,11 @@ Node* Parser::parseDeclarationPrimary() {
 		// То что может быть Namespace::Name в имене идентикатора - работа семантера
 		Identifier = parseIdeitfierScope();
 
-	if (stream.peek().type == TokenKind::Equals)
+	if (stream.peek().type == TokenKind::Equal)
 	{
 		if (!Identifier)
 			throw std::runtime_error("Expected identifier");
-		stream.consume(TokenKind::Equals);
+		stream.consume(TokenKind::Equal);
 		Exptression = parsePrimary();
 	}
 
@@ -467,13 +467,13 @@ Node* Parser::parseUsingTemplateParameterDeclarationList() {
 
 Node* Parser::parseUsingName() {
 	if (stream.peek().type != TokenKind::IdentifierLiteral)
-		throw std::runtime_error("Expected Equals token");
+		throw std::runtime_error("Expected Equal token");
 	return parseIdeitfierScope();
 };
 
 Node* Parser::parseUsingScopeType() {
 	Node* UsingScopeType = nullptr;
-	if (stream.match(TokenKind::Equals))
+	if (stream.match(TokenKind::Equal))
 		UsingScopeType = parseType();
 	return UsingScopeType;
 };
@@ -505,9 +505,9 @@ Node* Parser::parsePointerName() {
 };
 
 Node* Parser::parsePointerDeclaration() {
-	if (stream.peek().type != TokenKind::Equals)
-		throw std::runtime_error("Expected Equals token");
-	stream.consume(TokenKind::Equals);
+	if (stream.peek().type != TokenKind::Equal)
+		throw std::runtime_error("Expected Equal token");
+	stream.consume(TokenKind::Equal);
 
 	return stream.peek().type == TokenKind::IdentifierLiteral ?
 		parsePointerIdentifier() : parsePointerSignature();
@@ -556,12 +556,12 @@ Node* Parser::parseAccessName() {
 
 Node* Parser::parseAccessScope() {
 
-	if (stream.peek().type != TokenKind::Equals)
-		throw std::runtime_error("Expected Equals token");
-	stream.consume(TokenKind::Equals);
+	if (stream.peek().type != TokenKind::Equal)
+		throw std::runtime_error("Expected Equal token");
+	stream.consume(TokenKind::Equal);
 
 	if (stream.peek().type != TokenKind::IdentifierLiteral)
-		throw std::runtime_error("Expected Equals token");
+		throw std::runtime_error("Expected Equal token");
 
 	return parseScope();
 };
@@ -754,7 +754,7 @@ Node* Parser::parseIdentifier() {
 	{
 	case TokenKind::LeftParen:
 		return parseNodeCall(Identifier);
-	case TokenKind::Equals:
+	case TokenKind::Equal:
 		stream.consume(stream.peek().type);
 		return new NodeDeclaration(Identifier, parseExpression());
 	case TokenKind::Dot:
@@ -882,7 +882,7 @@ Node* Parser::parseTemplateName() {
 
 Node* Parser::parseTemplateParameterList() {
 	Node* DeclarationList = nullptr;
-	if (stream.match(TokenKind::Equals))
+	if (stream.match(TokenKind::Equal))
 	{
 		std::vector<Node*> TemplateParameterList;
 		TemplateParameterList.push_back(parseTemplateParameterDeclaration());
@@ -1467,7 +1467,7 @@ Node* Parser::parsePropertyBlock() {
 	case TokenKind::Read:
 	{
 		stream.consume(TokenKind::Read);
-		if (!stream.match(TokenKind::Equals))
+		if (!stream.match(TokenKind::Equal))
 			throw std::runtime_error("Expected '{' in __property");
 		getter = parseIdeitfierScope();
 		break;
@@ -1475,7 +1475,7 @@ Node* Parser::parsePropertyBlock() {
 	case TokenKind::Write:
 	{
 		stream.consume(TokenKind::Write);
-		if (!stream.match(TokenKind::Equals))
+		if (!stream.match(TokenKind::Equal))
 			throw std::runtime_error("Expected '{' in __property");
 		setter = parseIdeitfierScope();
 		break;
@@ -1494,7 +1494,7 @@ Node* Parser::parsePropertyBlock() {
 				throw std::runtime_error("getter duplicate");
 			
 			stream.consume(TokenKind::Read);
-			if (!stream.match(TokenKind::Equals))
+			if (!stream.match(TokenKind::Equal))
 				throw std::runtime_error("Expected '{' in __property");
 			getter = parseIdeitfierScope();
 
@@ -1506,7 +1506,7 @@ Node* Parser::parsePropertyBlock() {
 				throw std::runtime_error("setter duplicate");
 			
 			stream.consume(TokenKind::Write);
-			if (!stream.match(TokenKind::Equals))
+			if (!stream.match(TokenKind::Equal))
 				throw std::runtime_error("Expected '{' in __property");
 			setter = parseIdeitfierScope();
 

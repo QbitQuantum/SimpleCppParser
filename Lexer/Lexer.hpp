@@ -50,7 +50,7 @@ private:
     {':', &Lexer::Colon},
     {';', &Lexer::Semicolon},
     {'<', &Lexer::Less},
-    {'=', &Lexer::Equals},
+    {'=', &Lexer::Equal},
     {'>', &Lexer::Greater},
     {'@', &Lexer::At},
     {'\\', &Lexer::Backslash},
@@ -101,7 +101,7 @@ private:
     void Colon() { DEF_GENERATION_BASE(Colon); };
     void Semicolon() { DEF_GENERATION_BASE(Semicolon); };
     void Less() { DEF_GENERATION_BASE(Less); };
-    void Equals() { DEF_GENERATION_BASE(Equals); };
+    void Equal() { DEF_GENERATION_BASE(Equal); };
     void Greater() { DEF_GENERATION_BASE(Greater); };
     void At() { DEF_GENERATION_BASE(At); };
     void Backslash() { DEF_GENERATION_BASE(Backslash); };
