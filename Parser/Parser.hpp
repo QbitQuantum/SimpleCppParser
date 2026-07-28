@@ -550,7 +550,29 @@ Node* Parser::parseNamespaceBody() {
 }
 
 Node* Parser::parseNamespaceBlock() {
-	return parseTopLevel();
+	NodeBlock* block = new NodeBlock();
+
+	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
+		Node* stmt = nullptr;
+		switch (stream.peek().type) {
+		case TokenKind::Using:				stmt = parseUsing(); break;
+		case TokenKind::Pointer:			stmt = parsePointer(); break;
+		case TokenKind::Var:				stmt = parseVar(); break;
+		case TokenKind::Function:			stmt = parseFunction(); break;
+		case TokenKind::Class:				stmt = parseClass(); break;
+		case TokenKind::Struct:				stmt = parseStruct(); break;
+		case TokenKind::IdentifierLiteral:	stmt = parseIdentifier(); break;
+		case TokenKind::Namespace:			stmt = parseNamespace(); break;
+		case TokenKind::Template:			stmt = parseTemplate(); break;
+
+		default:
+			stream.consume(stream.peek().type);
+			break;
+		}
+		if (stmt) block->add(stmt);
+	}
+
+	return block;
 }
 
 Node* Parser::parseVar() {
