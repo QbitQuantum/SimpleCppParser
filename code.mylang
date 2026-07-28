@@ -3,7 +3,7 @@
 using string = [const System::UnicodeString];
 
 // SystemTemplate<WideString>
-using<T> SystemTemplate = [System::T];
+using<T> SystemTemplate = [System::Vector<T>];
 
 pointer BaseTabDataCompare = [bool](var[BaseData&], var[BaseData&]);
 pointer<T> BaseTabAction = [T](var[OctetBaseNode*], var[string] KeyFieldValue, var[int] ElementIndex);
