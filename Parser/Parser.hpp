@@ -111,7 +111,7 @@ private:
 
 	// Парсинг объяление пространства имён
 	Node* parseNamespace();
-	Node* parseNamespaceQulifier();
+	Node* parseNamespaceQualifier();
 	Node* parseNamespaceName();
 	Node* parseNamespaceDeclaration();
 	Node* parseNamespaceScope();
@@ -144,7 +144,7 @@ private:
 	Node* parseFunction();
 	Node* parseFunctionTemplateParameterDeclarationList();
 	Node* parseFunctionReturnType();
-	Node* parseFunctionQulifier();
+	Node* parseFunctionQualifier();
 	Node* parseFunctionName();
 	Node* parseFunctionParameter();
 	Node* parseFunctionParameterList();
@@ -162,13 +162,13 @@ private:
 	// Парсинг конструктора
 	Node* parseConstructor();
 	Node* parseConstructorTemplateParameterDeclarationList();
-	Node* parseConstructorQulifier();
+	Node* parseConstructorQualifier();
 	Node* parseConstructorParameterList();
 	Node* parseConstructorBody();
 
 	// Парсинг деструктора
 	Node* parseDestructor();
-	Node* parseDestructorQulifier();
+	Node* parseDestructorQualifier();
 	Node* parseDestructorParameterList();
 	Node* parseDestructorBody();
 
@@ -495,7 +495,7 @@ Node* Parser::parseNamespace() {
 
 	stream.consume(TokenKind::Namespace);
 
-	Node* NamespaceQulifier = parseNamespaceQulifier();
+	Node* NamespaceQualifier = parseNamespaceQualifier();
 
 	Node* NamespaceName = parseNamespaceName();
 
@@ -504,7 +504,7 @@ Node* Parser::parseNamespace() {
 	return new NodeNamespace(NamespaceName, NamespaceDeclaration);
 }
 
-Node* Parser::parseNamespaceQulifier() {
+Node* Parser::parseNamespaceQualifier() {
 	if (!stream.match(TokenKind::LeftBracket)) {
 		// Необязательный — если нет, пропускаем
 	}
@@ -1170,7 +1170,7 @@ Node* Parser::parseFunction() {
 
 	Node* FunctionType = parseFunctionReturnType();
 
-	Node* FunctionQuliafier = parseFunctionQulifier();
+	Node* FunctionQuliafier = parseFunctionQualifier();
 
 	Node* FunctionName = parseFunctionName();
 
@@ -1200,7 +1200,7 @@ Node* Parser::parseFunctionReturnType() {
 	return parseType();
 }
 
-Node* Parser::parseFunctionQulifier() {
+Node* Parser::parseFunctionQualifier() {
 	if (!stream.match(TokenKind::LeftBracket)) {
 		// Необязательный — если нет, пропускаем
 	}
@@ -1334,7 +1334,7 @@ Node* Parser::parseConstructor() {
 
 	Node* ConstructorTemplateParameterDeclarationList = parseConstructorTemplateParameterDeclarationList();
 
-	Node* ConstructorQulifier = parseConstructorQulifier();
+	Node* ConstructorQualifier = parseConstructorQualifier();
 
 	Node* ConstructorParameterList = parseConstructorParameterList();
 
@@ -1347,7 +1347,7 @@ Node* Parser::parseConstructorTemplateParameterDeclarationList() {
 	return parseFunctionTemplateParameterDeclarationList();
 }
 
-Node* Parser::parseConstructorQulifier() {
+Node* Parser::parseConstructorQualifier() {
 	if (!stream.match(TokenKind::LeftBracket)) {
 		// Необязательный — если нет, пропускаем
 	}
@@ -1371,7 +1371,7 @@ Node* Parser::parseDestructor() {
 
 	stream.consume(TokenKind::Destructor);
 
-	Node* DestructorQulifier = parseDestructorQulifier();
+	Node* DestructorQualifier = parseDestructorQualifier();
 
 	Node* DestructorParameterList = parseDestructorParameterList();
 
@@ -1380,7 +1380,7 @@ Node* Parser::parseDestructor() {
 	return new NodeDestructor(DestructorParameterList, DestructorBody);
 }
 
-Node* Parser::parseDestructorQulifier() {
+Node* Parser::parseDestructorQualifier() {
 	if (!stream.match(TokenKind::LeftBracket)) {
 		// Необязательный — если нет, пропускаем
 	}
