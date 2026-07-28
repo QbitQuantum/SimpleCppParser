@@ -140,9 +140,9 @@ public:
     function[bool] Write(var[string], var[string] Data, var[TStringStream*] Response = NULL);
 
     // properties
-    __property[TNetHTTPClient*] Client { write = __asyncclient };
-    __property[int] ConnectionTimeout { write = __contime };
-    __property[int] ResponseTimeout { write = __restime };
+    property[TNetHTTPClient*] Client { write = __asyncclient };
+    property[int] ConnectionTimeout { write = __contime };
+    property[int] ResponseTimeout { write = __restime };
 
     constructor(
         var[TComponent*], 

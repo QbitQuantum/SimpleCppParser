@@ -134,7 +134,7 @@ static const std::unordered_map<uint32_t, TokenKind> TokenKeywordMap = {
     {ConstexprCppHash("operator"),     TokenKind::Operator },
 
     // ===== Прочее =====
-    {ConstexprCppHash("__property"),   TokenKind::Property },
+    {ConstexprCppHash("property"),     TokenKind::Property },
     {ConstexprCppHash("read"),         TokenKind::Read },
     {ConstexprCppHash("write"),        TokenKind::Write },
     {ConstexprCppHash("delegate"),     TokenKind::Delegate },
