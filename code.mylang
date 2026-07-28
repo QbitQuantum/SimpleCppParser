@@ -26,13 +26,6 @@ namespace[inline] CL1::CD1
 // Пример шаблонного типа
 // Это шаблоны из C++
 // Где-то плачет разработчик на С++
-/*
-Я не уверен стоит ли поддерживать синтаксис function<T>
-Но писать function<T, K, W, Z> проще, чем
-function<using T, using K, using W, using Z>, хотя если сравнивать с С++
-function<typename T, typename K, typename W, typename Z>
-то у меня еще прилично я бы сказал
-*/
 template TemplateDescription =
     A, // // только тип
     using B = [string], // только тип
