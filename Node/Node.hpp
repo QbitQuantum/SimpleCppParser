@@ -185,23 +185,6 @@ public:
     };
 };
 
-class NodeAccess : public Node
-{
-    Node* Name = nullptr;
-    Node* Scope = nullptr;
-public:
-    NodeAccess(Node* name, Node* scope) :
-        Name(name), Scope(scope) {};
-    std::string print() override { 
-        if (!Name || !Scope) return "";
-        return "access " + Name->print() + " = " + Scope->print(); 
-    };
-    ~NodeAccess() {
-        delete Name;
-        delete Scope;
-    };
-};
-
 class NodeUsingSimple : public Node
 {
 public:

@@ -142,8 +142,6 @@ static const std::unordered_map<uint32_t, TokenKind> TokenKeywordMap = {
     {ConstexprCppHash("function"),     TokenKind::Function },
     {ConstexprCppHash("lambda"),       TokenKind::Lambda },
     {ConstexprCppHash("default"),      TokenKind::Default },
-
-    {ConstexprCppHash("access"),       TokenKind::Access },
     {ConstexprCppHash("using"),         TokenKind::Using },
     {ConstexprCppHash("pointer"),      TokenKind::Pointer },
 

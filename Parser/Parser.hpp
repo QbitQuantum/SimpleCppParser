@@ -69,7 +69,6 @@ private:
 	std::vector<Node*> ast;
 
 	Node* parseTopLevel();
-	Node* parseNamespaceBlock();
 	Node* parseTryBlock();
 	Node* parseCatchBlock();
 
@@ -109,11 +108,15 @@ private:
 	Node* parsePointerSignature();
 	Node* parsePointerReturnType();
 	Node* parsePointerParameterList();
-	
+
 	// Парсинг объяление пространства имён
-	Node* parseAccess();
-	Node* parseAccessName();
-	Node* parseAccessScope();
+	Node* parseNamespace();
+	Node* parseNamespaceQulifier();
+	Node* parseNamespaceName();
+	Node* parseNamespaceDeclaration();
+	Node* parseNamespaceScope();
+	Node* parseNamespaceBody();
+	Node* parseNamespaceBlock();
 
 	// Парсинг объяление переменных
 	Node* parseVar();
@@ -183,7 +186,6 @@ private:
 	Node* parseWhileBlock();
 
 	Node* parseNodeCall(Node* Func);
-	Node* parseNamespace();
 	Node* parseTryCatch();
 
 	Node* parsePrimary();
@@ -243,7 +245,6 @@ private:
 
 Node* Parser::parseTopLevel() {
 	switch (stream.peek().type) {
-	case TokenKind::Access:   return parseAccess();
 	case TokenKind::Using:    return parseUsing();
 	case TokenKind::Pointer:  return parsePointer();
 	case TokenKind::Var:      return parseVar();
@@ -256,52 +257,6 @@ Node* Parser::parseTopLevel() {
 	default:
 		return nullptr;
 	}
-}
-
-Node* Parser::parseNamespace() {
-
-	stream.consume(TokenKind::Namespace);
-
-	// Stub
-	if (stream.match(TokenKind::LeftBracket))
-		while (stream.peek().type != TokenKind::RightBracket)
-			stream.consume(stream.peek().type);
-	stream.consume(TokenKind::RightBracket);
-
-	if (stream.peek().type != TokenKind::IdentifierLiteral)
-		throw std::runtime_error("Expected IdentifierLiteral token");
-	Node* Name = parseIdeitfierScope();
-
-	if (stream.peek().type != TokenKind::LeftBrace)
-		throw std::runtime_error("Expected LeftBrace token");
-	stream.consume(TokenKind::LeftBrace);
-
-	Node* body = parseNamespaceBlock();
-
-	if (stream.peek().type == TokenKind::RightBrace)
-		stream.consume(TokenKind::RightBrace);
-
-	return new NodeNamespace(Name, body);
-}
-
-Node* Parser::parseNamespaceBlock() {
-
-	NodeBlock* block = new NodeBlock();
-
-	while (!stream.eof() && stream.peek().type != TokenKind::RightBrace) {
-		Node* stmt = nullptr;
-		switch (stream.peek().type) {
-		case TokenKind::Var:		stmt = parseVar(); break;
-		case TokenKind::Function:	stmt = parseFunction(); break;
-		case TokenKind::Class:		stmt = parseClass(); break;
-		case TokenKind::Namespace:	stmt = parseNamespace(); break;
-		default:
-			stream.consume(stream.peek().type);
-			break;
-		}
-		if (stmt) block->add(stmt);
-	}
-	return block;
 }
 
 Node* Parser::parseIdeitfierScope() {
@@ -536,35 +491,67 @@ Node* Parser::parsePointerParameterList() {
 	return parseFunctionParameterList();
 };
 
-Node* Parser::parseAccess() {
+Node* Parser::parseNamespace() {
 
-	stream.consume(TokenKind::Access);
+	stream.consume(TokenKind::Namespace);
 
-	Node* AccessName = parseAccessName();
+	Node* NamespaceQulifier = parseNamespaceQulifier();
 
-	Node* AccessScope = parseAccessScope();
+	Node* NamespaceName = parseNamespaceName();
 
-	return new NodeAccess(AccessName, AccessScope);
-};
+	Node* NamespaceDeclaration = parseNamespaceDeclaration();
 
-Node* Parser::parseAccessName() {
+	return new NodeNamespace(NamespaceName, NamespaceDeclaration);
+}
 
+Node* Parser::parseNamespaceQulifier() {
+	if (!stream.match(TokenKind::LeftBracket)) {
+		// Необязательный — если нет, пропускаем
+	}
+	else {
+		while (!stream.match(TokenKind::RightBracket)) {
+			stream.consume(stream.peek().type);
+		}
+	}
+	return nullptr;
+}
+
+Node* Parser::parseNamespaceName() {
 	if (stream.peek().type != TokenKind::IdentifierLiteral)
 		throw std::runtime_error("Expected IdentifierLiteral token");
 	return parseIdeitfierScope();
-};
+}
 
-Node* Parser::parseAccessScope() {
+Node* Parser::parseNamespaceDeclaration() {
+	if (stream.match(TokenKind::Equal))
+		return parseNamespaceScope();
+	return parseNamespaceBody();
+}
 
-	if (stream.peek().type != TokenKind::Equal)
-		throw std::runtime_error("Expected Equal token");
-	stream.consume(TokenKind::Equal);
-
+Node* Parser::parseNamespaceScope() {
 	if (stream.peek().type != TokenKind::IdentifierLiteral)
 		throw std::runtime_error("Expected Equal token");
-
 	return parseScope();
-};
+}
+
+Node* Parser::parseNamespaceBody() {
+
+	if (stream.peek().type != TokenKind::LeftBrace)
+		throw std::runtime_error("Expected RightBrace token");
+	stream.consume(TokenKind::LeftBrace);
+
+	Node* Body = parseNamespaceBlock();
+
+	if (stream.peek().type != TokenKind::RightBrace)
+		throw std::runtime_error("Expected RightBrace token");
+	stream.consume(TokenKind::RightBrace);
+
+	return Body;
+}
+
+Node* Parser::parseNamespaceBlock() {
+	return parseTopLevel();
+}
 
 Node* Parser::parseVar() {
 
@@ -575,6 +562,8 @@ Node* Parser::parseVar() {
 	Node* VarType = parseVarType();
 
 	Node* VarDeclarationList = parseVarDeclarationList();
+
+	stream.consume(TokenKind::Semicolon);
 
 	return new NodeVarDeclarationList(VarTemplateParameterDeclarationList, VarType, VarDeclarationList);
 }
