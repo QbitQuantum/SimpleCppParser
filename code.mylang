@@ -10,10 +10,10 @@ pointer<T> BaseTabAction = [T](var[OctetBaseNode*], var[string] KeyFieldValue, v
 pointer<T> EDataRead = BaseTabAction<BaseTabAction>;
 
 // Объявление псевднимов для пространств имён
-access BaseRequest = OctetBaseLink::OctetBaseLinkRequest;
-access LinkConnection = link::connection;
-access LinkResponse = link::response;
-access LinkType = link::type;
+namespace BaseRequest = OctetBaseLink::OctetBaseLinkRequest;
+namespace LinkConnection = link::connection;
+namespace LinkResponse = link::response;
+namespace LinkType = link::type;
 
 namespace[inline] CL1::CD1
 {
