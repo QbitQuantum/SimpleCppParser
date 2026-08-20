@@ -266,7 +266,15 @@ Node* Parser::parseIdeitfierScope() {
 	while (true) {
 		switch (stream.peek().type) {
 		case TokenKind::IdentifierLiteral:
-			Identifier = stream.consume(TokenKind::IdentifierLiteral).value;
+			// Костыль
+			if (Identifier.empty())
+			{
+				Identifier = stream.consume(TokenKind::IdentifierLiteral).value;
+			}
+			else
+			{
+				return new NodeIdentifier(IdentifierTemplateParameterInstantiationList, Identifier, new NodeScope(Scope));
+			}
 			break;
 		case TokenKind::ScResOp:
 			stream.consume(TokenKind::ScResOp);
