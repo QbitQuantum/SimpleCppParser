@@ -45,6 +45,7 @@ public:
         NONE, POINTER, REF, RVALUE
     };
     Node* Type = nullptr;
+    Node* SizeArgCArray = nullptr;
     bool IsConst = false;
     EType eType = EType::NONE;
     std::string getSymbol() const {
@@ -57,17 +58,22 @@ public:
         }
     }
 public:
-    NodeType(Node* type, bool isConst, EType etype) :
-        Type(type), IsConst(isConst), eType(etype) {};
+    NodeType(Node* type, Node* sizeArgCArray, bool isConst, EType etype) :
+        Type(type), SizeArgCArray(sizeArgCArray), IsConst(isConst), eType(etype) {};
 
     std::string print() override {
-        std::string fprint = "[" + (IsConst ? std::string("const ") : std::string("")) + Type->print() +
+        
+        if (!Type) return "";
+        std::string fprint = "[" + 
+            (IsConst ? std::string("const ") : std::string("")) + 
+            Type->print() + (SizeArgCArray ? "[" + SizeArgCArray->print() + "]" : "") +
             getSymbol() + "]";
         return fprint;
     };
 
     ~NodeType() {
         delete Type;
+        delete SizeArgCArray;
     }
 };
 

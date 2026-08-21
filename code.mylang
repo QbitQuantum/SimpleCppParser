@@ -89,6 +89,8 @@ protected:
     // internal data
     function[bool] _start(var[LLinkWorkType], var[string]);
 
+    var[const int[5]] c_array;
+
     var[TNetHTTPClient*] __client = nullptr, __asyncclient = nullptr;
     var[LLinkWorkType] __work = lwIdle;
 

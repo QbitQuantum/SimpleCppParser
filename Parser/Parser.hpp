@@ -205,6 +205,7 @@ private:
 
 	Node* parseIdeitfierScope();
 	Node* parseScope();
+	Node* parseSizeArgCArray();
 
 public:
 	std::vector<Token> ParserEngineBuffer;
@@ -311,6 +312,19 @@ Node* Parser::parseScope() {
 	}
 }
 
+Node* Parser::parseSizeArgCArray() {
+	switch (stream.peek().type) {
+	case TokenKind::IdentifierLiteral:
+		return parseIdentifier();
+	case TokenKind::IntegerLiteral:
+	case TokenKind::HexLiteral:
+	case TokenKind::BinaryLiteral:
+		return parseNodeInteger(); break;
+	default: break;
+	}
+	throw std::runtime_error("Not correct token");
+}
+
 Node* Parser::parseType() {
 
 	/*
@@ -327,6 +341,7 @@ Node* Parser::parseType() {
 	stream.consume(TokenKind::LeftBracket);
 
 	Node* Type = nullptr;
+	Node* SizeArgCArray = nullptr;
 	bool IsConst = false;
 	NodeType::EType eType = NodeType::EType::NONE;
 
@@ -340,6 +355,13 @@ Node* Parser::parseType() {
 
 	// Парсим имя типа
 	Type = parseIdeitfierScope();
+
+	if (stream.match(TokenKind::LeftBracket))
+	{
+		SizeArgCArray = parseSizeArgCArray();
+		if (!stream.match(TokenKind::RightBracket))
+			throw std::runtime_error("Expected RightBracket token");
+	}
 
 	// Проверяем семантику 
 	switch (stream.peek().type)
@@ -363,7 +385,7 @@ Node* Parser::parseType() {
 	if (!stream.match(TokenKind::RightBracket))
 		throw std::runtime_error("Expected RightBracket token");
 
-	return new NodeType(Type, IsConst, eType);
+	return new NodeType(Type, SizeArgCArray, IsConst, eType);
 };
 
 Node* Parser::parseDeclaration() {
